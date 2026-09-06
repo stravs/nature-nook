@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+import { getSiteConfig } from '../config/site';
+import type { Locale } from '../i18n';
+import { defaultLocale, localePath, locales, pathWithoutLocale } from '../i18n';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string | undefined;
+  image?: string | undefined;
+  noindex?: boolean | undefined;
+  jsonLd?: Record<string, unknown> | undefined;
+  locale?: Locale;
+  alternates?: boolean;
+}
+
+const { title, description, canonical, image, noindex = false, jsonLd, locale = defaultLocale, alternates = false } = Astro.props;
+const siteConfig = await getSiteConfig();
+const fontFamilies = [...new Set([siteConfig.design.fonts.heading, siteConfig.design.fonts.body])];
+const googleFontsUrl = `https://fonts.googleapis.com/css2?${fontFamilies.map((family) => `family=${encodeURIComponent(family)}:wght@400;500;600;700;800`).join('&')}&display=swap`;
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+const localeAlternates = alternates ? locales.map((item) => ({
+  locale: item,
+  url: new URL(localePath(item, pathWithoutLocale(Astro.url.pathname)), Astro.site ?? Astro.url.origin).href,
+})) : [];
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href={googleFontsUrl}
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {localeAlternates.map((alternate) => <link rel="alternate" hreflang={alternate.locale} href={alternate.url} />)}
+    {localeAlternates.length > 0 && <link rel="alternate" hreflang="x-default" href={localeAlternates.find((item) => item.locale === defaultLocale)?.url} />}
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale === 'sl' ? 'sl_SI' : 'en_US'} />
+    {locales.filter((item) => item !== locale).map((item) => <meta property="og:locale:alternate" content={item === 'sl' ? 'sl_SI' : 'en_US'} />)}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    {image && <meta property="og:image" content={image} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body><slot /></body>
+</html>

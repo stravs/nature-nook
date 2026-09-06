@@ -1,0 +1,179 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { localizeProperty, propertyLocation } from '../../domain/property';
+import { propertyRepository } from '../../repositories/property-repository';
+import { languageNames, localePath, locales } from '../../i18n';
+import { getSiteConfig } from '../../config/site';
+
+const sourceProperty = await propertyRepository.get();
+if (!sourceProperty) return Astro.redirect('/setup');
+const property = localizeProperty(sourceProperty, 'sl');
+const largestUnitCapacity = Math.max(0, ...property.units.map((unit) => unit.maxGuests ?? 0));
+
+const location = propertyLocation(property);
+const mapsUrl = property.latitude !== undefined && property.longitude !== undefined
+  ? `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`
+  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+const title = `Vodnik za goste | ${property.name}`;
+const description = `Praktične informacije za bivanje v ${property.name}: prihod, odhod, oprema, hišni red in kontakti.`;
+const sections = [
+  ['prihod', 'Prihod'],
+  ['nastanitev', 'Nastanitev'],
+  ['oprema', 'Oprema'],
+  ['dozivetja', 'Doživetja'],
+  ['hrana', 'Hrana'],
+  ['hisni-red', 'Hišni red'],
+  ['odhod', 'Odhod'],
+  ['pomoc', 'Pomoč'],
+];
+const config = await getSiteConfig();
+const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:${JSON.stringify(config.design.fonts.heading)},ui-rounded,system-ui,sans-serif;--font-body:${JSON.stringify(config.design.fonts.body)},system-ui,sans-serif`;
+---
+<BaseLayout {title} {description} locale="sl" alternates noindex>
+  <div class="guest-site" data-site-slug={config.site.slug} data-edges={config.design.edges} style={designStyle}>
+  <header class="guest-header">
+    <a class="brand" href="/sl/" aria-label={`${property.name} – domača stran`}>{property.name}</a>
+    <nav class="site-actions" aria-label="Jezik in navigacija">
+      <span class="language-switcher">{locales.map((item) => <a href={localePath(item, 'guests')} lang={item} aria-current={item === 'sl' ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
+      <a class="guest-header-link" href="/sl/">← Nazaj na nastanitev</a>
+    </nav>
+  </header>
+
+  <div class="guest-shell">
+    <aside class="guest-sidebar" aria-label="Kazalo vodnika">
+      <div class="guest-sidebar-inner">
+        <p class="guest-sidebar-label">Vodnik za goste</p>
+        <nav>
+          {sections.map(([id, label], index) => <a href={`#${id}`}><span>{String(index + 1).padStart(2, '0')}</span>{label}</a>)}
+        </nav>
+        <div class="guest-sidebar-help">
+          <p>Vam lahko pomagamo?</p>
+          {property.contact?.phone
+            ? <a href={`tel:${property.contact.phone}`}>{property.contact.phone}</a>
+            : <span>Pišite nam prek svoje rezervacije.</span>}
+        </div>
+      </div>
+    </aside>
+
+    <main class="guest-doc">
+      <div class="guest-hero">
+        <p class="eyebrow">Dobrodošli v {property.name}</p>
+        <h1>Lepo, da ste pri nas.</h1>
+        <p>Želimo, da se že od prvega trenutka počutite domače. Tukaj smo za vas zbrali vse, kar vam bo med bivanjem prišlo prav.</p>
+        <div class="guest-meta">
+          {property.checkIn && <div><span>Prihod</span><strong>{property.checkIn}</strong></div>}
+          {property.checkOut && <div><span>Odhod</span><strong>{property.checkOut}</strong></div>}
+          {largestUnitCapacity > 0 && <div><span>Gostje</span><strong>do {largestUnitCapacity}</strong></div>}
+        </div>
+      </div>
+
+      <section class="doc-section" id="prihod">
+        <div class="doc-number">01</div>
+        <div class="doc-content">
+          <p class="eyebrow">Se vidimo kmalu</p>
+          <h2>Kako pridete do nas</h2>
+          <p class="doc-lead">Najdete nas na naslovu <strong>{location}</strong>. Podrobnosti o prevzemu ključev smo vam poslali v sporočilih rezervacije.</p>
+          <div class="info-grid">
+            <article><span class="info-icon" aria-hidden="true">↳</span><h3>Čas prihoda</h3><p>{property.checkIn ?? 'Po dogovoru z gostiteljem'}</p></article>
+            <article><span class="info-icon" aria-hidden="true">⌖</span><h3>Navigacija</h3><p>{location}</p><a href={mapsUrl} target="_blank" rel="noopener">Odpri v Google Maps ↗</a></article>
+          </div>
+          <aside class="doc-note"><strong>Samo sporočite nam</strong><p>Če boste prišli pozneje ali se vam pot zavleče, nam pišite. Brez skrbi, skupaj bomo uredili prihod.</p></aside>
+        </div>
+      </section>
+
+      <section class="doc-section" id="nastanitev">
+        <div class="doc-number">02</div>
+        <div class="doc-content">
+          <p class="eyebrow">Naj bo kot doma</p><h2>Vaš prostor</h2>
+          <p class="doc-lead">{property.description}</p>
+          {property.units.some((unit) => unit.rooms.length) && <div class="room-list">
+            {property.units.flatMap((unit) => unit.rooms.map((room) => ({ ...room, unitName: property.units.length > 1 ? unit.name : undefined }))).map((room) => <article><div><h3>{room.unitName ? `${room.unitName} · ${room.name}` : room.name}</h3>{room.beds && <p>{room.beds}</p>}</div>{room.sleeps && <span>za {room.sleeps}</span>}</article>)}
+          </div>}
+        </div>
+      </section>
+
+      <section class="doc-section" id="oprema">
+        <div class="doc-number">03</div>
+        <div class="doc-content">
+          <p class="eyebrow">Pripravili smo za vas</p><h2>Oprema in udobje</h2>
+          <p class="doc-lead">Spodaj najdete vse, kar vas čaka v nastanitvi. Če česa ne najdete ali ne veste, kako deluje, nam kar pišite.</p>
+          <ul class="amenity-doc-list">{property.amenities.map((amenity) => <li><span aria-hidden="true">✓</span>{amenity}</li>)}</ul>
+        </div>
+      </section>
+
+      <section class="doc-section" id="dozivetja">
+        <div class="doc-number">04</div>
+        <div class="doc-content">
+          <p class="eyebrow">Naši predlogi</p><h2>Kaj radi počnemo v bližini</h2>
+          <div class="place-list">
+            <a href="https://www.bled.si/en/what-to-see-do/attractions/" target="_blank" rel="noopener"><div><h3>Sprehod okoli jezera</h3><p>Lahek sprehod · razgledi na otok in grad</p></div><span>Na prostem ↗</span></a>
+            <a href="https://www.bled.si/en/what-to-see-do/attractions/15/bled-castle/" target="_blank" rel="noopener"><div><h3>Blejski grad</h3><p>Razgled, muzej in zgodovina nad jezerom</p></div><span>Kultura ↗</span></a>
+            <a href="https://www.bled.si/en/what-to-see-do/attractions/6/vintgar-gorge/" target="_blank" rel="noopener"><div><h3>Soteska Vintgar</h3><p>1,6 km soteske · približno 4 km iz Bleda</p></div><span>Narava ↗</span></a>
+            <a href="https://www.bled.si/en/what-to-see-do/attractions/" target="_blank" rel="noopener"><div><h3>Ojstrica</h3><p>Kratek, strmejši vzpon do ikoničnega razgleda</p></div><span>Pohod ↗</span></a>
+          </div>
+          <p class="section-source">Majhen nasvet: pred odhodom preverite vreme in odpiralni čas. Za idejo po meri pa nas kar vprašajte.</p>
+        </div>
+      </section>
+
+      <section class="doc-section" id="hrana">
+        <div class="doc-number">05</div>
+        <div class="doc-content">
+          <p class="eyebrow">Naši okusni namigi</p><h2>Kam bi vas poslali jest</h2>
+          <div class="place-list">
+            <a href="https://www.google.com/maps/search/?api=1&query=Blejska+hi%C5%A1a+Bled" target="_blank" rel="noopener"><div><h3>Blejska hiša</h3><p>Lokalne jedi in izdelki</p></div><span>Lokalno ↗</span></a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Restavracija+1906+Bled" target="_blank" rel="noopener"><div><h3>Restavracija 1906</h3><p>Sodobna slovenska kulinarika</p></div><span>Posebna večerja ↗</span></a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Grajska+pla%C5%BEa+Restaurant+Bled" target="_blank" rel="noopener"><div><h3>Grajska plaža</h3><p>Ob jezeru, pod grajsko skalo</p></div><span>Ob jezeru ↗</span></a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Kavarna+Park+Bled" target="_blank" rel="noopener"><div><h3>Kavarna Park</h3><p>Originalna blejska kremna rezina</p></div><span>Sladica ↗</span></a>
+          </div>
+          <p class="section-source">To so naši izbrani namigi. Za vsak slučaj preverite odpiralni čas ali rezervirajte mizo. Več možnosti najdete v <a href="https://www.bled.si/en/what-to-see-do/cuisine/catering-facilities/" target="_blank" rel="noopener">uradnem vodiču Bleda ↗</a></p>
+        </div>
+      </section>
+
+      <section class="doc-section" id="hisni-red">
+        <div class="doc-number">06</div>
+        <div class="doc-content">
+          <p class="eyebrow">Le nekaj prijaznih prošenj</p><h2>Da bo prijetno za vse</h2>
+          <p class="doc-lead">Pri nas ni dolgega seznama pravil. Prosimo le, da prostor čuvate kot svojega in ste prijazni do naših sosedov.</p>
+          <ul class="rule-list">
+            <li><span>01</span><div><h3>Mir za vse</h3><p>Zvečer bodite malo tišji, da lahko mir uživajo tudi naši sosedje.</p></div></li>
+            <li><span>02</span><div><h3>Če se kaj zgodi</h3><p>Ne skrbite — samo čim prej nam povejte, da lahko skupaj hitro uredimo.</p></div></li>
+            <li><span>03</span><div><h3>Gostje iz rezervacije</h3><p>Pri nas naj prenočijo le prijavljeni gostje. Če imate posebno željo, se z veseljem dogovorimo.</p></div></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="doc-section" id="odhod">
+        <div class="doc-number">07</div>
+        <div class="doc-content">
+          <p class="eyebrow">Preden pomahamo v slovo</p><h2>Odhod</h2>
+          <p class="doc-lead">Odhod je med <strong>{property.checkOut ?? 'dogovorjenim časom'}</strong>. Navodila za ključe smo vam poslali v rezervaciji; če jih ne najdete, nam pišite.</p>
+          <div class="checklist">
+            <label><input type="checkbox" /> <span>Preverite, da ste vzeli osebne predmete.</span></label>
+            <label><input type="checkbox" /> <span>Zaprite okna in ugasnite luči.</span></label>
+            <label><input type="checkbox" /> <span>Ključe vrnite po dogovoru z gostiteljem.</span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc-section" id="pomoc">
+        <div class="doc-number">08</div>
+        <div class="doc-content">
+          <p class="eyebrow">Kar oglasite se</p><h2>Tu smo, če nas potrebujete</h2>
+          <p class="doc-lead">Nobeno vprašanje ni odveč. Pišite ali pokličite nas in pomagali vam bomo po najboljših močeh.</p>
+          <div class="contact-card">
+            <div><p class="eyebrow">Gostitelj</p><h3>{property.name}</h3></div>
+            <div class="contact-links">
+              {property.contact?.phone && <a href={`tel:${property.contact.phone}`}>Pokliči · {property.contact.phone}</a>}
+              {property.contact?.email && <a href={`mailto:${property.contact.email}`}>Piši · {property.contact.email}</a>}
+              {!property.contact?.phone && !property.contact?.email && <a href={property.bookingUrl} rel="noopener">Odpri svojo rezervacijo ↗</a>}
+            </div>
+          </div>
+          <p class="emergency-note"><strong>Nujna pomoč v Sloveniji:</strong> pokličite <a href="tel:112">112</a>.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="guest-footer"><p>© {new Date().getFullYear()} {property.name}</p><a href="#top">Na vrh ↑</a></footer>
+  </div>
+</BaseLayout>

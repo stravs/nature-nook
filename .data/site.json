@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "site": {
+    "slug": "nature-nook",
+    "locale": "en",
+    "url": "https://nature-nook.example"
+  },
+  "design": {
+    "colors": {
+      "primary": "#183c2d",
+      "accent": "#c96f45",
+      "background": "#fbf7ed",
+      "surface": "#e3eadb",
+      "text": "#263028",
+      "muted": "#6f766b"
+    },
+    "fonts": {
+      "heading": "Baloo 2",
+      "body": "Nunito Sans"
+    },
+    "edges": "organic",
+    "gallery": "masonry",
+    "hero": "split",
+    "units": "compact",
+    "amenities": "band",
+    "contact": "card"
+  },
+  "sections": [
+    "intro",
+    "units",
+    "amenities",
+    "location",
+    "contact"
+  ],
+  "contact": {
+    "type": "both"
+  },
+  "guestGuide": true
+}

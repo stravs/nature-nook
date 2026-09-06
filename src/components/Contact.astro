@@ -1,0 +1,14 @@
+---
+import type { Property } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+interface Props { property: Property; locale: Locale; personalContact: boolean; bookingContact: boolean }
+const { property, locale, personalContact, bookingContact } = Astro.props;
+const t = useTranslations(locale);
+---
+<section class="booking-cta">
+  <p class="eyebrow">{t('holidayStarts')}</p><h2>{t('bookStay')}</h2>
+  {property.rating && <p>{t('guestRating')} <strong>{property.rating}</strong>{property.reviewCount ? ` · ${property.reviewCount} ${t('reviews')}` : ''}</p>}
+  {bookingContact && <a class="primary-button light" href={property.bookingUrl} rel="noopener">{t('bookOnBooking')}</a>}
+  {personalContact && property.contact?.email && <a class="primary-button light" href={`mailto:${property.contact.email}`}>{t('contactHost')}</a>}
+</section>

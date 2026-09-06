@@ -1,0 +1,19 @@
+---
+import type { Property } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+
+interface Props { property: Property; locale: Locale }
+const { property, locale } = Astro.props;
+const t = useTranslations(locale);
+const hero = property.photos[0];
+---
+<section class:list={["hero", { "hero--empty": !hero }]} aria-labelledby="property-title">
+  {hero ? <img src={hero.url} alt={hero.alt ?? property.name} width={hero.width ?? 1800} height={hero.height ?? 1200} fetchpriority="high" decoding="async" sizes="100vw" /> : <div class="image-empty">{t('propertyPhoto')}</div>}
+  <div class="hero-card">
+    <p class="eyebrow">{property.type ?? t('accommodation')} · {property.city}</p>
+    <h1 id="property-title">{property.name}</h1>
+    <p>{property.description.split(/(?<=[.!?])\s/)[0]}</p>
+    <a class="primary-button" href={property.bookingUrl} rel="noopener">{t('reserve')}</a>
+  </div>
+</section>

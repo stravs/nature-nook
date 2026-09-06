@@ -1,0 +1,23 @@
+---
+import type { Property } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+
+interface Props { property: Property; locale: Locale }
+const { property, locale } = Astro.props;
+const t = useTranslations(locale);
+const unit = property.units.length === 1 ? property.units[0] : undefined;
+const amenities = [...property.amenities, ...(unit?.amenities ?? [])];
+const hasWifi = amenities.some((amenity) => /wi[\s-]?fi|wireless|brezžič/i.test(amenity));
+const hasParking = amenities.some((amenity) => /parking|parkirišč/i.test(amenity));
+const facts = [
+  unit?.maxGuests ? t('guests', { count: unit.maxGuests }) : undefined,
+  unit?.bedrooms ? t('bedrooms', { count: unit.bedrooms }) : undefined,
+  unit?.areaSquareMetres ? `${unit.areaSquareMetres} m²` : undefined,
+  hasParking ? t('parking') : undefined,
+  hasWifi ? 'Wi-Fi' : undefined,
+].filter((fact): fact is string => Boolean(fact));
+---
+{facts.length > 0 && <section class="facts" aria-label={t('propertyOverview')}>
+  {facts.map((fact) => <span>{fact}</span>)}
+</section>}

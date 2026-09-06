@@ -1,0 +1,8 @@
+---
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+interface Props { amenities: string[]; locale: Locale }
+const { amenities, locale } = Astro.props;
+const t = useTranslations(locale);
+---
+<section class="amenities-section"><div class="section section-inner"><p class="eyebrow">{t('pleasantStay')}</p><h2>{t('amenitiesTitle')}</h2><ul>{amenities.slice(0, 10).map((amenity) => <li><span aria-hidden="true">✓</span>{amenity}</li>)}</ul></div></section>

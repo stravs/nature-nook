@@ -1,0 +1,30 @@
+---
+import type { Property, PropertyUnit } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+
+interface Props { unit: PropertyUnit; unitIndex: number; unitCount: number; fallbackPhotos: Property['photos']; locale: Locale }
+const { unit, unitIndex, unitCount, fallbackPhotos, locale } = Astro.props;
+const t = useTranslations(locale);
+const unitPhotos = unit.photos.length ? unit.photos : fallbackPhotos.slice(0, 1);
+const unitFacts = [
+  unit.maxGuests ? t('upToGuests', { count: unit.maxGuests }) : undefined,
+  unit.bedrooms ? t('bedrooms', { count: unit.bedrooms }) : undefined,
+  unit.bathrooms ? t('bathrooms', { count: unit.bathrooms }) : undefined,
+  unit.areaSquareMetres ? `${unit.areaSquareMetres} m²` : undefined,
+].filter((fact): fact is string => Boolean(fact));
+---
+<article class:list={["unit-card", unitCount === 1 ? "single-residence" : "multi-residence"]} id={`unit-${unit.id}`}>
+  <div class="unit-photos">
+    {unitPhotos.map((photo, index) => unit.photos.length
+      ? <button class="unit-photo-button" type="button" data-unit-index={unitIndex} data-unit-photo-index={index} aria-label={`${t('openUnitPhotos')} ${unit.name}`}><img src={photo.url} alt={photo.alt ?? `${unit.name}, ${t('photo').toLocaleLowerCase(locale)} ${index + 1}`} loading="lazy" decoding="async" /></button>
+      : <img src={photo.url} alt={photo.alt ?? unit.name} loading="lazy" decoding="async" />)}
+  </div>
+  <div class="unit-content">
+    <p class="eyebrow">{unit.type ?? t('unit')}</p><h3>{unit.name}</h3>
+    {unit.description && <p class="unit-description">{unit.description}</p>}
+    {unit.rooms.length > 0 && <div class="unit-rooms">{unit.rooms.map((room) => <div><strong>{room.name}</strong>{room.beds && <span>{room.beds}</span>}</div>)}</div>}
+    {unit.amenities.length > 0 && <ul class="unit-amenities">{unit.amenities.slice(0, 6).map((amenity) => <li><span aria-hidden="true">✓</span>{amenity}</li>)}</ul>}
+  </div>
+  {unitCount > 1 && unitFacts.length > 0 && <ul class="unit-details-bar" aria-label={`${t('unitDetails')} ${unit.name}`}>{unitFacts.map((fact) => <li>{fact}</li>)}</ul>}
+</article>

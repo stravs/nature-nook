@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Page from './Page.astro';
+import { localizeProperty, propertyMetaDescription, propertyLocation } from '../domain/property';
+import { propertyRepository } from '../repositories/property-repository';
+import { getSiteConfig } from '../config/site';
+import type { Locale } from '../i18n';
+import { localePath, useTranslations } from '../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const sourceProperty = await propertyRepository.get();
+if (!sourceProperty) return Astro.redirect('/setup');
+const property = localizeProperty(sourceProperty, locale);
+const t = useTranslations(locale);
+const siteConfig = await getSiteConfig();
+const description = propertyMetaDescription(property);
+const canonical = new URL(localePath(locale), Astro.site ?? Astro.url.origin).href;
+const allPhotos = [...property.photos, ...property.units.flatMap((unit) => unit.photos)];
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'LodgingBusiness', name: property.name,
+  description: property.description, url: canonical, image: allPhotos.map((photo) => photo.url),
+  address: { '@type': 'PostalAddress', streetAddress: property.address, addressLocality: property.city, addressCountry: property.country },
+  geo: property.latitude !== undefined && property.longitude !== undefined ? { '@type': 'GeoCoordinates', latitude: property.latitude, longitude: property.longitude } : undefined,
+  aggregateRating: property.rating && property.reviewCount ? { '@type': 'AggregateRating', ratingValue: property.rating, reviewCount: property.reviewCount, bestRating: 10 } : undefined,
+  sameAs: property.bookingUrl, knowsLanguage: ['sl', 'en'], slogan: propertyLocation(property),
+  containsPlace: property.units.map((unit) => ({ '@type': 'Accommodation', name: unit.name, description: unit.description, image: unit.photos.map((photo) => photo.url), occupancy: unit.maxGuests ? { '@type': 'QuantitativeValue', maxValue: unit.maxGuests } : undefined, floorSize: unit.areaSquareMetres ? { '@type': 'QuantitativeValue', value: unit.areaSquareMetres, unitCode: 'MTK' } : undefined })),
+};
+---
+<BaseLayout title={`${property.name} | ${property.city ?? t('homeTitleFallback')}`} {description} {canonical} image={property.photos[0]?.url} {jsonLd} {locale} alternates>
+  <Page {property} config={siteConfig} {locale} />
+</BaseLayout>

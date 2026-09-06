@@ -1,0 +1,207 @@
+{
+  "name": "Nature nook",
+  "type": "Apartma",
+  "description": "Prijeten apartma v mirnem zelenem kotičku v središču Bleda, le nekaj minut hoje od jezera. Zaseben vrt, naravni materiali in domačen prostor so odlično izhodišče za raziskovanje Julijskih Alp.",
+  "address": "Grič 15",
+  "city": "Bled",
+  "country": "Slovenija",
+  "latitude": 46.369473,
+  "longitude": 14.1150088,
+  "rating": 9.5,
+  "reviewCount": 22,
+  "photos": [
+    {
+      "url": "/images/nature-nook/153411983.jpg",
+      "alt": "Zasebna lesena terasa apartmaja Nature nook",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153412033.jpg",
+      "alt": "Nature nook in vrt pred nastanitvijo",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153411988.jpg",
+      "alt": "Kopalnica v živahnih modrih tonih",
+      "width": 512,
+      "height": 768
+    },
+    {
+      "url": "/images/nature-nook/153411997.jpg",
+      "alt": "Pripravljene brisače v kopalnici",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153411999.jpg",
+      "alt": "Leseno ležišče z rdečo posteljnino",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153412000.jpg",
+      "alt": "Spalni in dnevni kotiček",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153412001.jpg",
+      "alt": "Kuhinjski kotiček s kuhalno ploščo",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153412002.jpg",
+      "alt": "Vhodni prostor apartmaja",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153412003.jpg",
+      "alt": "Tradicionalni modri vrči",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153412011.jpg",
+      "alt": "Svetel dnevni prostor apartmaja",
+      "width": 1024,
+      "height": 683
+    },
+    {
+      "url": "/images/nature-nook/153412025.jpg",
+      "alt": "Leseni detajli v kuhinji",
+      "width": 512,
+      "height": 768
+    }
+  ],
+  "amenities": [
+    "Brezplačen Wi-Fi",
+    "Brezplačno zasebno parkirišče",
+    "Zasebna terasa",
+    "Vrt",
+    "Pogled na gore"
+  ],
+  "units": [
+    {
+      "id": "nature-nook-apartment",
+      "name": "Apartma Nature nook",
+      "type": "Apartma z 2 spalnicama",
+      "description": "Celoten apartma z zasebno teraso, kuhinjo in pogledom na vrt.",
+      "maxGuests": 4,
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "areaSquareMetres": 47,
+      "rooms": [
+        {
+          "name": "Prva spalnica",
+          "sleeps": 2,
+          "beds": "1 velika zakonska postelja"
+        },
+        {
+          "name": "Druga spalnica",
+          "sleeps": 2,
+          "beds": "2 enojni postelji"
+        }
+      ],
+      "amenities": [
+        "Popolnoma opremljena kuhinja",
+        "Zasebna terasa"
+      ],
+      "photos": [
+        {
+          "url": "/images/nature-nook/153412007.jpg",
+          "alt": "Svetel dnevni prostor"
+        },
+        {
+          "url": "/images/nature-nook/153411995.jpg",
+          "alt": "Spalnica z veliko zakonsko posteljo"
+        },
+        {
+          "url": "/images/nature-nook/153412022.jpg",
+          "alt": "Opremljena kuhinja apartmaja"
+        },
+        {
+          "url": "/images/nature-nook/153411998.jpg",
+          "alt": "Kopalnica s prho"
+        },
+        {
+          "url": "/images/nature-nook/153411985.jpg",
+          "alt": "Zasebni zeleni vrt z ležalnikoma"
+        },
+        {
+          "url": "/images/nature-nook/153411984.jpg",
+          "alt": "Lesena pot ob nastanitvi"
+        },
+        {
+          "url": "/images/nature-nook/153411991.jpg",
+          "alt": "Dnevni prostor z visečim stolom"
+        },
+        {
+          "url": "/images/nature-nook/153412014.jpg",
+          "alt": "Jedilna miza ob velikih oknih"
+        },
+        {
+          "url": "/images/nature-nook/153412019.jpg",
+          "alt": "Kuhinja in vhod na teraso"
+        },
+        {
+          "url": "/images/nature-nook/153412029.jpg",
+          "alt": "Viseči stol v dnevnem prostoru"
+        }
+      ]
+    }
+  ],
+  "checkIn": "13:00–23:30",
+  "checkOut": "06:00–10:00",
+  "bookingUrl": "https://www.booking.com/hotel/si/nature-nook.html",
+  "contact": {
+    "email": "host@example.com",
+    "phone": "+386 40 000 000"
+  },
+  "translations": {
+    "en": {
+      "type": "Apartment",
+      "description": "A welcoming apartment in a quiet green corner of central Bled, just a few minutes’ walk from the lake. Its private garden, natural materials, and homely interior make it a perfect base for exploring the Julian Alps.",
+      "country": "Slovenia",
+      "amenities": [
+        "Free Wi-Fi",
+        "Free private parking",
+        "Private terrace",
+        "Garden",
+        "Mountain view"
+      ],
+      "photoAlts": [
+        "Private wooden terrace at Nature nook",
+        "Nature nook and its garden"
+      ],
+      "units": {
+        "nature-nook-apartment": {
+          "name": "Nature nook apartment",
+          "type": "Two-bedroom apartment",
+          "description": "Entire apartment with a private terrace, kitchen, and garden view.",
+          "rooms": [
+            {
+              "name": "First bedroom",
+              "beds": "1 large double bed"
+            },
+            {
+              "name": "Second bedroom",
+              "beds": "2 single beds"
+            }
+          ],
+          "amenities": [
+            "Fully equipped kitchen",
+            "Private terrace"
+          ],
+          "photoAlts": [
+            "Bright living area",
+            "Bedroom with a large double bed"
+          ]
+        }
+      }
+    }
+  }
+}

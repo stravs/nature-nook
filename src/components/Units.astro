@@ -1,0 +1,13 @@
+---
+import type { Property } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+import UnitCard from './UnitCard.astro';
+interface Props { property: Property; locale: Locale }
+const { property, locale } = Astro.props;
+const t = useTranslations(locale);
+---
+<section class="units-section" id="units"><div class="section">
+  <div class="section-heading units-heading"><div><p class="eyebrow">{t('chooseSpace')}</p><h2>{property.units.length === 1 ? t('accommodation') : t('units')}</h2></div><p>{property.units.length === 1 ? t('option') : t('options', { count: property.units.length })}</p></div>
+  <div class="unit-list">{property.units.map((unit, unitIndex) => <UnitCard {unit} {unitIndex} unitCount={property.units.length} fallbackPhotos={property.photos} {locale} />)}</div>
+</div></section>

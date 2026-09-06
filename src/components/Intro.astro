@@ -1,0 +1,9 @@
+---
+import type { Property } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+interface Props { property: Property; locale: Locale }
+const { property, locale } = Astro.props;
+const t = useTranslations(locale);
+---
+<section class="section intro" id="about"><div><p class="eyebrow">{t('welcome')}</p><h2>{t('restSpace')}</h2><p class="lead">{property.description}</p></div></section>

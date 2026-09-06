@@ -1,0 +1,32 @@
+---
+import type { PropertyUnit } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+interface Props { units: PropertyUnit[]; locale: Locale }
+const { units, locale } = Astro.props;
+const t = useTranslations(locale);
+const unitGalleries = units.map((unit) => unit.photos);
+---
+<dialog class="lightbox" id="unit-lightbox" aria-label={t('unitPhotos')}>
+  <div class="lightbox-bar"><p><span id="lightbox-unit"></span> · <strong id="lightbox-current">1</strong> / <span id="lightbox-total">1</span></p><button class="lightbox-close" type="button" aria-label={t('closeGallery')}>×</button></div>
+  <div class="lightbox-stage"><button class="lightbox-nav lightbox-prev" type="button" aria-label={t('previousPhoto')}>‹</button><figure><img id="lightbox-image" src="" alt="" /><figcaption id="lightbox-caption"></figcaption></figure><button class="lightbox-nav lightbox-next" type="button" aria-label={t('nextPhoto')}>›</button></div>
+</dialog>
+<script is:inline define:vars={{ unitGalleries, unitNames: units.map((unit) => unit.name), photoLabel: t('photo') }}>
+  const dialog = document.querySelector('#unit-lightbox');
+  const lightboxImage = document.querySelector('#lightbox-image');
+  const lightboxCaption = document.querySelector('#lightbox-caption');
+  const lightboxCurrent = document.querySelector('#lightbox-current');
+  const lightboxTotal = document.querySelector('#lightbox-total');
+  const lightboxUnit = document.querySelector('#lightbox-unit');
+  let activeUnit = 0; let activePhoto = 0; let touchStartX = 0;
+  function showPhoto(index) { const gallery = unitGalleries[activeUnit]; activePhoto = (index + gallery.length) % gallery.length; const photo = gallery[activePhoto]; lightboxImage.src = photo.url; lightboxImage.alt = photo.alt || `${photoLabel} ${activePhoto + 1}`; lightboxCaption.textContent = photo.alt || ''; lightboxCurrent.textContent = String(activePhoto + 1); }
+  document.querySelectorAll('[data-unit-photo-index]').forEach((button) => button.addEventListener('click', () => { activeUnit = Number(button.dataset.unitIndex); lightboxUnit.textContent = unitNames[activeUnit]; lightboxTotal.textContent = String(unitGalleries[activeUnit].length); showPhoto(Number(button.dataset.unitPhotoIndex)); dialog.showModal(); document.body.classList.add('lightbox-open'); }));
+  document.querySelector('.lightbox-close').addEventListener('click', () => dialog.close());
+  document.querySelector('.lightbox-prev').addEventListener('click', () => showPhoto(activePhoto - 1));
+  document.querySelector('.lightbox-next').addEventListener('click', () => showPhoto(activePhoto + 1));
+  dialog.addEventListener('close', () => document.body.classList.remove('lightbox-open'));
+  dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener('keydown', (event) => { if (event.key === 'ArrowLeft') showPhoto(activePhoto - 1); if (event.key === 'ArrowRight') showPhoto(activePhoto + 1); });
+  dialog.addEventListener('touchstart', (event) => { touchStartX = event.changedTouches[0].clientX; }, { passive: true });
+  dialog.addEventListener('touchend', (event) => { const distance = event.changedTouches[0].clientX - touchStartX; if (Math.abs(distance) > 50) showPhoto(activePhoto + (distance < 0 ? 1 : -1)); }, { passive: true });
+</script>

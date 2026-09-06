@@ -1,0 +1,10 @@
+---
+import type { Property } from '../domain/property';
+interface Props { property: Property; personalContact: boolean }
+const { property, personalContact } = Astro.props;
+---
+<footer class="footer">
+  <div><strong>{property.name}</strong><p>{property.city}, {property.country}</p></div>
+  {personalContact && property.contact && <address>{property.contact.email && <a href={`mailto:${property.contact.email}`}>{property.contact.email}</a>}{property.contact.phone && <a href={`tel:${property.contact.phone}`}>{property.contact.phone}</a>}</address>}
+  <p>© {new Date().getFullYear()} {property.name}</p>
+</footer>

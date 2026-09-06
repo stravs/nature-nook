@@ -361,9 +361,10 @@ h1,.section h2,.booking-cta h2,.preview-head h2,.doc-content h2,.contact-card h3
 @media(max-width:600px){
   [data-edges="square"][data-hero="minimal"] .hero{height:auto;min-height:0;display:block}
   [data-edges="square"][data-hero="minimal"] .hero-card{margin:0;width:100%;padding:30px 22px;box-shadow:none}
-  [data-edges="organic"][data-hero="split"] .hero{padding:0 14px 36px}
+  [data-edges="organic"][data-hero="split"] .hero{padding:16px 14px 36px}
   [data-edges="organic"][data-hero="split"] .hero>img{min-height:320px;border-radius:64px 10px}
   [data-edges="organic"][data-hero="split"] .hero-card{margin:-34px 12px 0;padding:38px 25px;border-radius:48px 8px}
+  .facts{position:static}
 }
 
 /* A lone unit is the residence itself, so it gets an immersive gallery—not a card. */

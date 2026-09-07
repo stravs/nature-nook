@@ -26,3 +26,16 @@ not public file URLs. Keep those IDs in sync when renaming files.
 dimensions. The hero loads eagerly; gallery images load lazily. The lightbox and
 social metadata use build-time `getImage()` URLs. Photo array order controls the
 gallery: property photos first, then unit photos, with duplicates removed.
+
+## SEO and production domain
+
+The production URL comes from `SITE_URL` at build time, then `site.url` in
+`.data/site.json` (currently `https://nature-nook.si`). Set it to the final custom
+domain and rebuild when changing domains; canonical links, language alternates,
+social images, structured data, and robots.txt all use this URL.
+
+The sitemap includes the English and Slovenian property pages with language
+alternates. Guest guides remain noindex and are excluded from the sitemap.
+After deploying and connecting the domain, submit `/sitemap-index.xml` in Google
+Search Console. Keep property descriptions, amenities, and ratings accurate in
+`.data/property.json`, since they also supply the page metadata and structured data.

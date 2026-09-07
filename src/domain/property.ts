@@ -129,8 +129,11 @@ export function propertyLocation(property: Property): string {
 
 export function propertyMetaDescription(property: Property): string {
   const location = [property.city, property.country].filter(Boolean).join(', ');
-  const text = `${property.name}${location ? ` v ${location}` : ''}. ${property.description}`;
-  return text.replace(/\s+/g, ' ').trim().slice(0, 158);
+  const text = `${property.name}${location ? `, ${location}` : ''}. ${property.description}`;
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= 160) return normalized;
+  const excerpt = normalized.slice(0, 157);
+  return `${excerpt.slice(0, excerpt.lastIndexOf(' ')).replace(/[,.!;:]$/, '')}…`;
 }
 
 export function localizeProperty(property: Property, locale: string): Property {

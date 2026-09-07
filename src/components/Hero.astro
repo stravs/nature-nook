@@ -1,4 +1,5 @@
 ---
+import PropertyImage from './PropertyImage.astro';
 import type { Property } from '../domain/property';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../i18n';
@@ -9,7 +10,7 @@ const t = useTranslations(locale);
 const hero = property.photos[0];
 ---
 <section class:list={["hero", { "hero--empty": !hero }]} aria-labelledby="property-title">
-  {hero ? <img src={hero.url} alt={hero.alt ?? property.name} width={hero.width ?? 1800} height={hero.height ?? 1200} fetchpriority="high" decoding="async" sizes="100vw" /> : <div class="image-empty">{t('propertyPhoto')}</div>}
+  {hero ? <PropertyImage photo={hero} alt={hero.alt ?? property.name} sizes="100vw" priority /> : <div class="image-empty">{t('propertyPhoto')}</div>}
   <div class="hero-card">
     <p class="eyebrow">{property.type ?? t('accommodation')} · {property.city}</p>
     <h1 id="property-title">{property.name}</h1>

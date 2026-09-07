@@ -11,13 +11,13 @@ const amenities = [...property.amenities, ...(unit?.amenities ?? [])];
 const hasWifi = amenities.some((amenity) => /wi[\s-]?fi|wireless|brezžič/i.test(amenity));
 const hasParking = amenities.some((amenity) => /parking|parkirišč/i.test(amenity));
 const facts = [
-  unit?.maxGuests ? t('guests', { count: unit.maxGuests }) : undefined,
-  unit?.bedrooms ? t('bedrooms', { count: unit.bedrooms }) : undefined,
-  unit?.areaSquareMetres ? `${unit.areaSquareMetres} m²` : undefined,
-  hasParking ? t('parking') : undefined,
-  hasWifi ? 'Wi-Fi' : undefined,
-].filter((fact): fact is string => Boolean(fact));
+  unit?.maxGuests ? { text: t('guests', { count: unit.maxGuests }), amenity: false } : undefined,
+  unit?.bedrooms ? { text: t('bedrooms', { count: unit.bedrooms }), amenity: false } : undefined,
+  unit?.areaSquareMetres ? { text: `${unit.areaSquareMetres} m²`, amenity: false } : undefined,
+  hasParking ? { text: t('parking'), amenity: true } : undefined,
+  hasWifi ? { text: 'Wi-Fi', amenity: true } : undefined,
+].filter((fact): fact is { text: string; amenity: boolean } => Boolean(fact));
 ---
 {facts.length > 0 && <section class="facts" aria-label={t('propertyOverview')}>
-  {facts.map((fact) => <span>{fact}</span>)}
+  {facts.map((fact) => <span class:list={{ 'fact-amenity': fact.amenity }}>{fact.text}</span>)}
 </section>}

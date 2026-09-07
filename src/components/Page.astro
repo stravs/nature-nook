@@ -8,6 +8,7 @@ import Overview from './Overview.astro';
 import Intro from './Intro.astro';
 import Units from './Units.astro';
 import UnitLightbox from './UnitLightbox.astro';
+import Stay from './Stay.astro';
 import Amenities from './Amenities.astro';
 import Location from './Location.astro';
 import Contact from './Contact.astro';
@@ -16,6 +17,7 @@ import Footer from './Footer.astro';
 interface Props { property: Property; config: SiteConfig; locale: Locale }
 const { property, config, locale } = Astro.props;
 const enabled = (section: SectionId) => config.sections.includes(section);
+const combinedStay = enabled('units') && property.units.length === 1;
 const personalContact = config.contact.type === 'personal' || config.contact.type === 'both';
 const bookingContact = config.contact.type === 'booking' || config.contact.type === 'both';
 const galleryUnits = property.units.length === 1 ? property.units.map((unit) => {
@@ -33,9 +35,10 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
     {enabled('intro') && <Intro {property} {locale} />}
     {enabled('units') && galleryProperty.units.length > 0 && <Units property={galleryProperty} {locale} />}
     <UnitLightbox units={galleryUnits} {locale} />
-    {enabled('amenities') && property.amenities.length > 0 && <Amenities amenities={property.amenities} {locale} />}
+    {combinedStay && <Stay {property} {locale} includeAmenities={enabled('amenities')} />}
+    {!combinedStay && enabled('amenities') && property.amenities.length > 0 && <Amenities amenities={property.amenities} {locale} />}
     {enabled('location') && <Location {property} {locale} />}
     {enabled('contact') && <Contact {property} {locale} {personalContact} {bookingContact} />}
   </main>
-  <Footer {property} {personalContact} />
+  <Footer {property} />
 </div>

@@ -1,0 +1,65 @@
+---
+import PropertyImage from './PropertyImage.astro';
+import type { Property, PropertyUnit } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+
+interface Props { unit: PropertyUnit; unitIndex: number; unitCount: number; fallbackPhotos: Property['photos']; locale: Locale }
+const { unit, unitIndex, unitCount, fallbackPhotos, locale } = Astro.props;
+const t = useTranslations(locale);
+const unitPhotos = unit.photos.length ? unit.photos : fallbackPhotos.slice(0, 1);
+const photoSizes = (index: number) => unitCount === 1
+  ? `(max-width: 600px) 82vw, (max-width: 900px) ${index % 7 === 0 ? '66vw' : '33vw'}, ${index % 7 === 0 ? '50vw' : '25vw'}`
+  : '(max-width: 900px) 50vw, 25vw';
+---
+  <div class="unit-photos">
+    {unitPhotos.map((photo, index) => unit.photos.length
+      ? <button class="unit-photo-button" type="button" data-unit-index={unitIndex} data-unit-photo-index={index} aria-label={`${t('openUnitPhotos')} ${unit.name}`}><PropertyImage photo={photo} sizes={photoSizes(index)} alt={photo.alt ?? `${unit.name}, ${t('photo').toLocaleLowerCase(locale)} ${index + 1}`} /></button>
+      : <PropertyImage photo={photo} sizes={photoSizes(index)} alt={photo.alt ?? unit.name} />)}
+  </div>
+
+<script>
+  function initializeMobileGalleries() {
+    if (!window.matchMedia('(max-width: 600px)').matches) return;
+
+    document.querySelectorAll<HTMLElement>('.single-residence > .unit-photos').forEach((gallery) => {
+      if (gallery.dataset.initialized) return;
+      const secondPhoto = gallery.querySelector<HTMLElement>('[data-unit-photo-index="1"]');
+      if (!secondPhoto) return;
+      gallery.dataset.initialized = 'true';
+      let interacted = false;
+      const markInteracted = () => { interacted = true; };
+      gallery.addEventListener('pointerdown', markInteracted, { once: true, passive: true });
+      gallery.addEventListener('touchstart', markInteracted, { once: true, passive: true });
+      gallery.addEventListener('keydown', markInteracted, { once: true });
+      gallery.addEventListener('wheel', markInteracted, { once: true, passive: true });
+
+      function showSecondPhoto() {
+        if (interacted || !window.matchMedia('(max-width: 600px)').matches) return;
+        const bounds = gallery.getBoundingClientRect();
+        const photoBounds = secondPhoto!.getBoundingClientRect();
+        gallery.scrollTo({
+          left: gallery.scrollLeft + photoBounds.left - bounds.left - (gallery.clientWidth - photoBounds.width) / 2,
+          behavior: 'instant',
+        });
+      }
+
+      // Set the initial position, then confirm it once the gallery enters view.
+      requestAnimationFrame(showSecondPhoto);
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          requestAnimationFrame(showSecondPhoto);
+          observer.disconnect();
+        }
+      });
+      observer.observe(gallery);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeMobileGalleries, { once: true });
+  } else {
+    initializeMobileGalleries();
+  }
+  document.addEventListener('astro:page-load', initializeMobileGalleries);
+</script>

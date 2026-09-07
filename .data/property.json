@@ -11,70 +11,24 @@
   "reviewCount": 22,
   "photos": [
     {
-      "url": "/images/nature-nook/153411983.jpg",
+      "url": "/images/nature-nook/terrace_table.jpg",
       "alt": "Zasebna lesena terasa apartmaja Nature nook",
       "width": 1024,
       "height": 683
     },
     {
-      "url": "/images/nature-nook/153412033.jpg",
+      "url": "/images/nature-nook/walkway.jpg",
       "alt": "Nature nook in vrt pred nastanitvijo",
       "width": 1024,
       "height": 683
     },
     {
-      "url": "/images/nature-nook/153411988.jpg",
-      "alt": "Kopalnica v živahnih modrih tonih",
-      "width": 512,
-      "height": 768
+      "url": "/images/nature-nook/terace_walkway.jpg",
+      "alt": "Lesena pot ob nastanitvi"
     },
     {
-      "url": "/images/nature-nook/153411997.jpg",
-      "alt": "Pripravljene brisače v kopalnici",
-      "width": 1024,
-      "height": 683
-    },
-    {
-      "url": "/images/nature-nook/153411999.jpg",
-      "alt": "Leseno ležišče z rdečo posteljnino",
-      "width": 1024,
-      "height": 683
-    },
-    {
-      "url": "/images/nature-nook/153412000.jpg",
-      "alt": "Spalni in dnevni kotiček",
-      "width": 1024,
-      "height": 683
-    },
-    {
-      "url": "/images/nature-nook/153412001.jpg",
-      "alt": "Kuhinjski kotiček s kuhalno ploščo",
-      "width": 1024,
-      "height": 683
-    },
-    {
-      "url": "/images/nature-nook/153412002.jpg",
-      "alt": "Vhodni prostor apartmaja",
-      "width": 1024,
-      "height": 683
-    },
-    {
-      "url": "/images/nature-nook/153412003.jpg",
-      "alt": "Tradicionalni modri vrči",
-      "width": 1024,
-      "height": 683
-    },
-    {
-      "url": "/images/nature-nook/153412011.jpg",
-      "alt": "Svetel dnevni prostor apartmaja",
-      "width": 1024,
-      "height": 683
-    },
-    {
-      "url": "/images/nature-nook/153412025.jpg",
-      "alt": "Leseni detajli v kuhinji",
-      "width": 512,
-      "height": 768
+      "url": "/images/nature-nook/garden.jpg",
+      "alt": "Zasebni zeleni vrt z ležalnikoma"
     }
   ],
   "amenities": [
@@ -112,44 +66,86 @@
       ],
       "photos": [
         {
-          "url": "/images/nature-nook/153412007.jpg",
+          "url": "/images/nature-nook/bedroom.jpg",
           "alt": "Svetel dnevni prostor"
         },
         {
-          "url": "/images/nature-nook/153411995.jpg",
+          "url": "/images/nature-nook/bedroom1.jpg",
           "alt": "Spalnica z veliko zakonsko posteljo"
         },
         {
-          "url": "/images/nature-nook/153412022.jpg",
-          "alt": "Opremljena kuhinja apartmaja"
+          "url": "/images/nature-nook/bedroom2.jpg",
+          "alt": "Spalni in dnevni kotiček",
+          "width": 1024,
+          "height": 683
         },
         {
-          "url": "/images/nature-nook/153411998.jpg",
-          "alt": "Kopalnica s prho"
+          "url": "/images/nature-nook/bedroom2_2.jpg",
+          "alt": "Svetel dnevni prostor apartmaja",
+          "width": 1024,
+          "height": 683
         },
         {
-          "url": "/images/nature-nook/153411985.jpg",
-          "alt": "Zasebni zeleni vrt z ležalnikoma"
+          "url": "/images/nature-nook/bed_in_bedroom2.jpg",
+          "alt": "Leseno ležišče z rdečo posteljnino",
+          "width": 1024,
+          "height": 683
         },
         {
-          "url": "/images/nature-nook/153411984.jpg",
-          "alt": "Lesena pot ob nastanitvi"
-        },
-        {
-          "url": "/images/nature-nook/153411991.jpg",
-          "alt": "Dnevni prostor z visečim stolom"
-        },
-        {
-          "url": "/images/nature-nook/153412014.jpg",
+          "url": "/images/nature-nook/living_room4.jpg",
           "alt": "Jedilna miza ob velikih oknih"
         },
         {
-          "url": "/images/nature-nook/153412019.jpg",
+          "url": "/images/nature-nook/living_room5.jpg",
+          "alt": "Viseči stol v dnevnem prostoru"
+        },
+        {
+          "url": "/images/nature-nook/kitchen_dining_room.jpg",
           "alt": "Kuhinja in vhod na teraso"
         },
         {
-          "url": "/images/nature-nook/153412029.jpg",
-          "alt": "Viseči stol v dnevnem prostoru"
+          "url": "/images/nature-nook/kitchen.jpg",
+          "alt": "Kuhinjski kotiček s kuhalno ploščo",
+          "width": 1024,
+          "height": 683
+        },
+        {
+          "url": "/images/nature-nook/kitchen2.jpg",
+          "alt": "Vhodni prostor apartmaja",
+          "width": 1024,
+          "height": 683
+        },
+        {
+          "url": "/images/nature-nook/kitchen3.jpg",
+          "alt": "Tradicionalni modri vrči",
+          "width": 1024,
+          "height": 683
+        },
+        {
+          "url": "/images/nature-nook/kitchen4.jpg",
+          "alt": "Opremljena kuhinja apartmaja"
+        },
+        {
+          "url": "/images/nature-nook/kitchen5.jpg",
+          "alt": "Leseni detajli v kuhinji",
+          "width": 512,
+          "height": 768
+        },
+        {
+          "url": "/images/nature-nook/bathroom.jpg",
+          "alt": "Kopalnica v živahnih modrih tonih",
+          "width": 512,
+          "height": 768
+        },
+        {
+          "url": "/images/nature-nook/bathroom2.jpg",
+          "alt": "Pripravljene brisače v kopalnici",
+          "width": 1024,
+          "height": 683
+        },
+        {
+          "url": "/images/nature-nook/bathroom3.jpg",
+          "alt": "Kopalnica s prho"
         }
       ]
     }
@@ -157,10 +153,6 @@
   "checkIn": "13:00–23:30",
   "checkOut": "06:00–10:00",
   "bookingUrl": "https://www.booking.com/hotel/si/nature-nook.html",
-  "contact": {
-    "email": "host@example.com",
-    "phone": "+386 40 000 000"
-  },
   "translations": {
     "en": {
       "type": "Apartment",

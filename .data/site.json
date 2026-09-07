@@ -33,7 +33,7 @@
     "contact"
   ],
   "contact": {
-    "type": "both"
+    "type": "booking"
   },
-  "guestGuide": true
+  "guestGuide": false
 }

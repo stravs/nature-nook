@@ -1,4 +1,5 @@
 ---
+import UnitGallery from './UnitGallery.astro';
 import type { Property, PropertyUnit } from '../domain/property';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../i18n';
@@ -6,7 +7,6 @@ import { useTranslations } from '../i18n';
 interface Props { unit: PropertyUnit; unitIndex: number; unitCount: number; fallbackPhotos: Property['photos']; locale: Locale }
 const { unit, unitIndex, unitCount, fallbackPhotos, locale } = Astro.props;
 const t = useTranslations(locale);
-const unitPhotos = unit.photos.length ? unit.photos : fallbackPhotos.slice(0, 1);
 const unitFacts = [
   unit.maxGuests ? t('upToGuests', { count: unit.maxGuests }) : undefined,
   unit.bedrooms ? t('bedrooms', { count: unit.bedrooms }) : undefined,
@@ -15,11 +15,7 @@ const unitFacts = [
 ].filter((fact): fact is string => Boolean(fact));
 ---
 <article class:list={["unit-card", unitCount === 1 ? "single-residence" : "multi-residence"]} id={`unit-${unit.id}`}>
-  <div class="unit-photos">
-    {unitPhotos.map((photo, index) => unit.photos.length
-      ? <button class="unit-photo-button" type="button" data-unit-index={unitIndex} data-unit-photo-index={index} aria-label={`${t('openUnitPhotos')} ${unit.name}`}><img src={photo.url} alt={photo.alt ?? `${unit.name}, ${t('photo').toLocaleLowerCase(locale)} ${index + 1}`} loading="lazy" decoding="async" /></button>
-      : <img src={photo.url} alt={photo.alt ?? unit.name} loading="lazy" decoding="async" />)}
-  </div>
+  <UnitGallery {unit} {unitIndex} {unitCount} {fallbackPhotos} {locale} />
   <div class="unit-content">
     <p class="eyebrow">{unit.type ?? t('unit')}</p><h3>{unit.name}</h3>
     {unit.description && <p class="unit-description">{unit.description}</p>}

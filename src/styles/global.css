@@ -315,7 +315,7 @@ h1,.section h2,.booking-cta h2,.preview-head h2,.doc-content h2,.contact-card h3
 [data-amenities="band"] .amenities-section h2{grid-row:2}
 [data-amenities="band"] .amenities-section ul{grid-column:2;grid-row:1/3;grid-template-columns:repeat(2,1fr)}
 
-[data-contact="card"] .booking-cta{width:min(1120px,calc(100% - 48px));margin:88px auto;padding:74px;border-radius:var(--builder-radius);box-shadow:0 22px 60px color-mix(in srgb,var(--ink) 18%,transparent)}
+[data-contact="card"] .booking-cta{width:min(1440px,calc(100% - 96px));margin:88px auto;padding:74px;border-radius:var(--builder-radius);box-shadow:0 22px 60px color-mix(in srgb,var(--ink) 18%,transparent)}
 [data-contact="card"] .booking-cta:before,[data-contact="card"] .booking-cta:after{display:none}
 [data-contact="card"] .booking-cta .primary-button+.primary-button{margin-left:10px}
 
@@ -406,3 +406,57 @@ h1,.section h2,.booking-cta h2,.preview-head h2,.doc-content h2,.contact-card h3
 [data-edges="organic"] .contact-card{border-radius:48px 8px;background:var(--moss)}
 [data-edges="organic"] .guest-sidebar{border-color:var(--line)}
 [data-edges="organic"] .doc-section{border-color:var(--line)}
+
+/* Give the accommodation heading its own row on narrow screens. */
+@media (max-width: 600px) {
+  .units-heading { flex-direction: column; align-items: stretch; gap: 12px; }
+  .units-heading > div { min-width: 0; }
+  .section .units-heading h2 {
+    font-size: clamp(1.5rem, 7.5vw, 2.5rem);
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Match the gallery corners on mobile. */
+@media (max-width: 600px) {
+  [data-edges="organic"][data-contact="card"] .booking-cta,
+  [data-edges="organic"] .location iframe,
+  [data-edges="organic"] .location .map-fallback {
+    border-radius: 28px 6px;
+  }
+}
+
+/* A compact overview: three apartment facts, then two amenities. */
+@media (max-width: 600px) {
+  .facts {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    padding: 20px;
+    min-height: 0;
+    box-shadow: none;
+  }
+  .facts span {
+    grid-column: span 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 48px;
+    padding: 10px 6px;
+    border: 1px solid var(--line);
+    border-radius: 14px 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: .85rem;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+    text-transform: none;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+  .facts .fact-amenity { grid-column: span 3; }
+  .facts span:not(:last-child)::after { display: none; }
+}

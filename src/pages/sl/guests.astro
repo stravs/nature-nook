@@ -15,7 +15,7 @@ const mapsUrl = property.latitude !== undefined && property.longitude !== undefi
   ? `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 const title = `Vodnik za goste | ${property.name}`;
-const description = `Praktične informacije za bivanje v ${property.name}: prihod, odhod, oprema, hišni red in kontakti.`;
+const description = `Praktične informacije za bivanje v ${property.name}: prihod, odhod, oprema, hišni red in rezervacije.`;
 const sections = [
   ['prihod', 'Prihod'],
   ['nastanitev', 'Nastanitev'],
@@ -48,9 +48,7 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
         </nav>
         <div class="guest-sidebar-help">
           <p>Vam lahko pomagamo?</p>
-          {property.contact?.phone
-            ? <a href={`tel:${property.contact.phone}`}>{property.contact.phone}</a>
-            : <span>Pišite nam prek svoje rezervacije.</span>}
+          <a href={property.bookingUrl} rel="noopener">Obiščite Booking.com ↗</a>
         </div>
       </div>
     </aside>
@@ -159,13 +157,11 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
         <div class="doc-number">08</div>
         <div class="doc-content">
           <p class="eyebrow">Kar oglasite se</p><h2>Tu smo, če nas potrebujete</h2>
-          <p class="doc-lead">Nobeno vprašanje ni odveč. Pišite ali pokličite nas in pomagali vam bomo po najboljših močeh.</p>
+          <p class="doc-lead">Rezervacijo urejajte in vprašanja pošljite prek Booking.com.</p>
           <div class="contact-card">
-            <div><p class="eyebrow">Gostitelj</p><h3>{property.name}</h3></div>
+            <div><p class="eyebrow">Booking.com</p><h3>{property.name}</h3></div>
             <div class="contact-links">
-              {property.contact?.phone && <a href={`tel:${property.contact.phone}`}>Pokliči · {property.contact.phone}</a>}
-              {property.contact?.email && <a href={`mailto:${property.contact.email}`}>Piši · {property.contact.email}</a>}
-              {!property.contact?.phone && !property.contact?.email && <a href={property.bookingUrl} rel="noopener">Odpri svojo rezervacijo ↗</a>}
+              <a href={property.bookingUrl} rel="noopener">Obiščite Booking.com ↗</a>
             </div>
           </div>
           <p class="emergency-note"><strong>Nujna pomoč v Sloveniji:</strong> pokličite <a href="tel:112">112</a>.</p>

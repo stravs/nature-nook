@@ -6,4 +6,4 @@ interface Props { property: Property; locale: Locale }
 const { property, locale } = Astro.props;
 const t = useTranslations(locale);
 ---
-<section class="section intro" id="about"><div><p class="eyebrow">{t('welcome')}</p><h2>{t('restSpace')}</h2><p class="lead">{property.description}</p></div></section>
+<section class="section intro" id="about"><div><p class="eyebrow">{t('welcome')}</p><h2>{t('restSpace')}</h2><p class="lead">{property.description.split(/(?<=[.!?])\s/)[1]}</p></div></section>

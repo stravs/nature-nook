@@ -1,0 +1,54 @@
+---
+import type { Property } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+
+interface Props { property: Property; locale: Locale; includeAmenities: boolean }
+const { property, locale, includeAmenities } = Astro.props;
+const unit = property.units[0];
+if (!unit) throw new Error("The stay section requires an accommodation unit.");
+const t = useTranslations(locale);
+const amenities = [...new Set([
+  ...unit.amenities,
+  ...(includeAmenities ? property.amenities : []),
+])];
+---
+<section class="stay-section" aria-labelledby="stay-title">
+  <div class="section">
+    <h2 id="stay-title">{t('stayTitle', { name: property.name })}</h2>
+    <div class="stay-columns">
+      <div class="stay-details">
+        <h3>{unit.type ?? t('accommodation')}</h3>
+        {unit.description && <p class="stay-description">{unit.description}</p>}
+        {unit.rooms.length > 0 && <dl class="stay-rooms">
+          {unit.rooms.map((room) => <div><dt>{room.name}</dt>{room.beds && <dd>{room.beds}</dd>}</div>)}
+        </dl>}
+      </div>
+      {amenities.length > 0 && <div class="stay-amenities">
+        <h3>{t('stayAmenities')}</h3>
+        <ul>{amenities.map((amenity) => <li><span aria-hidden="true">✓</span><span>{amenity}</span></li>)}</ul>
+      </div>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .stay-section { background: var(--moss); color: white; --muted: rgba(255, 255, 255, .8); --line: rgba(255, 255, 255, .25); }
+  h2 { margin: 0 0 40px; }
+  .stay-columns { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 64px; }
+  h3 { margin: 0 0 20px; font-size: 1.35rem; }
+  .stay-description { margin: 0 0 28px; color: var(--muted); line-height: 1.7; }
+  .stay-rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 0; }
+  dt { font-weight: 600; margin-bottom: 8px; }
+  dd { margin: 0; color: var(--muted); line-height: 1.6; }
+  .stay-amenities { border-left: 1px solid var(--line); padding-left: 40px; }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  li { display: flex; gap: 12px; align-items: baseline; }
+  li > span:first-child { color: white; }
+  @media (max-width: 900px) {
+    .stay-columns { grid-template-columns: 1fr; gap: 32px; }
+    .stay-amenities { border-left: 0; border-top: 1px solid var(--line); padding: 28px 0 0; }
+    h2 { margin-bottom: 28px; }
+  }
+  @media (max-width: 400px) { .stay-rooms { grid-template-columns: 1fr; } }
+</style>

@@ -14,7 +14,7 @@ const mapsUrl = property.latitude !== undefined && property.longitude !== undefi
   ? `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 const title = `Guest guide | ${property.name}`;
-const description = `Practical information for your stay at ${property.name}: arrival, departure, amenities, house rules, and contact details.`;
+const description = `Practical information for your stay at ${property.name}: arrival, departure, amenities, house rules, and booking information.`;
 const sections = [['arrival', 'Arrival'], ['accommodation', 'Accommodation'], ['amenities', 'Amenities'], ['experiences', 'Experiences'], ['food', 'Food'], ['house-rules', 'House rules'], ['departure', 'Departure'], ['help', 'Help']];
 const config = await getSiteConfig();
 const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:${JSON.stringify(config.design.fonts.heading)},ui-rounded,system-ui,sans-serif;--font-body:${JSON.stringify(config.design.fonts.body)},system-ui,sans-serif`;
@@ -32,7 +32,7 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
     <aside class="guest-sidebar" aria-label="Guide contents"><div class="guest-sidebar-inner">
       <p class="guest-sidebar-label">Guest guide</p>
       <nav>{sections.map(([id, label], index) => <a href={`#${id}`}><span>{String(index + 1).padStart(2, '0')}</span>{label}</a>)}</nav>
-      <div class="guest-sidebar-help"><p>Can we help?</p>{property.contact?.phone ? <a href={`tel:${property.contact.phone}`}>{property.contact.phone}</a> : <span>Message us through your reservation.</span>}</div>
+      <div class="guest-sidebar-help"><p>Can we help?</p><a href={property.bookingUrl} rel="noopener">Visit Booking.com ↗</a></div>
     </div></aside>
     <main class="guest-doc">
       <div class="guest-hero"><p class="eyebrow">Welcome to {property.name}</p><h1>It’s lovely to have you here.</h1><p>We want you to feel at home from the moment you arrive. Here you’ll find everything useful for your stay.</p><div class="guest-meta">
@@ -64,8 +64,8 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
       <section class="doc-section" id="departure"><div class="doc-number">07</div><div class="doc-content"><p class="eyebrow">Before we say goodbye</p><h2>Departure</h2><p class="doc-lead">Departure is by <strong>{property.checkOut ?? 'the agreed time'}</strong>. Key instructions are in your reservation messages.</p><div class="checklist">
         <label><input type="checkbox" /> <span>Check that you have all your belongings.</span></label><label><input type="checkbox" /> <span>Close the windows and turn off the lights.</span></label><label><input type="checkbox" /> <span>Return the keys as agreed with your host.</span></label>
       </div></div></section>
-      <section class="doc-section" id="help"><div class="doc-number">08</div><div class="doc-content"><p class="eyebrow">Get in touch</p><h2>We’re here if you need us</h2><p class="doc-lead">No question is too small. Message or call us and we’ll do our best to help.</p><div class="contact-card"><div><p class="eyebrow">Host</p><h3>{property.name}</h3></div><div class="contact-links">
-        {property.contact?.phone && <a href={`tel:${property.contact.phone}`}>Call · {property.contact.phone}</a>}{property.contact?.email && <a href={`mailto:${property.contact.email}`}>Email · {property.contact.email}</a>}{!property.contact?.phone && !property.contact?.email && <a href={property.bookingUrl} rel="noopener">Open your reservation ↗</a>}
+      <section class="doc-section" id="help"><div class="doc-number">08</div><div class="doc-content"><p class="eyebrow">Get in touch</p><h2>We’re here if you need us</h2><p class="doc-lead">Manage your booking and send questions through Booking.com.</p><div class="contact-card"><div><p class="eyebrow">Booking.com</p><h3>{property.name}</h3></div><div class="contact-links">
+        <a href={property.bookingUrl} rel="noopener">Visit Booking.com ↗</a>
       </div></div><p class="emergency-note"><strong>Emergency services in Slovenia:</strong> call <a href="tel:112">112</a>.</p></div></section>
     </main>
   </div>

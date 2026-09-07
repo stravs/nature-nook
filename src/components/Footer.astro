@@ -1,10 +1,33 @@
 ---
 import type { Property } from '../domain/property';
-interface Props { property: Property; personalContact: boolean }
-const { property, personalContact } = Astro.props;
+interface Props { property: Property }
+const { property } = Astro.props;
+const location = [property.city, property.country].filter(Boolean).join(', ');
 ---
-<footer class="footer">
-  <div><strong>{property.name}</strong><p>{property.city}, {property.country}</p></div>
-  {personalContact && property.contact && <address>{property.contact.email && <a href={`mailto:${property.contact.email}`}>{property.contact.email}</a>}{property.contact.phone && <a href={`tel:${property.contact.phone}`}>{property.contact.phone}</a>}</address>}
-  <p>© {new Date().getFullYear()} {property.name}</p>
+<footer class="footer footer-simple">
+  <div><strong>{property.name}</strong>{location && <p>{location}</p>}</div>
+  <p class="footer-copyright">© {new Date().getFullYear()} {property.name}</p>
 </footer>
+
+<style>
+  .footer-simple {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: min(var(--max), calc(100% - 48px));
+    padding: 36px 0;
+  }
+  .footer-simple p { margin: 8px 0 0; }
+  .footer-simple .footer-copyright { margin: 0; text-align: right; }
+  @media (max-width: 600px) {
+    .footer-simple {
+      width: calc(100% - 40px);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 28px 0;
+    }
+    .footer-simple .footer-copyright { text-align: left; }
+  }
+</style>

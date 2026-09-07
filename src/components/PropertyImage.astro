@@ -1,0 +1,25 @@
+---
+import { Image } from 'astro:assets';
+import type { PropertyPhoto } from '../domain/property';
+import { photoSource } from '../lib/images';
+
+interface Props {
+  photo: PropertyPhoto;
+  alt: string;
+  sizes: string;
+  priority?: boolean;
+}
+const { photo, alt, sizes, priority = false } = Astro.props;
+const src = photoSource(photo.url);
+const widths = [...new Set([320, 640, 960, src.width].filter((width) => width <= src.width))];
+---
+<Image
+  {src}
+  {alt}
+  {widths}
+  {sizes}
+  format="webp"
+  loading={priority ? 'eager' : 'lazy'}
+  fetchpriority={priority ? 'high' : 'auto'}
+  decoding="async"
+/>

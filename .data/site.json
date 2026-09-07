@@ -26,7 +26,6 @@
     "contact": "card"
   },
   "sections": [
-    "intro",
     "units",
     "amenities",
     "location",

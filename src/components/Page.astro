@@ -32,7 +32,7 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
   <main>
     <Hero {property} {locale} />
     <Overview {property} {locale} />
-    {enabled('intro') && <Intro {property} {locale} />}
+    <!-- {enabled('intro') && <Intro {property} {locale} />} -->
     {enabled('units') && galleryProperty.units.length > 0 && <Units property={galleryProperty} {locale} />}
     <UnitLightbox units={galleryUnits} {locale} />
     {combinedStay && <Stay {property} {locale} includeAmenities={enabled('amenities')} />}

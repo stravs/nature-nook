@@ -25,7 +25,7 @@ const galleryUnits = property.units.length === 1 ? property.units.map((unit) => 
   return { ...unit, photos };
 }) : property.units;
 const galleryProperty = { ...property, units: galleryUnits };
-const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:${JSON.stringify(config.design.fonts.heading)},Georgia,serif;--font-body:${JSON.stringify(config.design.fonts.body)},system-ui,sans-serif`;
+const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:var(--astro-font-heading),Georgia,serif;--font-body:var(--astro-font-body),system-ui,sans-serif`;
 ---
 <div data-site-slug={config.site.slug} data-edges={config.design.edges} data-gallery={config.design.gallery} data-hero={config.design.hero} data-units={config.design.units} data-amenities={config.design.amenities} data-contact={config.design.contact} style={designStyle}>
   <Header {property} {config} {locale} />

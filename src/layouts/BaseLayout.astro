@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { getSiteConfig } from '../config/site';
+import { Font } from 'astro:assets';
 import type { Locale } from '../i18n';
 import { defaultLocale, localePath, locales, pathWithoutLocale } from '../i18n';
 
@@ -16,9 +16,6 @@ interface Props {
 }
 
 const { title, description, canonical, image, noindex = false, jsonLd, locale = defaultLocale, alternates = false } = Astro.props;
-const siteConfig = await getSiteConfig();
-const fontFamilies = [...new Set([siteConfig.design.fonts.heading, siteConfig.design.fonts.body])];
-const googleFontsUrl = `https://fonts.googleapis.com/css2?${fontFamilies.map((family) => `family=${encodeURIComponent(family)}:wght@400;500;600;700;800`).join('&')}&display=swap`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
 const localeAlternates = alternates ? locales.map((item) => ({
   locale: item,
@@ -31,12 +28,8 @@ const localeAlternates = alternates ? locales.map((item) => ({
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href={googleFontsUrl}
-      rel="stylesheet"
-    />
+    <Font cssVariable="--astro-font-heading" preload={[{ subset: 'latin' }]} />
+    <Font cssVariable="--astro-font-body" preload={[{ subset: 'latin' }]} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />

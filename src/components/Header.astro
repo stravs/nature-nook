@@ -1,17 +1,19 @@
 ---
 import type { Property } from '../domain/property';
 import type { SiteConfig } from '../config/site';
+import GuestMobileMenu from './GuestMobileMenu.astro';
 import type { Locale } from '../i18n';
 import { languageNames, localePath, locales, useTranslations } from '../i18n';
 
 interface Props { property: Property; config: SiteConfig; locale: Locale }
-const { property, config, locale } = Astro.props;
+const { property, locale } = Astro.props;
 const t = useTranslations(locale);
 ---
 <header class="site-header">
   <a class="brand" href={localePath(locale)} aria-label={property.name}>{property.name}</a>
   <nav class="site-actions" aria-label={t('mainNavigation')}>
-    {config.guestGuide && <a class="guest-guide-link" href={localePath(locale, 'guests')}>{t('guestGuide')}</a>}
+    <a class="guest-guide-link" href={localePath(locale, 'guests')}>{t('guestGuide')}</a>
     <span class="language-switcher">{locales.map((item) => <a href={localePath(item)} lang={item} aria-current={item === locale ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
   </nav>
+  <GuestMobileMenu {locale} home />
 </header>

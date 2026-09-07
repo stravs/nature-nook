@@ -1,17 +1,19 @@
 ---
 import { languageNames, localePath, locales, type Locale } from '../i18n';
-interface Props { locale: Locale; sections: string[][] }
-const { locale, sections } = Astro.props;
+interface Props { locale: Locale; sections?: string[][]; home?: boolean }
+const { locale, sections = [], home = false } = Astro.props;
 const english = locale === 'en';
 ---
 <details class="guest-mobile-menu">
   <summary aria-label={english ? 'Navigation menu' : 'Navigacijski meni'}>
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
   </summary>
-  <nav aria-label={english ? 'Guest guide navigation' : 'Navigacija vodnika za goste'}>
+  <nav aria-label={english ? 'Navigation' : 'Navigacija'}>
     {sections.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
-    <a class="guest-header-link" href={localePath(locale)}>{english ? '← Back to property' : '← Nazaj na nastanitev'}</a>
-    <span class="language-switcher">{locales.map((item) => <a href={localePath(item, 'guests')} lang={item} aria-current={item === locale ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
+    {home
+      ? <a href={localePath(locale, 'guests')}>{english ? 'Guest guide' : 'Za goste'}</a>
+      : <a class="guest-header-link" href={localePath(locale)}>{english ? '← Back to property' : '← Nazaj na nastanitev'}</a>}
+    <span class="language-switcher">{locales.map((item) => <a href={home ? localePath(item) : localePath(item, 'guests')} lang={item} aria-current={item === locale ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
   </nav>
 </details>
 <script>
@@ -41,6 +43,6 @@ const english = locale === 'en';
     .guest-header-link { margin-top: 8px; border-top: 1px solid var(--line); }
     .language-switcher { align-self: flex-start; margin: 12px 8px 0; }
     .language-switcher a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-    :global(.guest-header > .site-actions), :global(.guest-sidebar) { display: none; }
+    :global(.guest-header > .site-actions), :global(.site-header > .site-actions), :global(.guest-sidebar) { display: none; }
   }
 </style>

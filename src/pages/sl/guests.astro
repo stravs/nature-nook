@@ -28,7 +28,7 @@ const sections = [
   ['pomoc', 'Pomoč'],
 ];
 const config = await getSiteConfig();
-const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:${JSON.stringify(config.design.fonts.heading)},ui-rounded,system-ui,sans-serif;--font-body:${JSON.stringify(config.design.fonts.body)},system-ui,sans-serif`;
+const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:var(--astro-font-heading),ui-rounded,system-ui,sans-serif;--font-body:var(--astro-font-body),system-ui,sans-serif`;
 ---
 <BaseLayout {title} {description} locale="sl" alternates noindex>
   <div class="guest-site" data-site-slug={config.site.slug} data-edges={config.design.edges} style={designStyle}>

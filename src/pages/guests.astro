@@ -1,4 +1,5 @@
 ---
+import GuestMobileMenu from '../components/GuestMobileMenu.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { localizeProperty, propertyLocation } from '../domain/property';
 import { propertyRepository } from '../repositories/property-repository';
@@ -24,15 +25,15 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
   <header class="guest-header">
     <a class="brand" href="/" aria-label={`${property.name} – home`}>{property.name}</a>
     <nav class="site-actions" aria-label="Language and navigation">
-      <span class="language-switcher">{locales.map((item) => <a href={localePath(item, 'guests')} lang={item} aria-current={item === 'en' ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
       <a class="guest-header-link" href="/">← Back to property</a>
+      <span class="language-switcher">{locales.map((item) => <a href={localePath(item, 'guests')} lang={item} aria-current={item === 'en' ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
     </nav>
+    <GuestMobileMenu locale="en" {sections} />
   </header>
   <div class="guest-shell">
     <aside class="guest-sidebar" aria-label="Guide contents"><div class="guest-sidebar-inner">
       <p class="guest-sidebar-label">Guest guide</p>
       <nav>{sections.map(([id, label], index) => <a href={`#${id}`}><span>{String(index + 1).padStart(2, '0')}</span>{label}</a>)}</nav>
-      <div class="guest-sidebar-help"><p>Can we help?</p><a href={property.bookingUrl} rel="noopener">Visit Booking.com ↗</a></div>
     </div></aside>
     <main class="guest-doc">
       <div class="guest-hero"><p class="eyebrow">Welcome to {property.name}</p><h1>It’s lovely to have you here.</h1><p>We want you to feel at home from the moment you arrive. Here you’ll find everything useful for your stay.</p><div class="guest-meta">
@@ -53,7 +54,7 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
       </div><p class="section-source">Check the weather and opening hours before setting out. Ask us anytime for a personal recommendation.</p></div></section>
       <section class="doc-section" id="food"><div class="doc-number">05</div><div class="doc-content"><p class="eyebrow">Our tasty tips</p><h2>Places to eat</h2><div class="place-list">
         <a href="https://www.google.com/maps/search/?api=1&query=Blejska+hi%C5%A1a+Bled" target="_blank" rel="noopener"><div><h3>Blejska hiša</h3><p>Local dishes and products</p></div><span>Local ↗</span></a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Restavracija+1906+Bled" target="_blank" rel="noopener"><div><h3>Restaurant 1906</h3><p>Modern Slovenian cuisine</p></div><span>Special dinner ↗</span></a>
+        <a href="https://www.google.com/maps/search/?api=1&query=Old+Cellar+Bled" target="_blank" rel="noopener"><div><h3>Old Cellar Bled</h3><p>A special evening in Bled</p></div><span>Special dinner ↗</span></a>
         <a href="https://www.google.com/maps/search/?api=1&query=Kavarna+Park+Bled" target="_blank" rel="noopener"><div><h3>Park Café</h3><p>The original Bled cream cake</p></div><span>Dessert ↗</span></a>
       </div><p class="section-source">Please check opening hours or reserve a table before visiting.</p></div></section>
       <section class="doc-section" id="house-rules"><div class="doc-number">06</div><div class="doc-content"><p class="eyebrow">A few friendly requests</p><h2>Keeping it pleasant for everyone</h2><p class="doc-lead">Please look after the property as you would your own home and be considerate of our neighbours.</p><ul class="rule-list">
@@ -64,9 +65,26 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
       <section class="doc-section" id="departure"><div class="doc-number">07</div><div class="doc-content"><p class="eyebrow">Before we say goodbye</p><h2>Departure</h2><p class="doc-lead">Departure is by <strong>{property.checkOut ?? 'the agreed time'}</strong>. Key instructions are in your reservation messages.</p><div class="checklist">
         <label><input type="checkbox" /> <span>Check that you have all your belongings.</span></label><label><input type="checkbox" /> <span>Close the windows and turn off the lights.</span></label><label><input type="checkbox" /> <span>Return the keys as agreed with your host.</span></label>
       </div></div></section>
-      <section class="doc-section" id="help"><div class="doc-number">08</div><div class="doc-content"><p class="eyebrow">Get in touch</p><h2>We’re here if you need us</h2><p class="doc-lead">Manage your booking and send questions through Booking.com.</p><div class="contact-card"><div><p class="eyebrow">Booking.com</p><h3>{property.name}</h3></div><div class="contact-links">
-        <a href={property.bookingUrl} rel="noopener">Visit Booking.com ↗</a>
-      </div></div><p class="emergency-note"><strong>Emergency services in Slovenia:</strong> call <a href="tel:112">112</a>.</p></div></section>
+      <section class="doc-section" id="help">
+        <div class="doc-number">08</div>
+        <div class="doc-content">
+          <p class="eyebrow">Get in touch</p><h2>We’re here if you need us</h2>
+          <p class="doc-lead">If you need anything during your stay, please contact your host. You can also reach us through your reservation messages.</p>
+          {(property.contact?.phone || property.contact?.email) && <div class="contact-card">
+            <div><p class="eyebrow">Your host</p><h3>{property.name}</h3></div>
+            <div class="contact-links">
+              {property.contact?.phone && <a href={`tel:${property.contact.phone}`}>{property.contact.phone}</a>}
+              {property.contact?.email && <a href={`mailto:${property.contact.email}`}>{property.contact.email}</a>}
+            </div>
+          </div>}
+          <h3>Useful numbers in Slovenia</h3>
+          <div class="info-grid">
+            <article><h3>Police</h3><p>For urgent police assistance.</p><a href="tel:113">113</a></article>
+            <article><h3>Emergency services</h3><p>For urgent medical help, firefighters, or mountain rescue.</p><a href="tel:112">112</a></article>
+            <article><h3>Roadside assistance · AMZS</h3><p>For a vehicle breakdown. Also available at <a href="tel:+38615305353">+386 1 530 53 53</a>.</p><a href="tel:1987">1987</a></article>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
   <footer class="guest-footer"><p>© {new Date().getFullYear()} {property.name}</p><a href="#top">Back to top ↑</a></footer>

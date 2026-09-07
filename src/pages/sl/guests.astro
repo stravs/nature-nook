@@ -1,4 +1,5 @@
 ---
+import GuestMobileMenu from '../../components/GuestMobileMenu.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { localizeProperty, propertyLocation } from '../../domain/property';
 import { propertyRepository } from '../../repositories/property-repository';
@@ -34,9 +35,10 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
   <header class="guest-header">
     <a class="brand" href="/sl/" aria-label={`${property.name} – domača stran`}>{property.name}</a>
     <nav class="site-actions" aria-label="Jezik in navigacija">
-      <span class="language-switcher">{locales.map((item) => <a href={localePath(item, 'guests')} lang={item} aria-current={item === 'sl' ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
       <a class="guest-header-link" href="/sl/">← Nazaj na nastanitev</a>
+      <span class="language-switcher">{locales.map((item) => <a href={localePath(item, 'guests')} lang={item} aria-current={item === 'sl' ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
     </nav>
+    <GuestMobileMenu locale="sl" {sections} />
   </header>
 
   <div class="guest-shell">
@@ -46,10 +48,6 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
         <nav>
           {sections.map(([id, label], index) => <a href={`#${id}`}><span>{String(index + 1).padStart(2, '0')}</span>{label}</a>)}
         </nav>
-        <div class="guest-sidebar-help">
-          <p>Vam lahko pomagamo?</p>
-          <a href={property.bookingUrl} rel="noopener">Obiščite Booking.com ↗</a>
-        </div>
       </div>
     </aside>
 
@@ -119,7 +117,7 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
           <p class="eyebrow">Naši okusni namigi</p><h2>Kam bi vas poslali jest</h2>
           <div class="place-list">
             <a href="https://www.google.com/maps/search/?api=1&query=Blejska+hi%C5%A1a+Bled" target="_blank" rel="noopener"><div><h3>Blejska hiša</h3><p>Lokalne jedi in izdelki</p></div><span>Lokalno ↗</span></a>
-            <a href="https://www.google.com/maps/search/?api=1&query=Restavracija+1906+Bled" target="_blank" rel="noopener"><div><h3>Restavracija 1906</h3><p>Sodobna slovenska kulinarika</p></div><span>Posebna večerja ↗</span></a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Old+Cellar+Bled" target="_blank" rel="noopener"><div><h3>Old Cellar Bled</h3><p>Poseben večer na Bledu</p></div><span>Posebna večerja ↗</span></a>
             <a href="https://www.google.com/maps/search/?api=1&query=Grajska+pla%C5%BEa+Restaurant+Bled" target="_blank" rel="noopener"><div><h3>Grajska plaža</h3><p>Ob jezeru, pod grajsko skalo</p></div><span>Ob jezeru ↗</span></a>
             <a href="https://www.google.com/maps/search/?api=1&query=Kavarna+Park+Bled" target="_blank" rel="noopener"><div><h3>Kavarna Park</h3><p>Originalna blejska kremna rezina</p></div><span>Sladica ↗</span></a>
           </div>
@@ -157,14 +155,20 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
         <div class="doc-number">08</div>
         <div class="doc-content">
           <p class="eyebrow">Kar oglasite se</p><h2>Tu smo, če nas potrebujete</h2>
-          <p class="doc-lead">Rezervacijo urejajte in vprašanja pošljite prek Booking.com.</p>
-          <div class="contact-card">
-            <div><p class="eyebrow">Booking.com</p><h3>{property.name}</h3></div>
+          <p class="doc-lead">Če med bivanjem karkoli potrebujete, se obrnite na gostitelja. Pišete nam lahko tudi prek sporočil pri rezervaciji.</p>
+          {(property.contact?.phone || property.contact?.email) && <div class="contact-card">
+            <div><p class="eyebrow">Vaš gostitelj</p><h3>{property.name}</h3></div>
             <div class="contact-links">
-              <a href={property.bookingUrl} rel="noopener">Obiščite Booking.com ↗</a>
+              {property.contact?.phone && <a href={`tel:${property.contact.phone}`}>{property.contact.phone}</a>}
+              {property.contact?.email && <a href={`mailto:${property.contact.email}`}>{property.contact.email}</a>}
             </div>
+          </div>}
+          <h3>Uporabne številke v Sloveniji</h3>
+          <div class="info-grid">
+            <article><h3>Policija</h3><p>Za nujno pomoč policije.</p><a href="tel:113">113</a></article>
+            <article><h3>Nujna pomoč</h3><p>Za nujno medicinsko pomoč, gasilce ali gorsko reševanje.</p><a href="tel:112">112</a></article>
+            <article><h3>Pomoč na cesti · AMZS</h3><p>Ob okvari vozila. Dosegljivi tudi na <a href="tel:+38615305353">+386 1 530 53 53</a>.</p><a href="tel:1987">1987</a></article>
           </div>
-          <p class="emergency-note"><strong>Nujna pomoč v Sloveniji:</strong> pokličite <a href="tel:112">112</a>.</p>
         </div>
       </section>
     </main>

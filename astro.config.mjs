@@ -14,7 +14,7 @@ export default defineConfig({
   ],
   i18n: { locales: ['en', 'sl'], defaultLocale: 'en', routing: { prefixDefaultLocale: false } },
   integrations: [sitemap({
-    filter: (page) => !/\/guests\/?$/.test(new URL(page).pathname),
+    filter: (page) => ['/', '/sl', '/sl/'].includes(new URL(page).pathname),
     i18n: { defaultLocale: 'en', locales: { en: 'en', sl: 'sl' } },
   })],
 });

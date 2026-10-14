@@ -1,2 +1,2 @@
 import type { APIRoute } from 'astro';
-export const GET: APIRoute = ({ site, url }) => new Response(`User-agent: *\nAllow: /\nDisallow: /setup\nDisallow: /api/\nSitemap: ${new URL('/sitemap-index.xml', site ?? url.origin).href}\n`, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+export const GET: APIRoute = ({ site, url }) => new Response(`User-agent: *\nContent-Signal: ai-train=no, search=yes, ai-input=yes\nAllow: /\nDisallow: /setup\nDisallow: /api/\nAllow: /api/property/\nDisallow: /guests\nDisallow: /sl/guests\nAgentmap: ${new URL('/.well-known/ai-catalog.json', site ?? url.origin).href}\nSitemap: ${new URL('/sitemap-index.xml', site ?? url.origin).href}\n`, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });

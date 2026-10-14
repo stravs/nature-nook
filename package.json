@@ -7,11 +7,14 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test:agents": "node tests/agent-readiness.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.3",
-    "astro": "7.2.8"
+    "astro": "7.2.8",
+    "linkedom": "^0.18.13",
+    "turndown": "^7.2.4"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.6",

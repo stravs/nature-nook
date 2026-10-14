@@ -39,6 +39,8 @@ const localeAlternates = alternates && !noindex ? locales.map((item) => ({
     {localeAlternates.length > 0 && <link rel="alternate" hreflang="x-default" href={localeAlternates.find((item) => item.locale === defaultLocale)?.url} />}
     <meta name="robots" content={noindex ? "noindex,follow" : "index,follow,max-image-preview:large"} />
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+    {!noindex && <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json" />}
+    {!noindex && <link rel="api-catalog" type="application/linkset+json" href="/.well-known/api-catalog" />}
     {siteName && <meta property="og:site_name" content={siteName} />}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={locale === 'sl' ? 'sl_SI' : 'en_US'} />

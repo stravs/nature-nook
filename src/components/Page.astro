@@ -21,7 +21,8 @@ const combinedStay = enabled('units') && property.units.length === 1;
 const personalContact = config.contact.type === 'personal' || config.contact.type === 'both';
 const bookingContact = config.contact.type === 'booking' || config.contact.type === 'both';
 const galleryUnits = property.units.length === 1 ? property.units.map((unit) => {
-  const photos = [...property.photos, ...unit.photos].filter((photo, index, all) => all.findIndex((candidate) => candidate.url === photo.url) === index);
+  const heroUrl = property.photos[0]?.url;
+  const photos = [...property.photos, ...unit.photos].filter((photo, index, all) => photo.url !== heroUrl && all.findIndex((candidate) => candidate.url === photo.url) === index);
   return { ...unit, photos };
 }) : property.units;
 const galleryProperty = { ...property, units: galleryUnits };

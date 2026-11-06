@@ -12,19 +12,19 @@ const photoButton = 'tw:m-0 tw:block tw:aspect-[4/3] tw:min-w-0 tw:basis-full tw
 const arrowButton = 'tw:group tw:grid tw:h-12 tw:w-16 tw:place-items-center tw:rounded-full tw:border tw:border-(--moss)/25 tw:bg-transparent tw:text-(--moss) tw:cursor-pointer tw:transition-all tw:duration-200 tw:enabled:hover:border-(--moss) tw:enabled:hover:bg-(--moss) tw:enabled:hover:text-white tw:enabled:hover:shadow-md tw:enabled:active:scale-95 tw:focus-visible:outline-2 tw:focus-visible:outline-offset-4 tw:focus-visible:outline-(--clay) tw:disabled:cursor-default tw:disabled:opacity-25 tw:motion-reduce:transition-none';
 ---
 <div class="tw:col-span-full tw:min-w-0">
-  <div class="tw:grid tw:gap-12 tw:lg:gap-16">
+  <div class="tw:grid tw:gap-6">
     {spaces.map((space, index) => (
-      <article id={`space-${index + 1}`} class="tw:min-w-0 tw:scroll-mt-28" aria-labelledby={`space-${index + 1}-title`}>
-        <h3 id={`space-${index + 1}-title`} class="tw:m-0 tw:mb-5 tw:font-(family-name:--font-display) tw:text-3xl tw:leading-tight tw:font-semibold tw:lg:text-4xl">{space.name}</h3>
-        <div class="tw:relative" data-space-gallery>
-        <div id={`space-${unitIndex}-${index}-photos`} data-space-photo-row class="tw:flex tw:gap-4 tw:overflow-x-auto tw:snap-x tw:snap-mandatory tw:overscroll-x-contain tw:pt-1 tw:pb-4 tw:[scrollbar-width:none] tw:[&::-webkit-scrollbar]:hidden tw:lg:data-[draggable=true]:cursor-grab tw:lg:data-[draggable=true]:[&_button]:cursor-grab tw:data-[dragging=true]:cursor-grabbing tw:data-[dragging=true]:[&_button]:cursor-grabbing tw:select-none">
+      <article id={`space-${index + 1}`} class="tw:grid tw:min-w-0 tw:scroll-mt-28 tw:gap-6" aria-labelledby={`space-${index + 1}-title`}>
+        <h3 id={`space-${index + 1}-title`} class="tw:m-0 tw:font-(family-name:--font-display) tw:text-3xl tw:leading-tight tw:font-semibold tw:lg:text-4xl">{space.name}</h3>
+        <div class="tw:relative tw:grid tw:gap-6" data-space-gallery>
+        <div id={`space-${unitIndex}-${index}-photos`} data-space-photo-row class="tw:flex tw:gap-4 tw:overflow-x-auto tw:snap-x tw:snap-mandatory tw:overscroll-x-contain tw:[scrollbar-width:none] tw:[&::-webkit-scrollbar]:hidden tw:lg:data-[draggable=true]:cursor-grab tw:lg:data-[draggable=true]:[&_button]:cursor-grab tw:data-[dragging=true]:cursor-grabbing tw:data-[dragging=true]:[&_button]:cursor-grabbing tw:select-none">
           {space.photos.map(({ photo, index: photoIndex }) => (
             <button type="button" data-unit-index={unitIndex} data-unit-photo-index={photoIndex} aria-label={`${t('openUnitPhotos')} ${space.name}`} class:list={[photoButton, { 'tw:[&_img]:object-bottom': /bathroom|kopalnica/i.test(space.name) }]} >
               <PropertyImage photo={photo} alt={photo.alt ?? space.name} sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 33vw" />
             </button>
           ))}
         </div>
-        <div data-space-controls class="tw:mt-2 tw:flex tw:justify-end tw:gap-3 tw:hidden">
+        <div data-space-controls class="tw:flex tw:min-h-12 tw:justify-end tw:gap-3 tw:invisible">
           <button type="button" data-space-previous class={arrowButton} aria-label={t('previousPhoto')} aria-controls={`space-${unitIndex}-${index}-photos`} disabled>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H4m6-6-6 6 6 6" /></svg>
           </button>
@@ -47,7 +47,7 @@ const arrowButton = 'tw:group tw:grid tw:h-12 tw:w-16 tw:place-items-center tw:r
     const updateRow = () => {
       const maxScroll = row.scrollWidth - row.clientWidth;
       row.dataset.draggable = String(maxScroll > 1);
-      controls.classList.toggle('tw:hidden', maxScroll <= 1);
+      controls.classList.toggle('tw:invisible', maxScroll <= 1);
       previous.disabled = row.scrollLeft <= 1;
       next.disabled = row.scrollLeft >= maxScroll - 1;
     };

@@ -39,8 +39,8 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
     <UnitLightbox units={galleryUnits} {locale} />
     {combinedStay && <Stay {property} {locale} includeAmenities={enabled('amenities')} />}
     {!combinedStay && enabled('amenities') && property.amenities.length > 0 && <Amenities amenities={property.amenities} {locale} />}
-    <BookingReviews {property} {locale} />
     {enabled('location') && <Location {property} {locale} />}
+    <BookingReviews {property} {locale} />
     {enabled('contact') && <Contact {locale} />}
   </main>
   <Footer {property} />

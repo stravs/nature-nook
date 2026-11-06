@@ -8,8 +8,8 @@ interface Props { property: Property; locale: Locale }
 const { property, locale } = Astro.props;
 const t = useTranslations(locale);
 ---
-<section class="units-section" id="units"><div class="section">
-  <div class="section-heading units-heading"><div>{property.units.length > 1 && <p class="eyebrow">{t('chooseSpace')}</p>}<h2>{property.units.length === 1 ? t('accommodation') : t('units')}</h2></div>{property.units.length > 1 && <p>{t('options', { count: property.units.length })}</p>}</div>
+<section class="units-section" id="units"><div class="section tw:py-14 tw:lg:py-20">
+  <div class="section-heading units-heading tw:mb-6"><div>{property.units.length > 1 && <p class="eyebrow">{t('chooseSpace')}</p>}<h2>{property.units.length === 1 ? t('accommodation') : t('units')}</h2></div>{property.units.length > 1 && <p>{t('options', { count: property.units.length })}</p>}</div>
   <div class="unit-list">{property.units.map((unit, unitIndex) => property.units.length === 1
     ? <div class="unit-card single-residence" id={`unit-${unit.id}`}><UnitGallery {unit} {unitIndex} unitCount={1} fallbackPhotos={property.photos} {locale} /></div>
     : <UnitCard {unit} {unitIndex} unitCount={property.units.length} fallbackPhotos={property.photos} {locale} />)}</div>

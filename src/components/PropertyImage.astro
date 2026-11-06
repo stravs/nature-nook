@@ -11,7 +11,7 @@ interface Props {
 }
 const { photo, alt, sizes, priority = false } = Astro.props;
 const src = photoSource(photo.url);
-const widths = [...new Set([320, 640, 960, src.width].filter((width) => width <= src.width))];
+const widths = [...new Set([320, 640, 960, 1280, 1600, src.width].filter((width) => width <= src.width))];
 ---
 <Image
   {src}
@@ -19,6 +19,7 @@ const widths = [...new Set([320, 640, 960, src.width].filter((width) => width <=
   {widths}
   {sizes}
   format="webp"
+  {...(priority ? { quality: 90 } : {})}
   loading={priority ? 'eager' : 'lazy'}
   fetchpriority={priority ? 'high' : 'auto'}
   decoding="async"

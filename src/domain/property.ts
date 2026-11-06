@@ -12,6 +12,12 @@ export type PropertyRoom = {
   beds?: string;
 };
 
+/** A named part of a unit (kitchen, bathroom…) and the photo URLs that show it. */
+export type PropertySpace = {
+  name: string;
+  photos: string[];
+};
+
 export type PropertyUnit = {
   id: string;
   name: string;
@@ -24,6 +30,7 @@ export type PropertyUnit = {
   rooms: PropertyRoom[];
   amenities: string[];
   photos: PropertyPhoto[];
+  spaces?: PropertySpace[];
   bookingUrl?: string;
 };
 
@@ -71,6 +78,7 @@ export type PropertyTranslation = {
     amenities?: string[];
     photoAlts?: string[];
     rooms?: Array<{ name?: string; description?: string; beds?: string }>;
+    spaces?: Array<{ name?: string }>;
   }>;
 };
 
@@ -144,11 +152,13 @@ export function localizeProperty(property: Property, locale: string): Property {
   const units = property.units.map((unit) => {
     const translated = translation.units?.[unit.id];
     if (!translated) return unit;
+    const { spaces: spaceNames, ...text } = translated;
     return {
       ...unit,
-      ...translated,
+      ...text,
       photos: unit.photos.map((photo, index) => localizePhoto(photo, translated.photoAlts?.[index] ?? photo.alt)),
       rooms: unit.rooms.map((room, index) => ({ ...room, ...translated.rooms?.[index] })),
+      ...(unit.spaces ? { spaces: unit.spaces.map((space, index) => ({ ...space, ...spaceNames?.[index] })) } : {}),
     };
   });
   return { ...property, ...translation, photos, units };

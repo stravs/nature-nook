@@ -11,9 +11,11 @@ npm run dev
 
 This is a static Astro site. `wrangler.jsonc` builds the site and deploys
 `dist/` as static assets without the Cloudflare Astro adapter. A small Worker
-in `worker/index.js` handles Markdown negotiation, discovery headers, CORS and
-read-only method enforcement. It uses Workers Free quota; the paid Markdown for
-Agents feature is not required.
+in `worker/index.js` handles Markdown negotiation, discovery headers, CORS,
+read-only resource enforcement, and the separate enquiry email endpoint. Hashed
+`/_astro/` assets and `/storybook/` tiles bypass the Worker; hashed assets get a
+year of immutable browser caching through `public/_headers`. Other requests use
+Workers quota; the paid Markdown for Agents feature is not required.
 
 Use `npx wrangler deploy` as the Cloudflare deploy command. The build runs
 through Wrangler, so a separate dashboard build command is optional.
@@ -29,23 +31,31 @@ index with a SHA-256 digest. Public property snapshots are served at
 `/api/property/en.json` and `/api/property/sl.json`; localized fields can fall
 back to English. Rebuild after editing property data.
 
-The API has no authentication and accepts only GET/HEAD (OPTIONS for CORS).
+The public property API has no authentication and accepts only GET/HEAD (OPTIONS for CORS).
 It provides no live prices, availability, reservation actions, guest instructions,
 or contact records. Bookings remain external. No MCP, A2A, OAuth or payment
 service is advertised. Content Signals allow search and AI input, not training.
 
-Requests to public HTML pages with `Accept: text/markdown` receive Markdown;
-browsers receive HTML. Markdown retains JSON-LD and returns `Vary: Accept`.
-Guest guides are excluded from agent documents and disallowed in robots.txt,
-but **robots.txt and noindex are not access controls**: existing guest pages are
-still public by URL. Use real authentication before adding sensitive access codes.
+Requests to `/` and `/sl` with `Accept: text/markdown` receive Markdown;
+browsers receive HTML. `scripts/build-markdown.mjs` produces `/en.md` and `/sl.md`
+from the built public pages, retaining JSON-LD and using absolute links. No HTML
+parsing libraries run in the Worker. GET and HEAD negotiate the same representation.
+Negotiated responses return `Vary: Accept` and disable shared caching, because
+Cloudflare's default CDN cache key does not vary on Accept. Do not add a Cache
+Everything rule that overrides this. Fixed Markdown URLs remain independently cacheable.
+Guest guides never negotiate Markdown. They are excluded from agent documents
+and sitemaps, but allowed to be crawled so their `noindex` directives can be seen.
+Both HTML metadata and `X-Robots-Tag` mark them noindex.
+**Robots directives are not access controls**: guest pages are still public by
+URL. Use real authentication before adding sensitive access codes.
 
 Local verification:
 
 ```sh
 npm run build
-npx wrangler dev --port 8801
+npm run preview:worker
 # In another terminal:
+npm test
 npm run test:agents
 ```
 
@@ -65,6 +75,68 @@ dimensions. The hero loads eagerly; gallery images load lazily. The lightbox and
 social metadata use build-time `getImage()` URLs. Photo array order controls the
 gallery: property photos first, then unit photos, with duplicates removed.
 
+## Guest guide map prototype
+
+`/guests#explore` and `/sl/guests#explore` use Leaflet with OpenStreetMap's
+standard raster tiles. The apartment marker comes from the saved property
+coordinates. Tips come from the host's handwritten guest notebook. Map pins and
+their checked OpenStreetMap locations live in `src/data/guest-places.ts`;
+text-only tips (day plans, sketch walks, unmapped places, local advice) live in
+`src/data/guest-notes.ts`. Opening hours and venue status are not live data.
+Lake, gorge, valley and village pins identify areas, not entrances or routes.
+
+The host's hand-drawn walks live in `src/data/guest-walks.ts`. Each route was
+traced once onto OpenStreetMap streets and paths and stored as coordinates
+(start: Grič, outside the apartment). They are drawn in her marker colours with
+a handwriting font (Caveat, via the Astro Fonts API, loaded only on guest pages),
+a paper-toned map, a legend card and small neighbourhood pins shown from zoom 16.
+Walk distances are route lengths; other places use straight-line distances.
+Routes were traced with a one-off script (not kept in the repo); if the host
+changes a walk, re-trace it on OpenStreetMap rather than nudging points by hand.
+
+The map loads only when the Explore view is visible. It offers a guided tour
+in notebook order (Around Bled, hiking, day trips, food, rainy days),
+category filters, a return-to-apartment control, and a full-area overview.
+Pins use category icons, not itinerary numbers. The selected place is labelled
+and highlighted; the tip card shows context rather than a step counter.
+Guests can tap any pin without following the introduction. The edge-to-edge
+desktop layout has a scrollable “Places we like” menu on the left and map on the
+right. The selected tip appears in a Leaflet popup directly above its pin,
+including the apartment. Popups track map movement and are kept within the map;
+long tips scroll on small screens. A close button or Escape dismisses the popup
+without clearing the selected pin. Zooming/resizing does not reopen it; choosing
+a place again does. On smaller screens the menu sits below the
+map. Menu selection, map pins, and category filters stay synchronized.
+The apartment remains visible when selecting tips. Straight-line distances are
+calculated locally from the saved apartment coordinates to each map pin using
+the Haversine formula. Menu entries, selected tips, and the text fallback show
+rounded metres/kilometres, explicitly not walking distances. Area pins (lake,
+gorge) do not measure the distance to an entrance. Distances are omitted when
+the apartment coordinates are missing or invalid; no routing API is called.
+A text list with Google Maps
+links remains usable without JavaScript or if the map cannot load. No Google
+API key is required; Google Maps is used only for outbound navigation links.
+
+Tile requests send the visitor's IP and browser referrer to OpenStreetMap.
+Attribution stays visible. This endpoint is suitable for this low-traffic
+prototype, not an unlimited/free production hosting promise. Before scaling,
+choose an appropriate hosted tile service and review the
+[OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/).
+Do not bulk-download, prefetch, or enable offline caching of these tiles.
+Recheck venue locations and host recommendations before publishing.
+
+```sh
+npm run build
+npm run test:guest-guide
+# With npm run dev running and Chrome installed:
+npm run test:guest-map
+# Optional: TEST_BASE_URL and CHROME_PATH override the server/browser.
+```
+
+Browser interaction tests mock tile requests to avoid external traffic. They
+cover both languages, mobile/desktop, keyboard use, guided steps, filtering,
+deep links, and the no-JavaScript/unavailable-tile fallbacks.
+
 ## SEO and production domain
 
 The production URL comes from `SITE_URL` at build time, then `site.url` in
@@ -76,4 +148,36 @@ The sitemap includes the English and Slovenian property pages with language
 alternates. Guest guides remain noindex and are excluded from the sitemap.
 After deploying and connecting the domain, submit `/sitemap-index.xml` in Google
 Search Console. Keep property descriptions, amenities, and ratings accurate in
-`.data/property.json`, since they also supply the page metadata and structured data.
+`.data/property.json`. Descriptions and amenities supply the page metadata and
+structured data. Booking.com ratings remain visible to people, but are not emitted
+as self-serving aggregate-rating structured data. Cloudflare uses
+`drop-trailing-slash` to match Astro's canonical URLs. `workers.dev` responses
+are marked noindex to reduce duplicate preview-domain indexing.
+
+## Best-practice research and verification
+
+Official references used for this audit:
+
+- [Astro responsive images](https://docs.astro.build/en/guides/images/#responsive-image-behavior): retain build-time optimized WebP, responsive candidates, intrinsic dimensions, eager/high-priority hero and lazy galleries.
+- [Astro fonts](https://docs.astro.build/en/guides/fonts/#preloading-fonts): retain self-hosted fonts and scoped preloads; avoid adding third-party font requests.
+- [Cloudflare selective Worker routing](https://developers.cloudflare.com/workers/static-assets/binding/#run_worker_first): serve media directly rather than charging a Worker invocation for every asset.
+- [Cloudflare asset headers](https://developers.cloudflare.com/workers/static-assets/headers/): long immutable caching only for fingerprinted assets; Worker-generated responses need their own headers.
+- [Cloudflare HTML handling](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/): align slash redirects with canonical URLs.
+- [Cloudflare cache behavior](https://developers.cloudflare.com/cache/concepts/cache-control/#other): do not rely on `Vary: Accept` alone to separate CDN representations.
+- [Google robots metadata](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag): crawlers must be allowed to fetch a page to observe noindex.
+- [Google review snippets](https://developers.google.com/search/docs/appearance/structured-data/review-snippet): do not mark up aggregated third-party reviews for self-serving LocalBusiness review snippets.
+
+Astro was upgraded to a patched release and the lockfile refreshed; `npm audit`
+reported no known vulnerabilities at verification time. Hero entrance animation
+was removed so the main text is not deliberately hidden during initial rendering.
+
+Verification: `npm run build`, `npm test`, then `npm run preview:worker` and
+`npm run test:agents`. The integration checks exercise the real local Cloudflare
+runtime, redirects, negotiated HEAD responses, static-asset caching, public API,
+and guest-guide exclusions. `astro preview` alone does not run this custom Worker.
+
+After deployment, repeat the agent tests against the production domain and run
+PageSpeed Insights/Search Console checks. No production Core Web Vitals improvement
+is claimed from local tests. Review Cloudflare WAF/bot settings separately: they
+can block legitimate search or agent clients before this Worker runs. The enquiry
+form's honeypot is not full abuse protection; configure rate limits before scaling.

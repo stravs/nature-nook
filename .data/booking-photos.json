@@ -1,0 +1,111 @@
+{
+  "listing": "https://www.booking.com/hotel/si/nature-nook.html",
+  "size": "max3000",
+  "photos": [
+    {
+      "id": "153411983",
+      "path": "public/images/nature-nook/terrace_table.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411983.jpg?k=122e47a03501b3e514c23adcf4bbabd4c32c58b0c15eb49287ee66f84ce96a0d&o="
+    },
+    {
+      "id": "153411984",
+      "path": "public/images/nature-nook/terace_walkway.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411984.jpg?k=af1578cff3a3d033f0ebad06af6d3765644a26b1172d229882bde48cf0bf6709&o="
+    },
+    {
+      "id": "153411985",
+      "path": "public/images/nature-nook/garden.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411985.jpg?k=4be062c47b22e70715153eef109dc15b2dc4ed6798431cbfcdb2c4954cd20600&o="
+    },
+    {
+      "id": "153411988",
+      "path": "public/images/nature-nook/bathroom.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411988.jpg?k=f6f5248e09716b08697912e7a70f16c9e64de3f92b7eafd7a57a2f73cdf8e465&o="
+    },
+    {
+      "id": "153411991",
+      "path": "public/images/nature-nook/living_room.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411991.jpg?k=089baef72e7e345d0798d5aedf36e247ab6827909c9606a789976da70b3f01f3&o="
+    },
+    {
+      "id": "153411995",
+      "path": "public/images/nature-nook/bedroom1.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411995.jpg?k=86075646e4ab52d111fdf4f830682788458d028d64b0a0ba85cd6818c3d63172&o="
+    },
+    {
+      "id": "153411997",
+      "path": "public/images/nature-nook/bathroom2.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411997.jpg?k=90cd777e635cdadf589a9cead33b66eda228c5abba2b0435fd7764006a58686c&o="
+    },
+    {
+      "id": "153411998",
+      "path": "public/images/nature-nook/bathroom3.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411998.jpg?k=5863c73c42d880f5bf6643212529898a5ed3875e55a3195df175bd60d84b9309&o="
+    },
+    {
+      "id": "153411999",
+      "path": "public/images/nature-nook/bed_in_bedroom2.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153411999.jpg?k=27e82adaa18873c38202102a9c778124a7fde3c1bdc915743e05367054d26c97&o="
+    },
+    {
+      "id": "153412000",
+      "path": "public/images/nature-nook/bedroom2.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412000.jpg?k=6586ba76b17d9e892f7011a21163aa0e0ca17f79ac4afeea3835a7bf96c87ce0&o="
+    },
+    {
+      "id": "153412001",
+      "path": "public/images/nature-nook/kitchen.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412001.jpg?k=7ba2ddb558cea218a61ca6085473c8d06664410557243f5332d89384bb284d50&o="
+    },
+    {
+      "id": "153412002",
+      "path": "public/images/nature-nook/kitchen2.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412002.jpg?k=10d9c7f149dc4483e4015f4a33a85e3c0e882a1b16b8b09f5d4b1fa74d224b70&o="
+    },
+    {
+      "id": "153412003",
+      "path": "public/images/nature-nook/kitchen3.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412003.jpg?k=8e403c0c6a95a426442350324fcf68d9e540c9bf59bf008d9b1013a339585f13&o="
+    },
+    {
+      "id": "153412007",
+      "path": "public/images/nature-nook/bedroom.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412007.jpg?k=14974e97a76ab58faf357cfe73484a9ce5f86b67015e2d4d17f15fd3fd7f3a17&o="
+    },
+    {
+      "id": "153412011",
+      "path": "public/images/nature-nook/bedroom2_2.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412011.jpg?k=3946fe95f817268f47c3e430c6420235114e8308dac91408fb501583e3d7ebd2&o="
+    },
+    {
+      "id": "153412014",
+      "path": "public/images/nature-nook/living_room4.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412014.jpg?k=b1fc7197c5a9ad4093cae3a64513071a3d1e7580d730c7b4d5ef292c03e71d51&o="
+    },
+    {
+      "id": "153412019",
+      "path": "public/images/nature-nook/kitchen_dining_room.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412019.jpg?k=fe20f5373240c1695d601562bf0dd5cc14ff44cf347f8e253c248c68077be6dc&o="
+    },
+    {
+      "id": "153412022",
+      "path": "public/images/nature-nook/kitchen4.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412022.jpg?k=91263fb275e42b5dd36de429d3f98734d908816be6ba58868d088c138932ea50&o="
+    },
+    {
+      "id": "153412025",
+      "path": "public/images/nature-nook/kitchen5.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412025.jpg?k=2e5f5022f13159669124ca7bd56afc7828f24bb9e4530eab2d6dbb6cd8cd6504&o="
+    },
+    {
+      "id": "153412029",
+      "path": "public/images/nature-nook/living_room5.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412029.jpg?k=0c21b1987966dfedf19bce5f1094c76c080531284a3bee476b2f18a12590eb49&o="
+    },
+    {
+      "id": "153412033",
+      "path": "public/images/nature-nook/walkway.jpg",
+      "source": "https://cf.bstatic.com/xdata/images/hotel/max3000/153412033.jpg?k=c41cf0cf75c9cdd522b19eb3f2594e1279c8f637cf32ec7fc424f9fb11f1f7b3&o="
+    }
+  ]
+}

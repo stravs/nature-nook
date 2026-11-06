@@ -30,7 +30,6 @@ const jsonLd = {
   description: property.description, url: canonical, image: allPhotos.map((photo) => imageUrls.get(photo.url)),
   address: { '@type': 'PostalAddress', streetAddress: property.address, addressLocality: property.city, addressCountry: property.country },
   geo: property.latitude !== undefined && property.longitude !== undefined ? { '@type': 'GeoCoordinates', latitude: property.latitude, longitude: property.longitude } : undefined,
-  aggregateRating: property.rating && property.reviewCount ? { '@type': 'AggregateRating', ratingValue: property.rating, reviewCount: property.reviewCount, bestRating: 10 } : undefined,
   sameAs: property.bookingUrl, knowsLanguage: ['sl', 'en'], slogan: propertyLocation(property),
   containsPlace: property.units.map((unit) => ({ '@type': 'Accommodation', name: unit.name, description: unit.description, image: unit.photos.map((photo) => imageUrls.get(photo.url)), occupancy: unit.maxGuests ? { '@type': 'QuantitativeValue', maxValue: unit.maxGuests } : undefined, floorSize: unit.areaSquareMetres ? { '@type': 'QuantitativeValue', value: unit.areaSquareMetres, unitCode: 'MTK' } : undefined })),
 };

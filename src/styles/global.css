@@ -259,7 +259,7 @@ h1,.section h2,.booking-cta h2,.preview-head h2,.doc-content h2,.contact-card h3
 .language-switcher a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:.25rem}
 
 /* Property overview and unit-specific details. */
-.facts{position:sticky;top:0;z-index:20;justify-content:center;background:var(--cream);border-top:1px solid var(--line);border-bottom:1px solid var(--line);box-shadow:0 5px 18px color-mix(in srgb,var(--ink) 8%,transparent)}
+.facts{justify-content:center;background:var(--cream);border-top:1px solid var(--line);border-bottom:1px solid var(--line);box-shadow:0 5px 18px color-mix(in srgb,var(--ink) 8%,transparent)}
 .facts span{font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;font-weight:750}
 .facts span:not(:last-child):after{color:var(--clay);margin:0 30px}
 .intro{display:block}.intro>div{max-width:860px}

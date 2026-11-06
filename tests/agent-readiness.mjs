@@ -26,7 +26,7 @@ assert.match(rejectedMarkdown.headers.get('content-type'), /text\/html/);
 const robots = await (await get('/robots.txt')).text();
 assert.match(robots, /Content-Signal:/);
 assert.match(robots, /Allow: \/api\/property\//);
-assert.match(robots, /Disallow: \/guests/);
+assert.doesNotMatch(robots, /Disallow: \/(?:sl\/)?guests/);
 for (const locale of ['en', 'sl']) {
   const response = await get(`/api/property/${locale}.json`);
   assert.equal(response.headers.get('access-control-allow-origin'), '*');
@@ -65,4 +65,23 @@ assert.equal((await fetch(`${base}/api/property/en.json`, { method: 'POST' })).s
 assert.equal((await fetch(`${base}/api/property/en.json`, { method: 'HEAD' })).status, 200);
 assert.equal((await fetch(`${base}/api/property/en.json`, { method: 'OPTIONS' })).status, 204);
 assert.equal((await fetch(`${base}/.well-known/nonexistent.json`)).status, 404);
+for (const [page, snapshot] of [['/', '/en.md'], ['/sl', '/sl.md']]) {
+  const markdown = await get(page, { Accept: 'text/markdown' });
+  assert.equal(await markdown.text(), await (await get(snapshot)).text());
+  assert.equal(markdown.headers.get('cdn-cache-control'), 'no-store');
+  const head = await fetch(new URL(page, base), { method: 'HEAD', headers: { Accept: 'text/markdown' } });
+  assert.match(head.headers.get('content-type'), /text\/markdown/);
+  assert.equal(await head.text(), '');
+}
+for (const path of ['/guests', '/sl/guests']) {
+  const response = await get(path, { Accept: 'text/markdown' });
+  assert.match(response.headers.get('content-type'), /text\/html/);
+  assert.match(response.headers.get('x-robots-tag'), /noindex/);
+}
+const redirect = await fetch(new URL('/sl/', base), { redirect: 'manual' });
+assert.ok([301, 302, 307, 308].includes(redirect.status));
+assert.equal(new URL(redirect.headers.get('location'), base).pathname, '/sl');
+const asset = (await (await get('/')).text()).match(/src="(\/_astro\/[^" ]+\.webp)"/)[1];
+assert.match((await get(asset)).headers.get('cache-control'), /max-age=31536000.*immutable/);
+assert.equal((await get(asset)).headers.get('link'), null, 'static assets bypass Worker');
 console.log('Agent readiness integration checks passed.');

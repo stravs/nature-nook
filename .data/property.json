@@ -12,23 +12,27 @@
   "photos": [
     {
       "url": "/images/nature-nook/terrace_table.jpg",
-      "alt": "Zasebna lesena terasa apartmaja Nature nook",
-      "width": 1024,
-      "height": 683
+      "alt": "Lesena miza s stoli na zasebni terasi",
+      "width": 1620,
+      "height": 1080
     },
     {
       "url": "/images/nature-nook/walkway.jpg",
-      "alt": "Nature nook in vrt pred nastanitvijo",
-      "width": 1024,
-      "height": 683
+      "alt": "Lesena pot ob vrtu in vrtni hiški z zeleno streho",
+      "width": 1620,
+      "height": 1080
     },
     {
       "url": "/images/nature-nook/terace_walkway.jpg",
-      "alt": "Lesena pot ob nastanitvi"
+      "alt": "Lesena terasa z mizo ob nastanitvi",
+      "width": 1618,
+      "height": 1080
     },
     {
       "url": "/images/nature-nook/garden.jpg",
-      "alt": "Zasebni zeleni vrt z ležalnikoma"
+      "alt": "Zelen vrt z dvema lesenima stoloma",
+      "width": 1620,
+      "height": 1080
     }
   ],
   "amenities": [
@@ -67,85 +71,146 @@
       "photos": [
         {
           "url": "/images/nature-nook/bedroom.jpg",
-          "alt": "Svetel dnevni prostor"
+          "alt": "Pograd ob prehodu v dnevni in jedilni prostor",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/bedroom1.jpg",
-          "alt": "Spalnica z veliko zakonsko posteljo"
+          "alt": "Zakonska postelja z rdečo posteljnino v ločeni spalnici",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/bedroom2.jpg",
-          "alt": "Spalni in dnevni kotiček",
-          "width": 1024,
-          "height": 683
+          "alt": "Lesen pograd ob zelenem kavču",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/bedroom2_2.jpg",
-          "alt": "Svetel dnevni prostor apartmaja",
-          "width": 1024,
-          "height": 683
+          "alt": "Pograd, zelen kavč in bel viseči stol",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/bed_in_bedroom2.jpg",
-          "alt": "Leseno ležišče z rdečo posteljnino",
-          "width": 1024,
-          "height": 683
+          "alt": "Spodnje ležišče pograda z rdečo vzorčasto posteljnino",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/living_room4.jpg",
-          "alt": "Jedilna miza ob velikih oknih"
+          "alt": "Jedilna miza ob oknih s pogledom proti dnevnemu kotičku",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/living_room5.jpg",
-          "alt": "Viseči stol v dnevnem prostoru"
+          "alt": "Bel viseči stol ob zelenem kavču",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/kitchen_dining_room.jpg",
-          "alt": "Kuhinja in vhod na teraso"
+          "alt": "Kuhinja z odprtimi policami in prehodom v jedilni prostor",
+          "width": 1620,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/kitchen.jpg",
-          "alt": "Kuhinjski kotiček s kuhalno ploščo",
-          "width": 1024,
-          "height": 683
+          "alt": "Kuhinjski pult s koritom in kuhalno ploščo pod oknom",
+          "width": 1620,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/kitchen2.jpg",
-          "alt": "Vhodni prostor apartmaja",
-          "width": 1024,
-          "height": 683
+          "alt": "Odprte kuhinjske police s skodelicami in modrim čajnikom",
+          "width": 1620,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/kitchen3.jpg",
-          "alt": "Tradicionalni modri vrči",
-          "width": 1024,
-          "height": 683
+          "alt": "Modri lončki in lonček za kavo z belimi pikami",
+          "width": 1620,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/kitchen4.jpg",
-          "alt": "Opremljena kuhinja apartmaja"
+          "alt": "Kuhinjski kotiček s koritom, kuhalno ploščo in hladilnikom",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/kitchen5.jpg",
-          "alt": "Leseni detajli v kuhinji",
-          "width": 512,
-          "height": 768
+          "alt": "Modra posoda na lesenih policah nad kuhinjskim pultom",
+          "width": 1080,
+          "height": 1620
         },
         {
           "url": "/images/nature-nook/bathroom.jpg",
-          "alt": "Kopalnica v živahnih modrih tonih",
-          "width": 512,
-          "height": 768
+          "alt": "Kopalnica z modrimi ploščicami, umivalnikom in oranžnim straniščnim pokrovom",
+          "width": 1080,
+          "height": 1620
         },
         {
           "url": "/images/nature-nook/bathroom2.jpg",
-          "alt": "Pripravljene brisače v kopalnici",
-          "width": 1024,
-          "height": 683
+          "alt": "Zložene bele brisače na leseni polici v kopalnici",
+          "width": 1618,
+          "height": 1080
         },
         {
           "url": "/images/nature-nook/bathroom3.jpg",
-          "alt": "Kopalnica s prho"
+          "alt": "Prha in bel radiator za brisače v kopalnici z modrimi ploščicami",
+          "width": 1080,
+          "height": 1618
+        }
+      ],
+      "spaces": [
+        {
+          "name": "Terasa in vrt",
+          "photos": [
+            "/images/nature-nook/terrace_table.jpg",
+            "/images/nature-nook/walkway.jpg",
+            "/images/nature-nook/terace_walkway.jpg",
+            "/images/nature-nook/garden.jpg"
+          ]
+        },
+        {
+          "name": "Dnevni prostor",
+          "photos": [
+            "/images/nature-nook/living_room4.jpg",
+            "/images/nature-nook/living_room5.jpg",
+            "/images/nature-nook/bedroom.jpg",
+            "/images/nature-nook/bedroom2_2.jpg"
+          ]
+        },
+        {
+          "name": "Spalnici",
+          "photos": [
+            "/images/nature-nook/bedroom1.jpg",
+            "/images/nature-nook/bedroom2.jpg",
+            "/images/nature-nook/bed_in_bedroom2.jpg"
+          ]
+        },
+        {
+          "name": "Kuhinja",
+          "photos": [
+            "/images/nature-nook/kitchen_dining_room.jpg",
+            "/images/nature-nook/kitchen.jpg",
+            "/images/nature-nook/kitchen4.jpg",
+            "/images/nature-nook/kitchen2.jpg",
+            "/images/nature-nook/kitchen5.jpg",
+            "/images/nature-nook/kitchen3.jpg"
+          ]
+        },
+        {
+          "name": "Kopalnica",
+          "photos": [
+            "/images/nature-nook/bathroom3.jpg",
+            "/images/nature-nook/bathroom2.jpg",
+            "/images/nature-nook/bathroom.jpg"
+          ]
         }
       ]
     }
@@ -166,8 +231,10 @@
         "Mountain view"
       ],
       "photoAlts": [
-        "Private wooden terrace at Nature nook",
-        "Nature nook and its garden"
+        "Wooden table and chairs on the private terrace",
+        "Wooden walkway beside the garden and a green-roofed garden shed",
+        "Wooden terrace with a table alongside the apartment",
+        "Green garden with two wooden chairs"
       ],
       "units": {
         "nature-nook-apartment": {
@@ -189,8 +256,39 @@
             "Private terrace"
           ],
           "photoAlts": [
-            "Bright living area",
-            "Bedroom with a large double bed"
+            "Bunk beds beside the living and dining area",
+            "Double bed with red bedding in the separate bedroom",
+            "Wooden bunk beds beside a green sofa",
+            "Bunk beds, a green sofa and a white hanging chair",
+            "Lower bunk with red patterned bedding",
+            "Dining table beside the windows, looking towards the living area",
+            "White hanging chair beside a green sofa",
+            "Kitchen with open shelves and a doorway to the dining area",
+            "Kitchen counter with a sink and hob beneath the window",
+            "Open kitchen shelves with cups and a blue teapot",
+            "Blue mugs and a coffee pot with white polka dots",
+            "Kitchenette with a sink, hob and under-counter fridge",
+            "Blue crockery on wooden shelves above the kitchen counter",
+            "Blue-tiled bathroom with a washbasin and an orange toilet seat",
+            "Folded white towels on a wooden bathroom shelf",
+            "Shower and white towel radiator in the blue-tiled bathroom"
+          ],
+          "spaces": [
+            {
+              "name": "Terrace & garden"
+            },
+            {
+              "name": "Living & dining"
+            },
+            {
+              "name": "Bedrooms"
+            },
+            {
+              "name": "Kitchen"
+            },
+            {
+              "name": "Bathroom"
+            }
           ]
         }
       }

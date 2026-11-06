@@ -1,5 +1,6 @@
 ---
 import PropertyImage from './PropertyImage.astro';
+import BookingReviews from './BookingReviews.astro';
 import type { Property } from '../domain/property';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../i18n';
@@ -15,6 +16,7 @@ const hero = property.photos[0];
     <p class="eyebrow">{property.type ?? t('accommodation')} · {property.city}</p>
     <h1 id="property-title">{property.name}</h1>
     <p>{property.description}</p>
-    <a class="primary-button" href={property.bookingUrl} rel="noopener">{t('reserve')}</a>
+    <a class="primary-button" href="#enquiry">{t('reserve')}</a>
+    <BookingReviews {property} {locale} compact />
   </div>
 </section>

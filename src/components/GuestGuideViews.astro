@@ -1,0 +1,49 @@
+---
+import type { Locale } from '../i18n';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const en = locale === 'en';
+---
+<nav class="guide-views" aria-label={en ? 'Guest guide views' : 'Vsebina vodnika'}>
+  <div class="guide-view-links">
+    <a href="#stay" data-guide-view="stay"><span class="view-icon" aria-hidden="true">⌂</span><span>{en ? 'Home base' : 'Doma'}</span></a>
+    <a href="#explore" data-guide-view="explore"><span class="view-icon" aria-hidden="true">⌖</span><span>{en ? 'Roam' : 'Na potep'}</span></a>
+  </div>
+  <span class="tw:ml-auto tw:hidden tw:items-center tw:gap-2 tw:text-xs tw:font-bold tw:text-(--muted) tw:sm:inline-flex"><span aria-hidden="true">◉</span><span data-guide-location data-home={en ? 'Home base' : 'Doma'} data-roaming={en ? 'Out roaming' : 'Na potepu'} aria-live="polite">{en ? 'Home base' : 'Doma'}</span></span>
+  <a class="guide-help" href={en ? '#help' : '#pomoc'}>{en ? 'Need a hand? ↗' : 'Potrebujete pomoč? ↗'}</a>
+</nav>
+<script>
+  const panels = [...document.querySelectorAll<HTMLElement>('[data-guide-panel]')];
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-guide-view]')];
+  if (panels.length) {
+    const update = () => {
+      const hash = window.location.hash.slice(1);
+      const target = document.getElementById(hash);
+      const active = hash === 'explore' || target?.closest('[data-guide-panel="explore"]') ? 'explore' : 'stay';
+      panels.forEach((panel) => { panel.hidden = panel.dataset.guidePanel !== active; });
+      document.querySelectorAll<HTMLElement>('[data-guide-location]').forEach((label) => {
+        label.textContent = active === 'explore' ? label.dataset.roaming! : label.dataset.home!;
+      });
+      document.querySelectorAll<HTMLAnchorElement>('.guest-header .language-switcher a').forEach((link) => { link.hash = active === 'explore' ? 'explore' : ''; });
+      links.forEach((link) => {
+        if (link.dataset.guideView === active) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
+      // Reveal before scrolling, including when returning from further down the map.
+      if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+    };
+    update();
+    window.addEventListener('hashchange', update);
+  }
+</script>
+<style>
+  .guide-views{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:84px;border-bottom:1px solid var(--line);padding:14px 0;background:var(--paper)}
+  .guide-view-links{display:flex;gap:4px;padding:4px;background:var(--soft);border:1px solid var(--line);border-radius:9px}
+  .guide-view-links a{display:flex;gap:8px;justify-content:center;align-items:center;min-height:44px;padding:9px 22px;border-radius:6px;text-decoration:none;font-size:.8rem;color:var(--muted);font-weight:700}
+  .view-icon{font-size:1.2rem;line-height:1}
+  .guide-view-links a[aria-current=page]{background:var(--moss);color:white;box-shadow:0 2px 5px #0001}
+  .guide-help{display:flex;align-items:center;min-height:44px;font-size:.75rem;font-weight:700;color:var(--moss);text-underline-offset:4px}
+  .guide-views a:focus-visible{outline:3px solid var(--clay);outline-offset:3px}
+  :global([data-guide-panel][hidden]){display:none!important}
+  @media(max-width:600px){.guide-views{min-height:76px;padding:10px 0;gap:10px}.guide-view-links{width:100%;padding:3px}.guide-view-links a{padding:9px 12px;flex:1;font-size:.77rem;white-space:nowrap}.guide-help{display:none}}
+</style>

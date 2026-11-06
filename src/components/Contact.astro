@@ -1,13 +1,14 @@
 ---
-import type { Property } from '../domain/property';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../i18n';
-interface Props { property: Property; locale: Locale; personalContact: boolean; bookingContact: boolean }
-const { property, locale, personalContact, bookingContact } = Astro.props;
+interface Props { locale: Locale }
+const { locale } = Astro.props;
 const t = useTranslations(locale);
+const en = locale === 'en';
 ---
-<section class="booking-cta">
-  <p class="eyebrow">{t('holidayStarts')}</p><h2>{t('bookStay')}</h2>
-  {bookingContact && <a class="primary-button light" href={property.bookingUrl} rel="noopener">{t('bookOnBooking')}</a>}
-  {personalContact && property.contact?.email && <a class="primary-button light" href={`mailto:${property.contact.email}`}>{t('contactHost')}</a>}
+<section class="booking-cta tw:scroll-mt-24" id="enquiry">
+  <p class="eyebrow">{t('holidayStarts')}</p>
+  <h2>{en ? 'Get in touch' : 'Pišite nam'}</h2>
+  <p class="tw:mx-auto tw:mt-5 tw:max-w-xl tw:text-lg tw:leading-relaxed">{en ? 'For enquiries and reservations, send us an email at' : 'Za povpraševanja in rezervacije nam pišite na'}</p>
+  <a href="mailto:petra@nature-nook.si" class="tw:mt-3 tw:inline-block tw:break-all tw:text-xl tw:font-bold tw:text-white tw:underline tw:underline-offset-8 tw:sm:text-3xl">petra@nature-nook.si</a>
 </section>

@@ -1,0 +1,68 @@
+@import 'leaflet/dist/leaflet.css';
+
+/* Leaflet inserts these nodes at runtime, so keep their rules unscoped. */
+.guest-live-map.leaflet-container{font-family:var(--font-body);background:#e5eadf;z-index:0}
+.guest-live-map .leaflet-control-attribution{font-size:10px;max-width:100%;background:#fffffff0;color:#343c32}
+.guest-live-map .leaflet-control-attribution a{color:#3b5e48}
+.guest-live-map .leaflet-control-zoom{border:1px solid #c1c9b9;box-shadow:0 2px 8px #0001;border-radius:5px;overflow:hidden}
+.guest-live-map .leaflet-control-zoom a{width:40px;height:40px;line-height:40px;color:#344c38;background:#fff}
+.guest-live-map .leaflet-control-container .leaflet-top{top:4px;right:4px}
+.guest-live-map .leaflet-tooltip{font-family:var(--font-body);font-size:11px;padding:7px 10px;border:1px solid #d5d9cc;color:#344434;box-shadow:0 2px 8px #0001}
+.guest-map-marker{display:grid;place-items:center;background:transparent;border:0}
+.guest-marker-face{position:relative;display:grid;place-items:center;width:30px;height:30px;background:#46614c;color:#fff;border:2px solid white;border-radius:50%;font-family:var(--font-body);font-size:12px;font-weight:800;box-shadow:0 2px 6px #14261a55}
+.guest-marker-face>svg{width:18px;height:18px;pointer-events:none}
+.guest-map-marker.food .guest-marker-face{background:#985535}
+.guest-map-marker.is-home .guest-marker-face{width:38px;height:38px;background:#2e4729;outline:4px solid #ffffff66}
+.guest-map-marker.is-home .guest-marker-face>svg{width:23px;height:23px}
+.guest-map-marker.is-selected .guest-marker-face{outline:3px solid #283c28;outline-offset:3px}
+.guest-map-marker.is-selected:not(.is-home) .guest-marker-face{width:35px;height:35px}
+.guest-marker-label{display:none;position:absolute;left:50%;top:-32px;transform:translateX(-50%);white-space:nowrap;font-size:11px;line-height:1.5;font-weight:800;color:#30432c;background:#fffef6;box-shadow:0 1px 5px #0002;padding:4px 8px;border-radius:4px}
+.guest-map-marker.is-home .guest-marker-label,.guest-map-marker.is-selected .guest-marker-label{display:block}
+.guest-live-map[data-tip-open="true"] .guest-map-marker.is-selected .guest-marker-label{display:none}
+.guest-live-map .guest-tip-popup .leaflet-popup-content-wrapper{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;box-shadow:0 5px 24px #1e302533}
+.guest-live-map .guest-tip-popup .leaflet-popup-content{margin:14px;font:inherit;scrollbar-width:thin;overscroll-behavior:contain}
+.guest-live-map .guest-tip-popup .leaflet-popup-close-button{top:3px;right:3px;width:44px;height:44px;line-height:44px;font-size:26px;color:var(--muted);border-radius:6px;text-decoration:none}
+.guest-live-map .guest-tip-popup .leaflet-popup-close-button:hover{color:var(--ink);background:var(--soft)}
+.guest-live-map .guest-tip-popup .leaflet-popup-close-button:focus-visible{outline:3px solid var(--clay);outline-offset:-3px}
+.guest-live-map .guest-tip-popup .leaflet-popup-tip{background:var(--paper);border-right:1px solid var(--line);border-bottom:1px solid var(--line);box-shadow:none}
+.guest-map-marker:focus-visible{outline:3px solid var(--clay);outline-offset:4px;border-radius:50%}
+
+/* Hand-drawn walks, after the host's sketches: paper-toned map, marker-pen
+   routes, handwritten labels. Leaflet creates these nodes at runtime. */
+.guest-live-map,.map-legend,.map-tip,.map-sidebar{--font-hand:var(--astro-font-hand),'Caveat',cursive;--walk-green:#1f8f45;--walk-blue:#2340c2;--walk-red:#d42a3a}
+.guest-live-map.leaflet-container{background:#f2ecdc}
+.guest-live-map .leaflet-tile-pane{filter:sepia(.3) saturate(.7) brightness(1.04) contrast(.93)}
+.guest-walk{fill:none;stroke-width:5px;stroke-linecap:round;stroke-linejoin:round;opacity:.75;filter:url(#guest-sketch);cursor:pointer;transition:opacity .2s}
+.guest-walk.walk-green{stroke:var(--walk-green);stroke-dasharray:10 9}
+.guest-walk.walk-red{stroke:var(--walk-red);stroke-dasharray:12 7}
+.guest-walk.walk-blue{stroke:var(--walk-blue);stroke-width:7px;stroke-dasharray:.1 12}
+.guest-walk.is-selected{opacity:1;stroke-width:7px}
+.guest-walk.walk-blue.is-selected{stroke-width:10px}
+.guest-live-map[data-walk-selected="true"] .guest-walk:not(.is-selected){opacity:.3}
+.guest-map-marker.walk-green .guest-marker-face{background:var(--walk-green)}
+.guest-map-marker.walk-red .guest-marker-face{background:var(--walk-red)}
+.guest-map-marker.walk-blue .guest-marker-face{background:var(--walk-blue)}
+.guest-landmark{background:none;border:0}
+.guest-landmark-face{position:relative;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fffaf0;color:#33402f;border:1.5px solid #33402f;box-shadow:0 1px 3px #0002}
+.guest-landmark-face>svg{width:14px;height:14px}
+.guest-landmark-label{position:absolute;left:28px;top:50%;transform:translateY(-55%) rotate(-3deg);white-space:nowrap;font-family:var(--font-hand);font-size:18px;font-weight:600;line-height:1;color:#26331f;text-shadow:0 0 3px #fffaf0,0 0 3px #fffaf0,0 0 4px #fffaf0}
+.map-tip[data-walk-color="green"] .tip-kicker{color:var(--walk-green)}
+.map-tip[data-walk-color="red"] .tip-kicker{color:var(--walk-red)}
+.map-tip[data-walk-color="blue"] .tip-kicker{color:var(--walk-blue)}
+/* Legend card, like the key in the corner of her maps. */
+.map-legend{position:absolute;left:16px;bottom:26px;z-index:1;width:230px;padding:10px 14px 10px;background:#fffdf4 repeating-linear-gradient(#0000 0 27px,#c9dcec 27px 28px);background-position:0 8px;border:1px solid #ddd5bf;border-radius:3px;box-shadow:3px 4px 0 #00000010,0 6px 16px #0000001a;font-family:var(--font-hand);color:#26331f;transform:rotate(-1.2deg)}
+.map-legend-title{font-size:23px;font-weight:700;line-height:1;margin:0 0 4px}
+.map-legend-item{display:flex;align-items:center;gap:10px;width:100%;min-height:28px;padding:0 4px;border:0;border-radius:3px;background:none;color:inherit;font:inherit;font-size:20px;line-height:1;text-align:left;cursor:pointer}
+.map-legend-item:hover{background:#0000000a}
+.map-legend-item[aria-pressed="true"] span{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.map-legend-item:focus-visible{outline:3px solid var(--clay);outline-offset:1px}
+.legend-line{flex:0 0 36px;height:8px;overflow:visible}
+.legend-line path{fill:none;stroke-width:4;stroke-linecap:round}
+.map-legend-item[data-walk-color="green"] path{stroke:var(--walk-green);stroke-dasharray:6 5}
+.map-legend-item[data-walk-color="red"] path{stroke:var(--walk-red);stroke-dasharray:7 4}
+.map-legend-item[data-walk-color="blue"] path{stroke:var(--walk-blue);stroke-width:5;stroke-dasharray:.1 7}
+.map-legend-note{font-size:16px;line-height:1.05;color:#5f6150;margin:6px 0 0}
+.sketch-defs{position:absolute;width:0;height:0}
+@media(max-width:800px){.map-legend{display:none}}
+/* Storybook test layer: keep the pixel art crisp when scaled. */
+.storybook-tiles img{image-rendering:pixelated}

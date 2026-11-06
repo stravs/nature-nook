@@ -1,0 +1,52 @@
+---
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const field = 'tw:mt-2 tw:block tw:w-full tw:rounded-2xl tw:border-0 tw:bg-(--paper) tw:px-4 tw:py-3.5 tw:text-base tw:font-normal tw:normal-case tw:tracking-normal tw:text-(--ink) tw:shadow-sm tw:outline-none tw:transition tw:focus:ring-4 tw:focus:ring-white/40';
+const input = `${field} tw:h-13 tw:py-0`;
+const label = 'tw:block';
+const caption = 'tw:text-xs tw:font-bold tw:uppercase tw:tracking-[0.12em] tw:text-[#fff7ef]';
+---
+<form action="/api/enquiry" method="post" class="tw:mx-auto tw:mt-12 tw:grid tw:max-w-2xl tw:gap-5 tw:text-left tw:lg:mt-2 tw:lg:max-w-none" data-enquiry data-sending={t('enquirySending')} data-sent={t('enquirySent')} data-failed={t('enquiryFailed')}>
+  <input type="hidden" name="locale" value={locale} />
+  <!-- Honeypot: bots fill it, people never see it. -->
+  <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="tw:hidden" />
+  <div class="tw:grid tw:gap-5 tw:sm:grid-cols-2">
+    <label class={label}><span class={caption}>{t('enquiryName')}</span><input class={input} name="name" required maxlength="100" autocomplete="name" /></label>
+    <label class={label}><span class={caption}>{t('enquiryEmail')}</span><input class={input} name="email" type="email" required maxlength="200" autocomplete="email" /></label>
+  </div>
+  <div class="tw:grid tw:grid-cols-2 tw:gap-5 tw:sm:grid-cols-[1fr_1fr_0.7fr]">
+    <label class={label}><span class={caption}>{t('enquiryArrival')}</span><input class={input} name="arrival" type="date" /></label>
+    <label class={label}><span class={caption}>{t('enquiryDeparture')}</span><input class={input} name="departure" type="date" /></label>
+    <label class={label}><span class={caption}>{t('enquiryGuests')}</span><input class={input} name="guests" type="number" min="1" max="50" /></label>
+  </div>
+  <label class={label}><span class={caption}>{t('enquiryMessage')}</span><textarea class={`${field} tw:resize-y`} name="message" required rows="5" maxlength="5000"></textarea></label>
+  <div class="tw:mt-2 tw:flex tw:flex-wrap tw:items-center tw:gap-x-6 tw:gap-y-3">
+    <button class="primary-button tw:px-10" type="submit">{t('enquirySend')}</button>
+    <p data-enquiry-status role="status" class="tw:m-0 tw:font-semibold"></p>
+  </div>
+</form>
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-enquiry]');
+  const status = form?.querySelector<HTMLElement>('[data-enquiry-status]');
+  const submit = form?.querySelector<HTMLButtonElement>('[type="submit"]');
+  if (form && status && submit) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submit.disabled = true;
+      status.textContent = form.dataset.sending ?? '';
+      try {
+        const response = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+        if (!response.ok) throw new Error(String(response.status));
+        form.reset();
+        status.textContent = form.dataset.sent ?? '';
+      } catch {
+        status.textContent = form.dataset.failed ?? '';
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

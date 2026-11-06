@@ -1,0 +1,196 @@
+---
+import type { Locale } from '../i18n';
+import { guestPlaceGroups, localizedGuestPlaces } from '../data/guest-places';
+import { localizedGuestNotes } from '../data/guest-notes';
+import { guestLandmarks } from '../data/guest-walks';
+import { guestMapIcon } from '../lib/guest-map-icons';
+import { isValidCoordinates } from '../lib/distances';
+import '../styles/guest-map.css';
+interface Props { locale: Locale; propertyName: string; mapsUrl: string; latitude?: number | undefined; longitude?: number | undefined }
+const { locale, propertyName, mapsUrl, latitude, longitude } = Astro.props;
+const en = locale === 'en';
+const origin = [latitude, longitude];
+const hasCoordinates = isValidCoordinates(origin);
+const places = localizedGuestPlaces(locale, hasCoordinates ? origin : undefined);
+const config = {
+  locale, places,
+  home: {
+    id: 'home', name: en ? 'You’re staying right here.' : 'Bivate prav tukaj.',
+    area: propertyName, coordinates: hasCoordinates ? [latitude, longitude] : null,
+    description: en ? 'This is your base in Bled. Choose a place from the menu or tap its pin to see where it is and why you might go.' : 'To je vaše izhodišče na Bledu. Izberite kraj v meniju ali oznako na zemljevidu in si oglejte, kje je in zakaj bi ga obiskali.',
+    mapsUrl,
+  },
+  landmarks: guestLandmarks.map((item) => ({ id: item.id, icon: item.icon, label: item.label[locale], coordinates: item.coordinates })),
+};
+const walks = places.filter((place) => place.line);
+const categories = [['all', en ? 'All our tips' : 'Vsi namigi'], ['walks', en ? 'Our walks' : 'Naši sprehodi'], ['activities', en ? 'Explore' : 'Doživetja'], ['food', en ? 'Eat & drink' : 'Hrana in pijača']];
+const groups = guestPlaceGroups.map((group) => ({ id: group.id, label: group.label[locale] }));
+const notes = localizedGuestNotes(locale);
+---
+<section id="explore" class="explore-guide" data-guide-panel="explore" aria-labelledby="explore-heading" data-map-config={JSON.stringify(config)}>
+  <div class="explore-heading">
+    <p class="eyebrow">{en ? 'Adventure mode · Bled & beyond' : 'Čas za pustolovščino · Bled in okolica'}</p>
+    <h1 id="explore-heading">{en ? 'Where shall we wander?' : 'Kam nas bo zaneslo?'}</h1>
+    <div class="explore-intro"><p class="tw:mt-0">{en ? 'Pick a pin. Find a lakeside walk, a mountain escape, or something delicious. These are our favourite places, from the notebook in your apartment.' : 'Izberite oznako. Poiščite sprehod ob jezeru, pobeg v gore ali kaj okusnega. To so naši najljubši kraji iz beležke v nastanitvi.'}</p>
+      <a href="#stay" data-return-home class="tw:inline-flex tw:min-h-11 tw:items-center tw:gap-2 tw:rounded-lg tw:border tw:border-(--line) tw:bg-(--soft) tw:px-4 tw:py-2 tw:text-xs tw:font-bold tw:text-(--moss) tw:no-underline tw:hover:bg-(--paper)"><span aria-hidden="true">⌂</span>{en ? 'Return home' : 'Nazaj domov'} <span aria-hidden="true">←</span></a>
+    </div>
+  </div>
+
+  <div class="map-experience" hidden data-map-experience>
+    <div class="map-toolbar">
+      <div class="explore-filters" role="group" aria-label={en ? 'Filter map tips' : 'Filtriraj namige na zemljevidu'}>
+        {categories.map(([value, label]) => <button type="button" data-filter={value} aria-pressed={value === 'all' ? 'true' : 'false'}>{label}</button>)}
+      </div>
+      <button class="map-all" type="button" data-storybook aria-pressed="false">{en ? 'Storybook map (test)' : 'Pravljični zemljevid (test)'}</button>
+      <button class="map-all" type="button" data-map-all>{en ? 'Show all places ↗' : 'Prikaži vse kraje ↗'}</button>
+    </div>
+    {hasCoordinates && <p class="distance-note">{en ? 'Walks show the length of the drawn route. Other places show the straight-line distance from your stay to the pin, not walking distance.' : 'Pri sprehodih je navedena dolžina narisane poti. Pri drugih krajih je navedena zračna razdalja od nastanitve do oznake, ne dolžina pešpoti.'}</p>}
+    <div class="map-workspace">
+      <aside class="map-sidebar" aria-label={en ? 'Places and local tips' : 'Kraji in lokalni namigi'}>
+        <div class="map-menu-heading"><strong>{en ? 'Places we like' : 'Kraji, ki so nam všeč'}</strong><span>{en ? 'Scroll to browse' : 'Pomaknite za ogled'} <i aria-hidden="true"></i></span></div>
+        <nav class="map-menu" aria-label={en ? 'Choose a place' : 'Izberite kraj'} data-map-menu>
+          <button type="button" class="map-menu-place is-current" data-show-place="home" aria-pressed="true">
+            <span class="place-badge" set:html={guestMapIcon('home')} />
+            <span><strong>{en ? 'Your stay' : 'Vaša nastanitev'}</strong><small>{propertyName}</small></span>
+            <span class="menu-arrow" aria-hidden="true">↗</span>
+          </button>
+          {groups.map((group) => <div class="map-menu-group" data-menu-group={group.id}>
+            <h2>{group.label}</h2>
+            {places.filter((place) => place.context === group.id).map((place) => <button type="button" class="map-menu-place" data-show-place={place.id} data-menu-category={place.category} aria-pressed="false">
+              <span class="place-badge" data-category={place.category} data-walk-color={place.color} set:html={guestMapIcon(place.icon)} />
+              <span><strong>{place.pinLabel}</strong>{place.distanceLabel && <small data-menu-distance title={place.distanceNote}>{place.distanceLabel}</small>}</span>
+              <span class="menu-arrow" aria-hidden="true">↗</span>
+            </button>)}
+          </div>)}
+        </nav>
+      </aside>
+      <div class="map-stage">
+        <div class="guest-live-map" data-live-map role="region" aria-label={en ? 'Interactive map of Bled and our recommendations' : 'Interaktiven zemljevid Bleda z našimi namigi'}></div>
+        <section class="map-tip" data-map-tip aria-labelledby="selected-tip-title">
+          <span class="tip-kicker" data-tip-kicker>{en ? 'Your base' : 'Vaše izhodišče'}</span>
+          <p class="tip-area" data-tip-area>{propertyName}</p>
+          <h3 id="selected-tip-title" data-tip-title>{config.home.name}</h3>
+          <p class="tip-distance" data-tip-distance hidden></p>
+          <p class="tip-description" data-tip-description>{config.home.description}</p>
+          <a class="tip-directions" data-tip-link href={mapsUrl} target="_blank" rel="noopener noreferrer">{en ? 'Open in Google Maps ↗' : 'Odpri v Google Maps ↗'}</a>
+          <div class="tip-tour" role="group" aria-label={en ? 'A little tour of Bled' : 'Kratek ogled Bleda'}>
+            <button type="button" data-tip-previous aria-label={en ? 'Previous tip' : 'Prejšnji namig'} disabled>←</button>
+            <button type="button" data-tip-next>{en ? 'Show me around →' : 'Pokažite mi okolico →'}</button>
+          </div>
+        </section>
+        <div class="map-legend" role="group" aria-label={en ? 'Our hand-drawn walks' : 'Naši ročno narisani sprehodi'}>
+          <p class="map-legend-title">{en ? 'Our walks' : 'Naši sprehodi'}</p>
+          {walks.map((walk) => <button type="button" class="map-legend-item" data-show-place={walk.id} data-walk-color={walk.color} aria-pressed="false">
+            <svg class="legend-line" viewBox="0 0 36 8" aria-hidden="true"><path d="M2 4c6-2 10 2 16 0s10-2 16 0" /></svg><span>{walk.pinLabel}</span>
+          </button>)}
+          <p class="map-legend-note">{en ? 'Traced from our sketches. Follow paths and signs on the ground.' : 'Prerisano z naših skic. Na terenu sledite potem in oznakam.'}</p>
+        </div>
+        <svg class="sketch-defs" aria-hidden="true" focusable="false"><filter id="guest-sketch"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" /><feDisplacementMap in="SourceGraphic" scale="3" /></filter></svg>
+        <button class="map-home-control" data-map-home type="button"><span aria-hidden="true">⌂</span><span>{en ? 'Your stay' : 'Vaša nastanitev'}</span></button>
+      </div>
+    </div>
+    <p class="map-status" data-map-status role="status"></p>
+    <p class="map-help">{en ? 'Choose any place from the menu or tap its pin. The apartment stays in view for context. These are suggestions, not a walking route.' : 'Izberite kraj v meniju ali njegovo oznako. Nastanitev ostane vidna za lažjo orientacijo. To so namigi, ne sprehajalna pot.'}</p>
+  </div>
+
+  <p class="map-fallback-note" data-map-fallback>{en ? 'Explore every suggestion below and open it in Google Maps.' : 'Raziščite vse spodnje namige in jih odprite v Google Maps.'}</p>
+  <details class="map-place-list" data-map-list open>
+    <summary>{en ? 'All the places we’d show you' : 'Vsi kraji, ki bi vam jih pokazali'}</summary>
+    <div class="map-place-grid">
+      {places.map((place) => <article id={`place-${place.id}`} data-card={place.id} data-category={place.category}>
+        <h3>{place.pinLabel}</h3>
+        {place.distanceLabel && <p class="tip-distance" data-fallback-distance>{place.distanceLabel} · {place.distanceNote}</p>}
+        <p>{place.description}</p>
+        {place.mapsUrl && <a href={place.mapsUrl} class="place-directions" target="_blank" rel="noopener noreferrer" aria-label={`${en ? 'Open in Google Maps' : 'Odpri v Google Maps'}: ${place.area}`}>{en ? 'Open in Google Maps ↗' : 'Odpri v Google Maps ↗'}</a>}
+      </article>)}
+    </div>
+  </details>
+  {notes.map((section) => <details class="map-place-list" id={section.id} open>
+    <summary>{section.title}</summary>
+    <div class="map-place-grid">
+      {section.items.map((item) => <article><h3>{item.title}</h3><p>{item.text}</p></article>)}
+    </div>
+  </details>)}
+  <p class="explore-note">{en ? 'Check opening hours, weather, and booking requirements before setting out. Map data © OpenStreetMap contributors. The map loads third-party tiles when you open this view; Google Maps links open in a new tab.' : 'Pred odhodom preverite odpiralni čas, vreme in morebitne rezervacije. Podatki zemljevida © sodelavci OpenStreetMap. Ob odprtju tega pogleda se naložijo zunanje ploščice zemljevida; povezave Google Maps se odprejo v novem zavihku.'}</p>
+</section>
+<script>
+  import { mountGuestMap } from '../lib/guest-map';
+  document.querySelectorAll<HTMLElement>('[data-map-config]').forEach(mountGuestMap);
+</script>
+<style>
+  .explore-guide{padding:28px 0 36px;scroll-margin-top:100px}
+  .explore-heading{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);column-gap:60px;align-items:center;margin-bottom:24px}
+  .explore-heading>.eyebrow{grid-column:1;margin:0 0 10px}
+  .explore-guide h1{grid-column:1;font-family:var(--font-display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:600;line-height:1.1;margin:0}
+  .explore-intro{grid-column:2;grid-row:1/3;max-width:430px;color:var(--muted);margin:0;font-size:.85rem;line-height:1.8}
+  .map-experience{scroll-margin-top:100px}
+  [hidden]{display:none!important}
+  .map-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .explore-filters{display:flex;flex-wrap:wrap;gap:6px}
+  .explore-filters button,.map-all{min-height:44px;padding:10px 13px;border:1px solid var(--line);border-radius:24px;background:var(--paper);color:var(--ink);font:inherit;font-size:.72rem;cursor:pointer}
+  .explore-filters button[aria-pressed=true]{background:var(--moss);border-color:var(--moss);color:white}
+  .map-all{border:0;text-decoration:underline;text-underline-offset:4px;font-weight:700}
+  .distance-note{font-size:.68rem;color:var(--muted);line-height:1.6;margin:-4px 0 12px}
+  .map-workspace{display:grid;grid-template-columns:320px minmax(0,1fr);height:clamp(600px,calc(100svh - 350px),850px);border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden}
+  .map-sidebar{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--paper);border-right:1px solid var(--line)}
+  .map-menu-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 20px 6px;flex:none;font-size:.63rem;color:var(--muted)}
+  .map-menu-heading strong{color:var(--ink);font-weight:700}.map-menu-heading i{font-style:normal}.map-menu-heading i::after{content:'↓'}
+  .map-menu{min-height:140px;overflow-y:auto;flex:1;padding:10px;overscroll-behavior:contain;scrollbar-width:thin}
+  .map-menu-group h2{font-family:var(--font-body);font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700;margin:22px 10px 8px}
+  .map-menu-place{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:10px;border:0;border-radius:4px;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+  .map-menu-place:hover{background:var(--soft)}
+  .map-menu-place[aria-pressed=true]{background:var(--soft);box-shadow:inset 3px 0 var(--moss)}
+  .map-menu-place strong{display:block;font-size:.77rem;font-weight:700;line-height:1.5}
+  .map-menu-place small{display:block;font-size:.65rem;color:var(--muted);margin-top:2px}
+  .menu-arrow{margin-left:auto;color:var(--muted);font-size:.8rem}
+  .place-badge{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:50%;background:var(--moss);color:white}
+  .place-badge :global(svg){width:17px;height:17px}
+  .place-badge[data-category=food]{background:#985535}
+  .place-badge[data-walk-color=green]{background:var(--walk-green)}
+  .place-badge[data-walk-color=red]{background:var(--walk-red)}
+  .place-badge[data-walk-color=blue]{background:var(--walk-blue)}
+  .map-menu-group[data-menu-group=walks] h2{font-family:var(--font-hand);font-size:1.3rem;font-weight:700;text-transform:none;letter-spacing:0;color:var(--ink)}
+  .map-tip{padding:6px;background:var(--paper);color:var(--ink);font-family:var(--font-body)}
+  .map-stage>.map-tip{visibility:hidden}
+  .tip-kicker{display:block;color:var(--moss);font-size:.59rem;text-transform:uppercase;letter-spacing:.12em;font-weight:800;margin-bottom:10px}
+  .tip-area{font-size:.68rem;color:var(--muted);margin:0 0 5px}
+  .map-tip h3{font-family:var(--font-display);font-weight:600;line-height:1.15;font-size:1.5rem;margin:0}
+  .map-tip[data-kind=walk] h3{font-family:var(--font-hand);font-size:2.1rem;font-weight:700;line-height:1}
+  .tip-distance{font-size:.7rem;line-height:1.7;color:var(--moss);margin:10px 0;font-weight:600}
+  .tip-description{font-size:.77rem;line-height:1.8;color:var(--muted);margin:12px 0}
+  .tip-directions{display:inline-flex;align-items:center;min-height:44px;font-size:.7rem;font-weight:700;color:var(--moss);text-underline-offset:4px}
+  .tip-tour{display:flex;gap:6px;margin-top:8px}
+  .tip-tour button{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;border:1px solid var(--line);border-radius:4px;background:var(--soft);font:inherit;font-size:.7rem;padding:8px 12px;color:var(--ink);cursor:pointer;font-weight:700}
+  .tip-tour button:last-child{flex:1}.tip-tour button:disabled{opacity:.35;cursor:default}
+  .map-stage{position:relative;min-width:0;min-height:0;background:#e9eee4;isolation:isolate;scroll-margin-top:100px}
+  .guest-live-map{position:absolute;inset:0;z-index:0}
+  .map-home-control{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:8px;min-height:44px;padding:9px 14px;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 8px #0001;border-radius:5px;font:inherit;font-size:.73rem;font-weight:700;cursor:pointer}
+  .map-home-control>span:first-child{font-size:1.3rem;color:var(--moss)}
+  .map-status{font-size:.75rem;color:var(--muted);margin:10px 0}.map-status:empty{display:none}
+  .map-help,.map-fallback-note,.explore-note{font-size:.72rem;color:var(--muted);line-height:1.8;margin:12px 0 20px}
+  .map-place-list{border-top:1px solid var(--line);margin-top:24px}
+  .map-place-list summary{cursor:pointer;padding:16px 0;min-height:48px;font-size:.8rem;font-weight:700}
+  .map-place-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+  .map-place-grid article{padding:20px 0;border-top:1px solid var(--line);scroll-margin-top:80px}
+  .map-place-grid h3{font-family:var(--font-display);font-size:1.5rem;line-height:1.1;margin:12px 0}
+  .map-place-grid article>p{font-size:.8rem;line-height:1.8;color:var(--muted);margin:10px 0}
+  .place-directions{display:inline-flex;align-items:center;min-height:44px;font-size:.72rem;font-weight:700;color:var(--moss)}
+  button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--clay);outline-offset:3px}
+  .explore-heading,.map-toolbar,.distance-note,.map-status,.map-help,.map-fallback-note,.map-place-list,.explore-note{width:min(1224px,calc(100% - 56px));margin-left:auto;margin-right:auto}
+  @media(max-width:800px){
+    .map-workspace{display:flex;flex-direction:column;height:auto;overflow:hidden}
+    .map-stage{order:-1;height:clamp(520px,75svh,700px);flex:none;border-bottom:1px solid var(--line);scroll-margin-top:86px}
+    .map-sidebar{border-right:0;min-height:0}
+    .map-menu{display:flex;overflow-x:auto;overflow-y:hidden;flex:none;gap:6px;padding:12px;min-height:0;max-height:none}
+    .map-menu-heading{padding:14px 16px 0}.map-menu-heading i::after{content:'↔'}
+    .map-menu-group{display:contents}.map-menu-group h2{display:none}
+    .map-menu-place{flex:0 0 auto;width:auto;min-width:140px;border:1px solid var(--line);padding:10px 12px;white-space:nowrap}
+    .map-menu-place[aria-pressed=true]{box-shadow:inset 0 -3px var(--moss)}
+    .map-menu-place .menu-arrow{display:none}
+    .map-tip{padding:4px}.map-tip h3{font-size:1.4rem}.tip-description{font-size:.77rem}
+    .tip-tour{max-width:300px}
+    .map-tip[data-kind=walk] h3{font-size:1.6rem}
+    .map-tip[data-kind=walk] .tip-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;margin:8px 0}
+  }
+  @media(max-width:600px){.explore-heading,.map-toolbar,.distance-note,.map-status,.map-help,.map-fallback-note,.map-place-list,.explore-note{width:calc(100% - 40px)}.explore-guide{padding-top:24px}.explore-heading{display:block;margin-bottom:18px}.explore-guide h1{font-size:1.95rem}.explore-intro{font-size:.8rem;margin:10px 0 0}.map-toolbar{gap:4px}.explore-filters button{padding:9px 11px;font-size:.7rem}.map-all{font-size:.68rem;padding-left:0}.map-place-grid{grid-template-columns:1fr}.map-home-control{left:10px;top:10px;padding:8px 10px;font-size:.68rem}}
+</style>

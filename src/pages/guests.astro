@@ -1,6 +1,12 @@
 ---
-import GuestMobileMenu from '../components/GuestMobileMenu.astro';
+import GuestHomeBase from '../components/GuestHomeBase.astro';
+import '../styles/guest-game.css';
+import GuestGuideViews from '../components/GuestGuideViews.astro';
+import GuestStayNav from '../components/GuestStayNav.astro';
+import '../styles/guest-layout.css';
+import GuestExplore from '../components/GuestExplore.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { Font } from 'astro:assets';
 import { localizeProperty, propertyLocation } from '../domain/property';
 import { propertyRepository } from '../repositories/property-repository';
 import { languageNames, localePath, locales } from '../i18n';
@@ -16,57 +22,41 @@ const mapsUrl = property.latitude !== undefined && property.longitude !== undefi
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 const title = `Guest guide | ${property.name}`;
 const description = `Practical information for your stay at ${property.name}: arrival, departure, amenities, house rules, and booking information.`;
-const sections = [['arrival', 'Arrival'], ['accommodation', 'Accommodation'], ['amenities', 'Amenities'], ['experiences', 'Experiences'], ['food', 'Food'], ['house-rules', 'House rules'], ['departure', 'Departure'], ['help', 'Help']];
+const sections = [['arrival', 'Arrival'], ['accommodation', 'Accommodation'], ['amenities', 'Amenities'], ['house-rules', 'House rules'], ['departure', 'Departure'], ['help', 'Help'], ['explore', 'Explore nearby']];
 const config = await getSiteConfig();
 const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:var(--astro-font-heading),ui-rounded,system-ui,sans-serif;--font-body:var(--astro-font-body),system-ui,sans-serif`;
 ---
 <BaseLayout {title} {description} locale="en" alternates noindex>
-  <div class="guest-site" data-site-slug={config.site.slug} data-edges={config.design.edges} style={designStyle}>
+  <Font slot="head" cssVariable="--astro-font-hand" />
+  <div class="guest-site guest-guide-layout" data-site-slug={config.site.slug} data-edges={config.design.edges} style={designStyle}>
   <header class="guest-header">
-    <a class="brand" href="/" aria-label={`${property.name} – home`}>{property.name}</a>
+    <div class="guest-brand"><span>Guest guide</span><a class="brand" href="/" aria-label={`${property.name} – home`}>{property.name}</a></div>
     <nav class="site-actions" aria-label="Language and navigation">
       <a class="guest-header-link" href="/">← Back to property</a>
       <span class="language-switcher">{locales.map((item) => <a href={localePath(item, 'guests')} lang={item} aria-current={item === 'en' ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
     </nav>
-    <GuestMobileMenu locale="en" {sections} />
   </header>
   <div class="guest-shell">
-    <aside class="guest-sidebar" aria-label="Guide contents"><div class="guest-sidebar-inner">
-      <p class="guest-sidebar-label">Guest guide</p>
-      <nav>{sections.map(([id, label], index) => <a href={`#${id}`}><span>{String(index + 1).padStart(2, '0')}</span>{label}</a>)}</nav>
-    </div></aside>
     <main class="guest-doc">
-      <div class="guest-hero"><p class="eyebrow">Welcome to {property.name}</p><h1>It’s lovely to have you here.</h1><p>We want you to feel at home from the moment you arrive. Here you’ll find everything useful for your stay.</p><div class="guest-meta">
-        {property.checkIn && <div><span>Arrival</span><strong>{property.checkIn}</strong></div>}
-        {property.checkOut && <div><span>Departure</span><strong>{property.checkOut}</strong></div>}
-        {largestUnitCapacity > 0 && <div><span>Guests</span><strong>up to {largestUnitCapacity}</strong></div>}
-      </div></div>
-      <section class="doc-section" id="arrival"><div class="doc-number">01</div><div class="doc-content"><p class="eyebrow">See you soon</p><h2>Getting here</h2><p class="doc-lead">You’ll find us at <strong>{location}</strong>. We sent key collection details through your reservation messages.</p><div class="info-grid">
+      <GuestGuideViews locale="en" />
+      <div id="stay" data-guide-panel="stay">
+      <GuestHomeBase locale="en" propertyName={property.name} checkIn={property.checkIn} checkOut={property.checkOut} capacity={largestUnitCapacity} />
+      <GuestStayNav locale="en" {sections} />
+      <section class="doc-section" id="arrival"><div class="doc-content"><p class="eyebrow">See you soon</p><h2>Getting here</h2><p class="doc-lead">You’ll find us at <strong>{location}</strong>. We sent key collection details through your reservation messages.</p><div class="info-grid">
         <article><span class="info-icon" aria-hidden="true">↳</span><h3>Arrival time</h3><p>{property.checkIn ?? 'As agreed with your host'}</p></article>
         <article><span class="info-icon" aria-hidden="true">⌖</span><h3>Directions</h3><p>{location}</p><a href={mapsUrl} target="_blank" rel="noopener">Open in Google Maps ↗</a></article>
       </div><aside class="doc-note"><strong>Just let us know</strong><p>If you’re arriving later or your journey is delayed, send us a message and we’ll arrange your arrival together.</p></aside></div></section>
-      <section class="doc-section" id="accommodation"><div class="doc-number">02</div><div class="doc-content"><p class="eyebrow">Make yourself at home</p><h2>Your space</h2><p class="doc-lead">{property.description}</p>{property.units.some((unit) => unit.rooms.length) && <div class="room-list">{property.units.flatMap((unit) => unit.rooms.map((room) => ({ ...room, unitName: property.units.length > 1 ? unit.name : undefined }))).map((room) => <article><div><h3>{room.unitName ? `${room.unitName} · ${room.name}` : room.name}</h3>{room.beds && <p>{room.beds}</p>}</div>{room.sleeps && <span>for {room.sleeps}</span>}</article>)}</div>}</div></section>
-      <section class="doc-section" id="amenities"><div class="doc-number">03</div><div class="doc-content"><p class="eyebrow">Prepared for you</p><h2>Amenities and comfort</h2><p class="doc-lead">Here is what awaits you. If you can’t find something or aren’t sure how it works, please message us.</p><ul class="amenity-doc-list">{property.amenities.map((amenity) => <li><span aria-hidden="true">✓</span>{amenity}</li>)}</ul></div></section>
-      <section class="doc-section" id="experiences"><div class="doc-number">04</div><div class="doc-content"><p class="eyebrow">Our suggestions</p><h2>Things to do nearby</h2><div class="place-list">
-        <a href="https://www.bled.si/en/what-to-see-do/attractions/" target="_blank" rel="noopener"><div><h3>Walk around the lake</h3><p>An easy walk with views of the island and castle</p></div><span>Outdoors ↗</span></a>
-        <a href="https://www.bled.si/en/what-to-see-do/attractions/15/bled-castle/" target="_blank" rel="noopener"><div><h3>Bled Castle</h3><p>Views, museum, and history above the lake</p></div><span>Culture ↗</span></a>
-        <a href="https://www.bled.si/en/what-to-see-do/attractions/6/vintgar-gorge/" target="_blank" rel="noopener"><div><h3>Vintgar Gorge</h3><p>A 1.6 km gorge, about 4 km from Bled</p></div><span>Nature ↗</span></a>
-      </div><p class="section-source">Check the weather and opening hours before setting out. Ask us anytime for a personal recommendation.</p></div></section>
-      <section class="doc-section" id="food"><div class="doc-number">05</div><div class="doc-content"><p class="eyebrow">Our tasty tips</p><h2>Places to eat</h2><div class="place-list">
-        <a href="https://www.google.com/maps/search/?api=1&query=Blejska+hi%C5%A1a+Bled" target="_blank" rel="noopener"><div><h3>Blejska hiša</h3><p>Local dishes and products</p></div><span>Local ↗</span></a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Old+Cellar+Bled" target="_blank" rel="noopener"><div><h3>Old Cellar Bled</h3><p>A special evening in Bled</p></div><span>Special dinner ↗</span></a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Kavarna+Park+Bled" target="_blank" rel="noopener"><div><h3>Park Café</h3><p>The original Bled cream cake</p></div><span>Dessert ↗</span></a>
-      </div><p class="section-source">Please check opening hours or reserve a table before visiting.</p></div></section>
-      <section class="doc-section" id="house-rules"><div class="doc-number">06</div><div class="doc-content"><p class="eyebrow">A few friendly requests</p><h2>Keeping it pleasant for everyone</h2><p class="doc-lead">Please look after the property as you would your own home and be considerate of our neighbours.</p><ul class="rule-list">
-        <li><span>01</span><div><h3>Peace and quiet</h3><p>Please keep noise down in the evening so our neighbours can enjoy the peace too.</p></div></li>
+      <section class="doc-section" id="accommodation"><div class="doc-content"><p class="eyebrow">Make yourself at home</p><h2>Your space</h2><p class="doc-lead">{property.description}</p>{property.units.some((unit) => unit.rooms.length) && <div class="room-list">{property.units.flatMap((unit) => unit.rooms.map((room) => ({ ...room, unitName: property.units.length > 1 ? unit.name : undefined }))).map((room) => <article><div><h3>{room.unitName ? `${room.unitName} · ${room.name}` : room.name}</h3>{room.beds && <p>{room.beds}</p>}</div>{room.sleeps && <span>for {room.sleeps}</span>}</article>)}</div>}</div></section>
+      <section class="doc-section" id="amenities"><div class="doc-content"><p class="eyebrow">Prepared for you</p><h2>Amenities and comfort</h2><p class="doc-lead">Here is what awaits you. If you can’t find something or aren’t sure how it works, please message us.</p><ul class="amenity-doc-list">{property.amenities.map((amenity) => <li><span aria-hidden="true">✓</span>{amenity}</li>)}</ul></div></section>
+      <section class="doc-section" id="house-rules"><div class="doc-content"><p class="eyebrow">A few friendly requests</p><h2>Keeping it pleasant for everyone</h2><p class="doc-lead">Please look after the property as you would your own home and be considerate of our neighbours.</p><ul class="rule-list">
+        <li><span>01</span><div><h3>Quiet hours: 10:00 PM–6:00 AM</h3><p>Please keep noise down during these hours so our neighbours can enjoy the peace too.</p></div></li>
         <li><span>02</span><div><h3>If something happens</h3><p>Don’t worry—just tell us promptly so we can resolve it together.</p></div></li>
         <li><span>03</span><div><h3>Registered guests</h3><p>Only guests included in the reservation may stay overnight. Contact us about special requests.</p></div></li>
       </ul></div></section>
-      <section class="doc-section" id="departure"><div class="doc-number">07</div><div class="doc-content"><p class="eyebrow">Before we say goodbye</p><h2>Departure</h2><p class="doc-lead">Departure is by <strong>{property.checkOut ?? 'the agreed time'}</strong>. Key instructions are in your reservation messages.</p><div class="checklist">
+      <section class="doc-section" id="departure"><div class="doc-content"><p class="eyebrow">Before we say goodbye</p><h2>Departure</h2><p class="doc-lead">Departure is by <strong>{property.checkOut ?? 'the agreed time'}</strong>. Key instructions are in your reservation messages.</p><div class="checklist">
         <label><input type="checkbox" /> <span>Check that you have all your belongings.</span></label><label><input type="checkbox" /> <span>Close the windows and turn off the lights.</span></label><label><input type="checkbox" /> <span>Return the keys as agreed with your host.</span></label>
       </div></div></section>
       <section class="doc-section" id="help">
-        <div class="doc-number">08</div>
         <div class="doc-content">
           <p class="eyebrow">Get in touch</p><h2>We’re here if you need us</h2>
           <p class="doc-lead">If you need anything during your stay, please contact your host. You can also reach us through your reservation messages.</p>
@@ -83,8 +73,15 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
             <article><h3>Emergency services</h3><p>For urgent medical help, firefighters, or mountain rescue.</p><a href="tel:112">112</a></article>
             <article><h3>Roadside assistance · AMZS</h3><p>For a vehicle breakdown. Also available at <a href="tel:+38615305353">+386 1 530 53 53</a>.</p><a href="tel:1987">1987</a></article>
           </div>
+          <h3>Taxi</h3>
+          <div class="info-grid">
+            <article><h3>Bled Taxi Transfer</h3><a href="tel:+38641710747">+386 41 710 747</a></article>
+            <article><h3>Bled Taxi</h3><a href="tel:+38670851277">+386 70 851 277</a></article>
+          </div>
         </div>
       </section>
+      </div>
+      <GuestExplore locale="en" propertyName={property.name} {mapsUrl} latitude={property.latitude} longitude={property.longitude} />
     </main>
   </div>
   <footer class="guest-footer"><p>© {new Date().getFullYear()} {property.name}</p><a href="#top">Back to top ↑</a></footer>

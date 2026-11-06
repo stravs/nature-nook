@@ -116,6 +116,8 @@ ${property.description}
 
 - [English homepage](${url('/')}): Property overview; supports Accept: text/markdown.
 - [Slovenian homepage](${url('/sl')}): Localized overview; supports Accept: text/markdown.
+- [English Markdown](${url('/en.md')}): Public overview without content negotiation.
+- [Slovenian Markdown](${url('/sl.md')}): Localized public overview without content negotiation.
 - [English property facts](${url('/api/property/en.json')}): Read-only JSON snapshot.
 - [Slovenian property facts](${url('/api/property/sl.json')}): Read-only localized JSON snapshot.
 - [Booking provider](${property.bookingUrl}): Verify current prices, availability and booking terms here.

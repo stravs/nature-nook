@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import ts from 'typescript';
+
+const source = await readFile(new URL('../src/lib/distances.ts', import.meta.url), 'utf8');
+const { outputText } = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } });
+const { straightLineDistanceMeters: distance, formatStraightLineDistance: format, isValidCoordinates: valid } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
+
+assert.equal(distance([46, 14], [46, 14]), 0);
+assert.ok(Math.abs(distance([0, 0], [0, 1]) - 111_195) < 2);
+assert.ok(Math.abs(distance([0, 179.9], [0, -179.9]) - 22_239) < 2, 'Crosses the date line by the short arc');
+assert.ok(Math.abs(distance([0, 0], [0, 180]) - 20_015_114) < 2, 'Antipodal points stay finite');
+assert.ok(Math.abs(distance([46, 14], [47, 15]) - distance([47, 15], [46, 14])) < 0.001);
+assert.equal(valid(undefined), false);
+assert.equal(valid([undefined, 14]), false);
+assert.equal(valid([NaN, 14]), false);
+assert.equal(valid([91, 14]), false);
+assert.equal(valid([46, 181]), false);
+assert.equal(valid([46, 14]), true);
+assert.throws(() => distance([91, 0], [0, 0]), RangeError);
+assert.equal(format(0, 'en'), '0 m');
+assert.equal(format(4, 'en'), '< 10 m');
+assert.equal(format(354, 'en'), '≈ 350 m');
+assert.equal(format(994, 'en'), '≈ 990 m');
+assert.equal(format(999, 'en'), '≈ 1.0 km');
+assert.equal(format(1250, 'en'), '≈ 1.3 km');
+assert.equal(format(1250, 'sl'), '≈ 1,3 km');
+assert.throws(() => format(-1, 'en'), RangeError);
+assert.throws(() => format(Infinity, 'en'), RangeError);
+console.log('Straight-line calculation, rounding, locale formatting, and coordinate validation passed');

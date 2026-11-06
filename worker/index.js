@@ -1,65 +1,83 @@
-import TurndownService from 'turndown';
-import { parseHTML } from 'linkedom';
-
 const policy = 'ai-train=no, search=yes, ai-input=yes';
 
 function wantsMarkdown(accept = '') {
   const types = accept.split(',').map((part) => {
     const [type, ...parameters] = part.trim().toLowerCase().split(';');
     const q = parameters.find((parameter) => parameter.trim().startsWith('q='));
-    return { type, quality: q ? Number(q.trim().slice(2)) : 1 };
+    const quality = q ? Number(q.trim().slice(2)) : 1;
+    return { type, quality: Number.isFinite(quality) && quality >= 0 && quality <= 1 ? quality : 0 };
   });
   const markdown = types.find(({ type }) => type === 'text/markdown');
   const html = types.find(({ type }) => type === 'text/html');
   return markdown && markdown.quality > 0 && (!html || markdown.quality >= html.quality);
 }
 
+async function sendEnquiry(request, env) {
+  if (request.method !== 'POST') return new Response('Method not allowed\n', { status: 405, headers: { Allow: 'POST' } });
+  const form = await request.formData().catch(() => null);
+  if (!form) return Response.json({ ok: false, error: 'invalid' }, { status: 400 });
+  const value = (name, max) => String(form.get(name) ?? '').trim().slice(0, max);
+  // Honeypot filled in: pretend success so bots learn nothing.
+  if (value('website', 200)) return Response.json({ ok: true });
+  const enquiry = {
+    name: value('name', 100), email: value('email', 200), arrival: value('arrival', 10), departure: value('departure', 10),
+    guests: value('guests', 3), message: value('message', 5000), locale: value('locale', 5),
+  };
+  if (!enquiry.name || !enquiry.message || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enquiry.email)) {
+    return Response.json({ ok: false, error: 'invalid' }, { status: 400 });
+  }
+  const text = [
+    `Name: ${enquiry.name}`, `Email: ${enquiry.email}`, `Arrival: ${enquiry.arrival || '-'}`, `Departure: ${enquiry.departure || '-'}`,
+    `Guests: ${enquiry.guests || '-'}`, `Language: ${enquiry.locale || '-'}`, '', enquiry.message,
+  ].join('\n');
+  try {
+    await env.EMAIL.send({
+      to: env.ENQUIRY_TO, from: { email: env.ENQUIRY_FROM, name: 'Nature Nook' }, replyTo: { email: enquiry.email, name: enquiry.name },
+      subject: `Enquiry from ${enquiry.name}`.replace(/[\r\n]/g, ' '), text,
+    });
+  } catch (error) {
+    console.error('Enquiry email failed:', error.code, error.message);
+    return Response.json({ ok: false, error: 'send_failed' }, { status: 502 });
+  }
+  return Response.json({ ok: true });
+}
+
 export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
-    const publicResource = path.startsWith('/api/property/') || path.startsWith('/.well-known/') || ['/openapi.json', '/api-docs.md', '/auth.md', '/llms.txt'].includes(path);
+    if (path === '/api/enquiry') return sendEnquiry(request, env);
+    const publicResource = path.startsWith('/api/property/') || path.startsWith('/.well-known/') || ['/openapi.json', '/api-docs.md', '/auth.md', '/llms.txt', '/en.md', '/sl.md'].includes(path);
     if (publicResource && request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS' } });
     }
-    if (publicResource && !['GET', 'HEAD'].includes(request.method)) {
+    if (!['GET', 'HEAD'].includes(request.method)) {
       return new Response('Read-only resource\n', { status: 405, headers: { Allow: 'GET, HEAD, OPTIONS', 'Access-Control-Allow-Origin': '*' } });
     }
-    const response = await env.ASSETS.fetch(request);
+    const publicPage = path === '/' || path === '/sl';
+    const markdown = publicPage && wantsMarkdown(request.headers.get('Accept') ?? '');
+    const assetUrl = new URL(request.url);
+    if (markdown) assetUrl.pathname = path === '/' ? '/en.md' : '/sl.md';
+    const response = await env.ASSETS.fetch(new Request(assetUrl, request));
     const headers = new Headers(response.headers);
     headers.set('Content-Signal', policy);
+    headers.set('X-Content-Type-Options', 'nosniff');
+    headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    headers.set('X-Frame-Options', 'DENY');
+    if (path === '/guests' || path === '/sl/guests') headers.set('X-Robots-Tag', 'noindex, follow');
+    if (new URL(request.url).hostname.endsWith('.workers.dev')) headers.set('X-Robots-Tag', 'noindex, follow');
+    if (publicPage) {
+      headers.append('Vary', 'Accept');
+      // Cloudflare's CDN does not use Vary: Accept as a cache key.
+      // Keep representation negotiation out of shared caches.
+      headers.set('Cache-Control', 'private, no-cache');
+      headers.set('CDN-Cache-Control', 'no-store');
+      if (markdown) headers.set('Content-Type', 'text/markdown; charset=utf-8');
+    }
+    if (publicResource) headers.set('Access-Control-Expose-Headers', 'Link, Content-Signal, ETag');
     if (publicResource) headers.set('Access-Control-Allow-Origin', '*');
     if (path === '/.well-known/api-catalog' && response.ok) headers.set('Content-Type', 'application/linkset+json; charset=utf-8');
     if (path.endsWith('.md') && response.ok) headers.set('Content-Type', 'text/markdown; charset=utf-8');
     headers.append('Link', '</.well-known/api-catalog>; rel="api-catalog", </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", </api-docs.md>; rel="service-doc"; type="text/markdown", </llms.txt>; rel="describedby"; type="text/plain"');
-    if (!headers.get('content-type')?.includes('text/html')) {
-      return new Response(response.body, { status: response.status, headers });
-    }
-    const vary = headers.get('Vary');
-    if (!vary?.split(',').some((value) => value.trim().toLowerCase() === 'accept')) {
-      headers.set('Vary', vary ? `${vary}, Accept` : 'Accept');
-    }
-    if (request.method !== 'GET' || !response.ok || !wantsMarkdown(request.headers.get('Accept') ?? '')) {
-      return new Response(response.body, { status: response.status, headers });
-    }
-    const sourceResponse = response.clone();
-    // HTMLRewriter removes page chrome before the HTML-to-Markdown conversion.
-    const cleaned = await new HTMLRewriter()
-      .on('script, style, nav, header, footer, dialog, template, noscript', {
-        element(element) { element.remove(); },
-      })
-      .transform(response).text();
-    const converter = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced' });
-    const { document } = parseHTML(cleaned);
-    // Preserve separation between inline facts and retain useful structured data.
-    document.querySelectorAll('.facts span, .unit-facts li').forEach((element) => element.appendChild(document.createTextNode(' · ')));
-    const { document: sourceDocument } = parseHTML(await sourceResponse.text());
-    const structured = [...sourceDocument.querySelectorAll('script[type="application/ld+json"]')].map((element) => element.textContent).filter(Boolean);
-    const markdown = converter.turndown(document.body) + (structured.length ? '\n\n```json\n' + structured.join('\n') + '\n```' : '') + '\n';
-    headers.set('Content-Type', 'text/markdown; charset=utf-8');
-    // These validators and encodings describe the original HTML, not this body.
-    for (const name of ['Content-Length', 'Content-Encoding', 'ETag', 'Last-Modified']) {
-      headers.delete(name);
-    }
-    return new Response(markdown, { status: response.status, headers });
+    return new Response(response.body, { status: response.status, headers });
   },
 };

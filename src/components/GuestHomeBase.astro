@@ -1,0 +1,64 @@
+---
+import type { Locale } from '../i18n';
+interface Props {
+  locale: Locale;
+  propertyName: string;
+  checkIn?: string | undefined;
+  checkOut?: string | undefined;
+  capacity: number;
+}
+const { locale, propertyName, checkIn, checkOut, capacity } = Astro.props;
+const en = locale === 'en';
+---
+<section class="tw:py-8 tw:sm:py-12" aria-labelledby="home-base-heading">
+  <div class="tw:mb-6 tw:flex tw:flex-wrap tw:items-end tw:justify-between tw:gap-4">
+    <div>
+      <p class="eyebrow">{propertyName} · {en ? 'Your home base' : 'Vaše izhodišče'}</p>
+      <h1 id="home-base-heading" class="tw:text-[clamp(2rem,5vw,3.3rem)]">{en ? 'A little stay. A big adventure.' : 'Majhen oddih. Velika pustolovščina.'}</h1>
+    </div>
+    <span class="tw:inline-flex tw:items-center tw:gap-2 tw:rounded-full tw:border tw:border-[#ccd9c5] tw:bg-[#edf3e6] tw:px-4 tw:py-2 tw:text-xs tw:font-bold tw:text-[#36533c]">
+      <span class="tw:h-2 tw:w-2 tw:rounded-full tw:bg-[#527849]" aria-hidden="true"></span>{en ? 'At home' : 'Doma'}
+    </span>
+  </div>
+  <div class="tw:overflow-hidden tw:rounded-2xl tw:border tw:border-[#ccd9c5] tw:bg-[#edf3e6]">
+    <div class="tw:relative tw:isolate tw:overflow-hidden">
+      <svg viewBox="0 0 900 330" class="tw:block tw:h-[230px] tw:w-full tw:sm:h-[310px]" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+        <rect width="900" height="330" fill="#eaf1df" />
+        <circle cx="738" cy="65" r="29" fill="#efd9a2" />
+        <path d="M0 196 130 64 235 167 359 51 515 188 647 84 836 199 900 144V330H0Z" fill="#cedbc5" />
+        <path d="m289 115 70-64 72 63-41-10-30 15-30-22Z" fill="#f7f7e9" />
+        <path d="M0 253Q130 176 308 231T612 220T900 210V330H0Z" fill="#b5caa0" />
+        <ellipse cx="737" cy="275" rx="172" ry="40" fill="#a4c8c5" />
+        <path d="M373 330Q529 274 466 246T373 207" fill="none" stroke="#f5e7be" stroke-width="38" />
+        <path d="M373 330Q529 274 466 246T373 207" fill="none" stroke="#b4a57f" stroke-width="2" stroke-dasharray="5 9" />
+        {[70, 126, 198, 588, 638, 823].map((x, i) => <g transform={`translate(${x} ${160 + (i % 3) * 20})`}><path d="M0 0V102" stroke="#687457" stroke-width="7" /><path d="m0-25-28 62h17l-26 35h74L11 37h17Z" fill={i % 2 ? '#668562' : '#78946b'} /></g>)}
+        <ellipse cx="362" cy="251" rx="100" ry="16" fill="#93ab80" />
+        <path d="M295 166h134v78H295Z" fill="#faf1d9" stroke="#607252" stroke-width="3" />
+        <path d="m276 172 86-74 87 74Z" fill="#a76548" stroke="#76533e" stroke-width="4" stroke-linejoin="round" />
+        <path d="M407 113V88h13v38" fill="#a76548" stroke="#76533e" stroke-width="3" />
+        <path d="M350 244v-49h27v49" fill="#6d8059" />
+        <path d="M310 188h23v23h-23Zm83 0h23v23h-23Z" fill="#e7ca7c" stroke="#8e916b" stroke-width="3" />
+        <path d="M321 189v21m-11-10h23m71-11v21m-11-10h23" stroke="#8e916b" stroke-width="2" />
+        <path d="M688 272h43m21 12h55m-90 10h28" stroke="#d5e7d8" stroke-width="3" stroke-linecap="round" />
+      </svg>
+      <a href={en ? '#arrival' : '#prihod'} class="tw:absolute tw:top-4 tw:left-4 tw:rounded-lg tw:border tw:border-[#b8c7a9] tw:bg-[#fffcf3] tw:px-4 tw:py-3 tw:text-sm tw:font-bold tw:text-[#36533c] tw:no-underline tw:shadow-sm tw:transition-transform tw:hover:-translate-y-1 tw:focus-visible:outline-3 tw:focus-visible:outline-offset-4 tw:motion-reduce:transition-none">
+        <span aria-hidden="true">⌂</span> {en ? 'Your stay' : 'Vaše bivanje'} <span aria-hidden="true">↓</span>
+      </a>
+      <a href="#explore" data-go-roaming class="tw:absolute tw:right-4 tw:bottom-4 tw:flex tw:min-h-12 tw:items-center tw:gap-3 tw:rounded-lg tw:border tw:border-[#294a32] tw:bg-[#365b3d] tw:px-5 tw:py-3 tw:text-sm tw:font-bold tw:text-white tw:no-underline tw:shadow-[0_4px_0_#243e2a] tw:transition-transform tw:hover:-translate-y-1 tw:focus-visible:outline-3 tw:focus-visible:outline-offset-4 tw:motion-reduce:transition-none">
+        <span aria-hidden="true">⌖</span> {en ? 'Go roaming' : 'Na potep'} <span aria-hidden="true">→</span>
+      </a>
+    </div>
+    <div class="tw:grid tw:gap-6 tw:border-t tw:border-[#ccd9c5] tw:bg-[#fffcf3] tw:p-5 tw:sm:grid-cols-[1fr_auto] tw:sm:p-7">
+      <div>
+        <h2 class="tw:mb-2 tw:text-xl">{en ? 'Settle in, then head out.' : 'Najprej se udomačite, nato na pot.'}</h2>
+        <p class="tw:m-0 tw:max-w-md tw:text-sm tw:leading-relaxed tw:text-(--muted)">{en ? 'Your stay essentials live here. When adventure calls, take the path to the map. Home is always one tap away.' : 'Tukaj najdete vse za prijetno bivanje. Ko vas zamika pustolovščina, odprite zemljevid. Domov se vrnete z enim dotikom.'}</p>
+      </div>
+      <dl class="tw:m-0 tw:flex tw:flex-wrap tw:gap-6 tw:self-center">
+        {checkIn && <div><dt class="tw:text-xs tw:text-(--muted)">{en ? 'Check-in' : 'Prihod'}</dt><dd class="tw:m-0 tw:mt-1 tw:text-sm tw:font-bold">{checkIn}</dd></div>}
+        {checkOut && <div><dt class="tw:text-xs tw:text-(--muted)">{en ? 'Check-out' : 'Odhod'}</dt><dd class="tw:m-0 tw:mt-1 tw:text-sm tw:font-bold">{checkOut}</dd></div>}
+        {capacity > 0 && <div><dt class="tw:text-xs tw:text-(--muted)">{en ? 'Guests' : 'Gostje'}</dt><dd class="tw:m-0 tw:mt-1 tw:text-sm tw:font-bold">{en ? 'up to' : 'do'} {capacity}</dd></div>}
+      </dl>
+    </div>
+  </div>
+  <p class="tw:mt-5 tw:mb-0 tw:text-xs tw:font-bold tw:tracking-widest tw:text-(--muted) tw:uppercase">{en ? 'Your stay essentials ↓' : 'Vse za vaše bivanje ↓'}</p>
+</section>

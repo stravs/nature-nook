@@ -10,9 +10,7 @@ const english = locale === 'en';
   </summary>
   <nav aria-label={english ? 'Navigation' : 'Navigacija'}>
     {sections.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
-    {home
-      ? <a href={localePath(locale, 'guests')}>{english ? 'Guest guide' : 'Za goste'}</a>
-      : <a class="guest-header-link" href={localePath(locale)}>{english ? '← Back to property' : '← Nazaj na nastanitev'}</a>}
+    {!home && <a class="guest-header-link" href={localePath(locale)}>{english ? '← Back to property' : '← Nazaj na nastanitev'}</a>}
     <span class="language-switcher">{locales.map((item) => <a href={home ? localePath(item) : localePath(item, 'guests')} lang={item} aria-current={item === locale ? 'page' : undefined} aria-label={languageNames[item]}>{item.toUpperCase()}</a>)}</span>
   </nav>
 </details>

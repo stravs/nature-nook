@@ -1,0 +1,55 @@
+---
+import type { Property } from '../domain/property';
+import type { Locale } from '../i18n';
+import { bookingReviews } from '../data/booking-reviews';
+
+interface Props { property: Property; locale: Locale; compact?: boolean }
+const { property, locale, compact = false } = Astro.props;
+const { rating, reviewCount } = property;
+const hasRating = typeof rating === 'number' && Number.isFinite(rating) && rating > 0 && rating <= 10
+  && typeof reviewCount === 'number' && Number.isInteger(reviewCount) && reviewCount > 0;
+const score = hasRating ? rating!.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '';
+const count = reviewCount?.toLocaleString(locale);
+const en = locale === 'en';
+const reviewLabel = en ? `${count} reviews on Booking.com` : `${count} mnenj na Booking.com`;
+const reviewsUrl = new URL(property.bookingUrl);
+reviewsUrl.hash = 'tab-reviews';
+---
+{hasRating && (compact ? (
+  <a href={reviewsUrl.href} class="tw:mt-6 tw:inline-flex tw:w-fit tw:items-center tw:gap-3 tw:text-left tw:no-underline tw:focus-visible:outline-2 tw:focus-visible:outline-offset-4" aria-label={`${en ? 'Guest rating' : 'Ocena gostov'}: ${score}/10 · ${reviewLabel}`}>
+    <strong class="tw:grid tw:min-h-12 tw:min-w-12 tw:place-items-center tw:rounded-t-lg tw:rounded-br-lg tw:bg-(--moss) tw:px-2 tw:text-xl tw:text-white">{score}</strong>
+    <span class="tw:text-sm"><span class="tw:block tw:font-bold">{en ? 'Guest rating' : 'Ocena gostov'}</span><span class="tw:underline tw:underline-offset-4">{reviewLabel}</span></span>
+  </a>
+) : (
+  <section id="reviews" aria-labelledby="reviews-title" class="tw:bg-(--cream)">
+    <div class="section tw:max-md:px-5">
+    <div>
+      <p class="eyebrow">{en ? 'From our guests' : 'Besede naših gostov'}</p>
+      <h2 id="reviews-title">{en ? 'Guest reviews' : 'Mnenja gostov'}</h2>
+    </div>
+    <p id="reviews-swipe-hint" class="tw:mt-8 tw:mb-3 tw:text-sm tw:text-(--muted) tw:md:hidden">{en ? 'Swipe to read all three reviews' : 'Podrsajte za vsa tri mnenja'} <span aria-hidden="true">↔</span></p>
+    <div role="region" aria-label={en ? 'Guest review cards' : 'Mnenja gostov'} tabindex="0" class="tw:max-md:-mx-5 tw:max-md:px-5 tw:max-md:scroll-px-5 tw:mt-4 tw:flex tw:snap-x tw:snap-mandatory tw:gap-4 tw:overflow-x-auto tw:overscroll-x-contain tw:pb-4 tw:focus-visible:outline-2 tw:focus-visible:outline-offset-4 tw:md:mt-8 tw:md:grid tw:md:grid-cols-3 tw:md:overflow-visible">
+      {bookingReviews.map((review) => (
+        <figure class="tw:m-0 tw:flex tw:w-[86%] tw:shrink-0 tw:snap-start tw:flex-col tw:rounded-2xl tw:border tw:border-(--line) tw:bg-(--paper) tw:p-6 tw:md:w-auto">
+          <div class="tw:mb-5 tw:flex tw:items-center tw:justify-between tw:gap-4">
+            <span class="tw:text-xs tw:font-bold tw:tracking-wide">Booking.com</span>
+            <span class="tw:rounded-t-lg tw:rounded-br-lg tw:bg-(--moss) tw:px-3 tw:py-2 tw:text-sm tw:text-white" aria-label={`${en ? 'Guest rating' : 'Ocena gosta'}: ${review.score}/10`}><strong>{review.score.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong> / 10</span>
+          </div>
+          <blockquote lang="en" class="tw:m-0 tw:grow tw:text-base tw:leading-relaxed">
+            <p class="tw:m-0">“{review.quote}”</p>
+            {review.negative && <p class="tw:mt-4 tw:mb-0 tw:text-sm tw:text-(--muted)">“{review.negative}”</p>}
+          </blockquote>
+          <figcaption class="tw:mt-6 tw:border-t tw:border-(--line) tw:pt-4 tw:text-sm">
+            <strong class="tw:block">{review.author}</strong>
+            <span class="tw:block tw:text-(--muted)">{review.country[locale]}</span>
+            <time datetime={review.date} class="tw:mt-1 tw:block tw:text-xs tw:text-(--muted)">{new Date(`${review.date}T00:00:00Z`).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}</time>
+            <a href={reviewsUrl.href} target="_blank" rel="noopener noreferrer" class="tw:mt-3 tw:inline-flex tw:min-h-11 tw:items-center tw:gap-2 tw:underline tw:underline-offset-4 tw:focus-visible:outline-2 tw:focus-visible:outline-offset-4" aria-label={en ? `Browse Booking.com reviews · ${review.author}` : `Prebrskajte mnenja na Booking.com · ${review.author}`}>
+              {en ? 'Reviews on Booking.com' : 'Mnenja na Booking.com'} <span aria-hidden="true">↗</span>
+            </a>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+    </div>
+  </section>
+))}

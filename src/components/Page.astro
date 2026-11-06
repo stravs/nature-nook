@@ -5,25 +5,26 @@ import type { Locale } from '../i18n';
 import Header from './Header.astro';
 import Hero from './Hero.astro';
 import Overview from './Overview.astro';
-import Intro from './Intro.astro';
 import Units from './Units.astro';
 import UnitLightbox from './UnitLightbox.astro';
 import Stay from './Stay.astro';
 import Amenities from './Amenities.astro';
 import Location from './Location.astro';
 import Contact from './Contact.astro';
+import BookingReviews from './BookingReviews.astro';
 import Footer from './Footer.astro';
 
 interface Props { property: Property; config: SiteConfig; locale: Locale }
 const { property, config, locale } = Astro.props;
 const enabled = (section: SectionId) => config.sections.includes(section);
 const combinedStay = enabled('units') && property.units.length === 1;
-const personalContact = config.contact.type === 'personal' || config.contact.type === 'both';
-const bookingContact = config.contact.type === 'booking' || config.contact.type === 'both';
 const galleryUnits = property.units.length === 1 ? property.units.map((unit) => {
   const heroUrl = property.photos[0]?.url;
   const photos = [...property.photos, ...unit.photos].filter((photo, index, all) => photo.url !== heroUrl && all.findIndex((candidate) => candidate.url === photo.url) === index);
-  return { ...unit, photos };
+  // Order photos space by space so the lightbox walks through them in the same order.
+  const order = unit.spaces?.flatMap((space) => space.photos) ?? [];
+  const rank = (url: string) => (order.indexOf(url) + 1) || Infinity;
+  return { ...unit, photos: photos.sort((a, b) => rank(a.url) - rank(b.url)) };
 }) : property.units;
 const galleryProperty = { ...property, units: galleryUnits };
 const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.colors.muted};--paper:${config.design.colors.background};--soft:${config.design.colors.surface};--cream:${config.design.colors.surface};--moss:${config.design.colors.primary};--clay:${config.design.colors.accent};--font-display:var(--astro-font-heading),Georgia,serif;--font-body:var(--astro-font-body),system-ui,sans-serif`;
@@ -38,8 +39,9 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
     <UnitLightbox units={galleryUnits} {locale} />
     {combinedStay && <Stay {property} {locale} includeAmenities={enabled('amenities')} />}
     {!combinedStay && enabled('amenities') && property.amenities.length > 0 && <Amenities amenities={property.amenities} {locale} />}
+    <BookingReviews {property} {locale} />
     {enabled('location') && <Location {property} {locale} />}
-    {enabled('contact') && <Contact {property} {locale} {personalContact} {bookingContact} />}
+    {enabled('contact') && <Contact {locale} />}
   </main>
   <Footer {property} />
 </div>

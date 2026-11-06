@@ -14,7 +14,10 @@ const photoSizes = (_index: number) => unitCount === 1
   : '(max-width: 900px) 50vw, 25vw';
 // Single residence split into spaces: each photo keeps its index in unit.photos for the lightbox.
 const spaces = unitCount === 1 && unit.photos.length ? (unit.spaces ?? [])
-  .map((space) => ({ name: space.name, photos: unit.photos.flatMap((photo, index) => space.photos.includes(photo.url) ? [{ photo, index }] : []) }))
+  .map((space) => ({ name: space.name, photos: space.photos.flatMap((url) => {
+    const index = unit.photos.findIndex((photo) => photo.url === url);
+    return index >= 0 ? [{ photo: unit.photos[index]!, index }] : [];
+  }) }))
   .filter((space) => space.photos.length) : [];
 ---
 {spaces.length ? <UnitSpaces {spaces} {unitIndex} {locale} /> : (

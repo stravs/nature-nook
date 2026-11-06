@@ -19,7 +19,7 @@ const arrowButton = 'tw:group tw:grid tw:h-12 tw:w-16 tw:place-items-center tw:r
         <div class="tw:relative" data-space-gallery>
         <div id={`space-${unitIndex}-${index}-photos`} data-space-photo-row class="tw:flex tw:gap-4 tw:overflow-x-auto tw:snap-x tw:snap-mandatory tw:overscroll-x-contain tw:pt-1 tw:pb-4 tw:[scrollbar-width:none] tw:[&::-webkit-scrollbar]:hidden tw:lg:data-[draggable=true]:cursor-grab tw:lg:data-[draggable=true]:[&_button]:cursor-grab tw:data-[dragging=true]:cursor-grabbing tw:data-[dragging=true]:[&_button]:cursor-grabbing tw:select-none">
           {space.photos.map(({ photo, index: photoIndex }) => (
-            <button type="button" data-unit-index={unitIndex} data-unit-photo-index={photoIndex} aria-label={`${t('openUnitPhotos')} ${space.name}`} class={photoButton}>
+            <button type="button" data-unit-index={unitIndex} data-unit-photo-index={photoIndex} aria-label={`${t('openUnitPhotos')} ${space.name}`} class:list={[photoButton, { 'tw:[&_img]:object-bottom': /bathroom|kopalnica/i.test(space.name) }]} >
               <PropertyImage photo={photo} alt={photo.alt ?? space.name} sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 33vw" />
             </button>
           ))}

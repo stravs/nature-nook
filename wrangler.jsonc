@@ -7,6 +7,11 @@
   "build": {
     "command": "npm run build"
   },
+  "send_email": [{ "name": "EMAIL" }],
+  "vars": {
+    "ENQUIRY_TO": "petra@nature-nook.si",
+    "ENQUIRY_FROM": "enquiry@nature-nook.si"
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

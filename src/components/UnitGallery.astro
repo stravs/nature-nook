@@ -1,6 +1,5 @@
 ---
 import PropertyImage from './PropertyImage.astro';
-import UnitSpaces from './UnitSpaces.astro';
 import type { Property, PropertyUnit } from '../domain/property';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../i18n';
@@ -12,18 +11,9 @@ const unitPhotos = unit.photos.length ? unit.photos : fallbackPhotos.slice(0, 1)
 const photoSizes = (_index: number) => unitCount === 1
   ? '(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 50vw, 33vw'
   : '(max-width: 900px) 50vw, 25vw';
-// Single residence split into spaces: each photo keeps its index in unit.photos for the lightbox.
-const spaces = unitCount === 1 && unit.photos.length ? (unit.spaces ?? [])
-  .map((space) => ({ name: space.name, photos: space.photos.flatMap((url) => {
-    const index = unit.photos.findIndex((photo) => photo.url === url);
-    return index >= 0 ? [{ photo: unit.photos[index]!, index }] : [];
-  }) }))
-  .filter((space) => space.photos.length) : [];
 ---
-{spaces.length ? <UnitSpaces {spaces} {unitIndex} {locale} /> : (
-  <div class="unit-photos">
-    {unitPhotos.map((photo, index) => unit.photos.length
-      ? <button class="unit-photo-button" type="button" data-unit-index={unitIndex} data-unit-photo-index={index} aria-label={`${t('openUnitPhotos')} ${unit.name}`}><PropertyImage photo={photo} sizes={photoSizes(index)} alt={photo.alt ?? `${unit.name}, ${t('photo').toLocaleLowerCase(locale)} ${index + 1}`} /></button>
-      : <PropertyImage photo={photo} sizes={photoSizes(index)} alt={photo.alt ?? unit.name} />)}
-  </div>
-)}
+<div class="unit-photos">
+  {unitPhotos.map((photo, index) => unit.photos.length
+    ? <button class="unit-photo-button" type="button" data-unit-index={unitIndex} data-unit-photo-index={index} aria-label={`${t('openUnitPhotos')} ${unit.name}`}><PropertyImage photo={photo} sizes={photoSizes(index)} alt={photo.alt ?? `${unit.name}, ${t('photo').toLocaleLowerCase(locale)} ${index + 1}`} /></button>
+    : <PropertyImage photo={photo} sizes={photoSizes(index)} alt={photo.alt ?? unit.name} />)}
+</div>

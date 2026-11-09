@@ -367,27 +367,6 @@ h1,.section h2,.booking-cta h2,.preview-head h2,.doc-content h2,.contact-card h3
   .facts{position:static}
 }
 
-/* A lone unit is the residence itself, so it gets an immersive gallery—not a card. */
-.unit-card.single-residence,.unit-card:nth-child(even).single-residence,[data-units="compact"] .unit-card.single-residence,[data-units="grid"] .unit-card.single-residence{display:grid;height:auto;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);grid-template-rows:auto auto;gap:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
-.single-residence>.unit-photos,[data-units="compact"] .single-residence>.unit-photos,[data-units="grid"] .single-residence>.unit-photos{grid-column:1/-1;grid-row:1;order:0;width:100%;height:auto;min-height:0;display:block;columns:3;column-gap:14px;margin-bottom:48px;border-radius:0;background:transparent}
-.single-residence .unit-photo-button,.single-residence .unit-photo-button:first-child,.single-residence .unit-photo-button:only-child{display:block;width:100%;height:auto;margin-bottom:10px;break-inside:avoid;grid-column:auto;grid-row:auto;border-radius:18px 5px;box-shadow:0 8px 24px rgba(24,60,45,.09)}
-.single-residence .unit-photo-button img{display:block;width:100%;height:auto;object-fit:contain}
-.single-residence:hover .unit-photo-button img{transform:none}
-.single-residence>.unit-details-bar,[data-units="compact"] .single-residence>.unit-details-bar,[data-units="grid"] .single-residence>.unit-details-bar{position:static;grid-column:2;grid-row:2;order:0;width:auto;margin:0;padding:32px 0 32px 44px;align-self:start;display:grid;grid-template-columns:1fr 1fr;gap:18px;background:transparent;border:0;border-left:1px solid var(--line);box-shadow:none;backdrop-filter:none}
-.single-residence>.unit-details-bar li:after{display:none}
-.single-residence>.unit-content,[data-units="compact"] .single-residence>.unit-content,[data-units="grid"] .single-residence>.unit-content{grid-column:1;grid-row:2;order:0;padding:0 64px 0 0;border-radius:0;background:transparent}
-.single-residence .unit-content h3{font-size:clamp(2.8rem,5vw,4.8rem)}
-@media(max-width:900px){
-  .unit-card.single-residence,.unit-card:nth-child(even).single-residence,[data-units="compact"] .unit-card.single-residence{grid-template-columns:1fr}
-  .single-residence>.unit-photos,[data-units="compact"] .single-residence>.unit-photos{grid-column:1;grid-row:1;columns:2}
-  .single-residence>.unit-content,[data-units="compact"] .single-residence>.unit-content{grid-column:1;grid-row:2;padding:0 0 32px}
-  .single-residence>.unit-details-bar,[data-units="compact"] .single-residence>.unit-details-bar{grid-column:1;grid-row:3;padding:28px 0;border-left:0;border-top:1px solid var(--line)}
-}
-@media(max-width:600px){
-  .single-residence>.unit-photos,[data-units="compact"] .single-residence>.unit-photos,[data-units="grid"] .single-residence>.unit-photos{display:block;columns:1;width:100%;margin-left:0;margin-bottom:34px;padding:0;overflow:visible;scroll-snap-type:none}
-  .single-residence .unit-photo-button,.single-residence .unit-photo-button:first-child,.single-residence .unit-photo-button:only-child{width:100%;height:auto;margin-bottom:14px;grid-column:auto;grid-row:auto;border-radius:28px 6px}
-}
-
 /* Nature Nook's friendly display face is intentionally heavy and rounded. */
 [data-site-slug="nature-nook"] h1,
 [data-site-slug="nature-nook"][data-edges="organic"] .hero-card h1,

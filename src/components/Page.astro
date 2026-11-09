@@ -35,9 +35,9 @@ const designStyle = `--ink:${config.design.colors.text};--muted:${config.design.
     <Hero {property} {locale} />
     <Overview {property} {locale} />
     <!-- {enabled('intro') && <Intro {property} {locale} />} -->
-    {enabled('units') && galleryProperty.units.length > 0 && <Units property={galleryProperty} {locale} />}
+    {!combinedStay && enabled('units') && galleryProperty.units.length > 0 && <Units property={galleryProperty} {locale} />}
     <UnitLightbox units={galleryUnits} {locale} />
-    {combinedStay && <Stay {property} {locale} includeAmenities={enabled('amenities')} />}
+    {combinedStay && <Stay property={galleryProperty} {locale} includeAmenities={enabled('amenities')} />}
     {!combinedStay && enabled('amenities') && property.amenities.length > 0 && <Amenities amenities={property.amenities} {locale} />}
     {enabled('location') && <Location {property} {locale} />}
     <BookingReviews {property} {locale} />

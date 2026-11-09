@@ -1,4 +1,5 @@
 ---
+import SpaceMosaic from './SpaceMosaic.astro';
 import type { Property } from '../domain/property';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../i18n';
@@ -29,6 +30,7 @@ const amenities = [...new Set([
         <ul>{amenities.map((amenity) => <li><span aria-hidden="true">✓</span><span>{amenity}</span></li>)}</ul>
       </div>}
     </div>
+    <SpaceMosaic {unit} {locale} />
   </div>
 </section>
 

@@ -1,0 +1,30 @@
+---
+// One tile per space; a click opens the lightbox at that space's first photo.
+import PropertyImage from './PropertyImage.astro';
+import type { PropertyUnit } from '../domain/property';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../i18n';
+interface Props { unit: PropertyUnit; locale: Locale }
+const { unit, locale } = Astro.props;
+const t = useTranslations(locale);
+// Each cover keeps its index in unit.photos so the lightbox starts in the right place.
+const spaces = (unit.spaces ?? []).flatMap((space) => {
+  const counted = space.photos.filter((url) => unit.photos.some((photo) => photo.url === url));
+  const index = unit.photos.findIndex((photo) => photo.url === counted[0]);
+  return index >= 0 ? [{ name: space.name, cover: unit.photos[index]!, index, count: counted.length }] : [];
+});
+const tile = 'tw:relative tw:m-0 tw:block tw:min-w-0 tw:cursor-zoom-in tw:overflow-hidden tw:rounded-[20px_6px] tw:border-0 tw:bg-white/10 tw:p-0 tw:text-left tw:[&_img]:h-full tw:[&_img]:w-full tw:[&_img]:object-cover tw:[&_img]:transition-transform tw:[&_img]:duration-500 tw:hover:[&_img]:scale-105 tw:focus-visible:outline-2 tw:focus-visible:outline-offset-4 tw:focus-visible:outline-white';
+---
+{spaces.length > 0 && (
+  <div class="tw:mt-14 tw:grid tw:grid-cols-2 tw:gap-3 tw:md:grid-cols-4 tw:md:grid-rows-[16rem_16rem] tw:lg:grid-rows-[18rem_18rem]">
+    {spaces.map((space, position) => (
+      <button type="button" data-unit-index="0" data-unit-photo-index={space.index} aria-label={`${t('openUnitPhotos')} ${space.name}`} class:list={[tile, position === 0 ? 'tw:col-span-2 tw:aspect-[4/3] tw:md:row-span-2 tw:md:aspect-auto' : 'tw:aspect-[4/5] tw:md:aspect-auto']}>
+        <PropertyImage photo={space.cover} alt={space.cover.alt ?? space.name} sizes={position === 0 ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 50vw, 25vw'} />
+        <span class="tw:pointer-events-none tw:absolute tw:inset-x-0 tw:bottom-0 tw:flex tw:flex-col tw:items-start tw:gap-1 tw:md:flex-row tw:md:items-end tw:md:justify-between tw:md:gap-2 tw:bg-linear-to-t tw:from-black/70 tw:to-transparent tw:p-4 tw:pt-12 tw:text-white">
+          <span class:list={['tw:font-(family-name:--font-display) tw:font-bold tw:leading-tight', position === 0 ? 'tw:text-3xl' : 'tw:text-xl']}>{space.name}</span>
+          <span class="tw:shrink-0 tw:text-xs tw:font-bold tw:uppercase tw:tracking-wider tw:opacity-85">{space.count} {t('photos')}</span>
+        </span>
+      </button>
+    ))}
+  </div>
+)}

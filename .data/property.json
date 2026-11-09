@@ -168,21 +168,21 @@
       ],
       "spaces": [
         {
-          "name": "Terasa in vrt",
-          "photos": [
-            "/images/nature-nook/terrace_table.jpg",
-            "/images/nature-nook/walkway.jpg",
-            "/images/nature-nook/terace_walkway.jpg",
-            "/images/nature-nook/garden.jpg"
-          ]
-        },
-        {
           "name": "Dnevni prostor",
           "photos": [
             "/images/nature-nook/living_room4.jpg",
             "/images/nature-nook/living_room5.jpg",
             "/images/nature-nook/bedroom.jpg",
             "/images/nature-nook/bedroom2_2.jpg"
+          ]
+        },
+        {
+          "name": "Terasa in vrt",
+          "photos": [
+            "/images/nature-nook/terrace_table.jpg",
+            "/images/nature-nook/walkway.jpg",
+            "/images/nature-nook/terace_walkway.jpg",
+            "/images/nature-nook/garden.jpg"
           ]
         },
         {
@@ -275,10 +275,10 @@
           ],
           "spaces": [
             {
-              "name": "Terrace & garden"
+              "name": "Living & dining"
             },
             {
-              "name": "Living & dining"
+              "name": "Terrace & garden"
             },
             {
               "name": "Bedrooms"

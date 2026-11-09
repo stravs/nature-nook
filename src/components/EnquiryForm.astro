@@ -20,7 +20,7 @@ const caption = 'tw:text-xs tw:font-bold tw:uppercase tw:tracking-[0.12em] tw:te
   <div class="tw:grid tw:grid-cols-2 tw:gap-5 tw:sm:grid-cols-[1fr_1fr_0.7fr]">
     <label class={label}><span class={caption}>{t('enquiryArrival')}</span><input class={input} name="arrival" type="date" /></label>
     <label class={label}><span class={caption}>{t('enquiryDeparture')}</span><input class={input} name="departure" type="date" /></label>
-    <label class={label}><span class={caption}>{t('enquiryGuests')}</span><input class={input} name="guests" type="number" min="1" max="50" /></label>
+    <label class={label}><span class={caption}>{t('enquiryGuests')}</span><select class={`${input} tw:cursor-pointer`} name="guests"><option value=""></option>{[1, 2, 3, 4].map((count) => <option value={count}>{count}</option>)}</select></label>
   </div>
   <label class={label}><span class={caption}>{t('enquiryMessage')}</span><textarea class={`${field} tw:resize-y`} name="message" required rows="5" maxlength="5000"></textarea></label>
   <div class="tw:mt-2 tw:flex tw:flex-wrap tw:items-center tw:gap-x-6 tw:gap-y-3">

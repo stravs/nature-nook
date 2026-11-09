@@ -26,8 +26,10 @@ async function sendEnquiry(request, env) {
   if (!enquiry.name || !enquiry.message || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enquiry.email)) {
     return Response.json({ ok: false, error: 'invalid' }, { status: 400 });
   }
+  // Date inputs send yyyy-mm-dd; the email shows dd.mm.yyyy.
+  const date = (value) => value.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$3.$2.$1') || '-';
   const text = [
-    `Name: ${enquiry.name}`, `Email: ${enquiry.email}`, `Arrival: ${enquiry.arrival || '-'}`, `Departure: ${enquiry.departure || '-'}`,
+    `Name: ${enquiry.name}`, `Email: ${enquiry.email}`, `Arrival: ${date(enquiry.arrival)}`, `Departure: ${date(enquiry.departure)}`,
     `Guests: ${enquiry.guests || '-'}`, `Language: ${enquiry.locale || '-'}`, '', enquiry.message,
   ].join('\n');
   try {

@@ -1,0 +1,28 @@
+---
+import Layout from '../../../guide/layouts/Layout.astro';
+import Header from '../../../guide/components/Header.astro';
+import Navigation from '../../../guide/components/Navigation.astro';
+import { places, summary, directions, baseFor, type Place } from '../../../guide/lib/guide-data';
+export function getStaticPaths() {
+  return places.map(place => ({ params: { id: place.id }, props: { place } }));
+}
+interface Props { place: Place; }
+const { place } = Astro.props;
+---
+<Layout title={place.title} description={summary(place)}>
+  <Header />
+  <main id="main-content" class="mx-auto max-w-2xl px-4 py-6 pb-32 sm:px-6">
+    <a href={`${baseFor('en')}?view=map`} class="inline-flex min-h-12 items-center font-semibold underline">Back to guide</a>
+    <h1 class="mt-4 text-3xl font-semibold">{place.title}</h1>
+    {place.area && <p class="mt-3 text-base text-moss">{place.area}</p>}
+    {place.advanced && <p class="mt-4 rounded-xl border border-[#b4976a] bg-[#faf0dd] p-4 text-[#63471e]">Advanced alpine terrain. Check weather and trail conditions, take suitable equipment and consider a qualified guide.</p>}
+    <article class="mt-5 space-y-4">{place.paragraphs.map(p => <p class="whitespace-pre-line">{p}</p>)}</article>
+    {place.links.length > 0 && <ul class="mt-4">{place.links.map(link => <li><a href={link.href} class="inline-flex min-h-12 items-center font-semibold underline">{link.label}</a></li>)}</ul>}
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href={`${baseFor('en')}?view=map&place=${encodeURIComponent(place.id)}`} class="inline-flex min-h-12 items-center rounded-full border border-forest/25 px-4 py-2 font-semibold">Show in guide</a>
+      {place.coordinates && !place.route && <a href={directions(place.coordinates)} target="_blank" rel="noopener noreferrer" class="inline-flex min-h-12 items-center rounded-full bg-forest px-4 py-2 font-semibold text-white">Directions · Google Maps</a>}
+    </div>
+    <p class="mt-5 text-base">Check opening hours, access and conditions before going. Most pins mark places, not routes; some trips include a suggested itinerary.</p>
+  </main>
+  <Navigation />
+</Layout>

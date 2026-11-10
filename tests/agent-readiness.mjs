@@ -73,7 +73,7 @@ for (const [page, snapshot] of [['/', '/en.md'], ['/sl', '/sl.md']]) {
   assert.match(head.headers.get('content-type'), /text\/markdown/);
   assert.equal(await head.text(), '');
 }
-for (const path of ['/guests', '/sl/guests']) {
+for (const path of ['/stay-k7m4', '/stay-k7m4/sl', '/stay-k7m4/share', '/stay-k7m4/places/hiking/straza']) {
   const response = await get(path, { Accept: 'text/markdown' });
   assert.match(response.headers.get('content-type'), /text\/html/);
   assert.match(response.headers.get('x-robots-tag'), /noindex/);

@@ -1,0 +1,13 @@
+{
+  "name": "Nature nook",
+  "address": "Grič 15, Bled, Slovenia",
+  "coordinates": [46.369473, 14.1150088],
+  "confirmedByOwner": false,
+  "checkIn": "13:00–23:30",
+  "checkOut": "06:00–10:00",
+  "quietHours": "22:00–06:00",
+  "wifi": { "network": "NatureNook-Demo", "password": "Fern!72Pebble" },
+  "hostPhone": null,
+  "sourceUrl": "https://nature-nook.si/stay-k7m4",
+  "slSourceUrl": "https://nature-nook.si/stay-k7m4/sl"
+}

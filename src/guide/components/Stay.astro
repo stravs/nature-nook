@@ -1,0 +1,84 @@
+---
+import { apartment, apartmentInfo, usefulInfo, sectionsFor, textFor, directions, type Language } from '../lib/guide-data';
+import Icon from './Icon.astro';
+interface Props { lang?: Language; }
+const { lang = 'en' } = Astro.props;
+const t = textFor(lang);
+const sections = sectionsFor(lang);
+const contact = apartmentInfo.contact;
+---
+<div class="mx-auto max-w-3xl space-y-6 px-4 py-5 text-base sm:px-6 sm:py-6">
+  <div class="relative isolate overflow-hidden rounded-[2.5rem_0.5rem] bg-sage px-6 py-7 sm:flex sm:items-center sm:gap-6 sm:px-8 sm:py-8">
+    <div class="relative z-10 flex-1">
+      <p class="text-xs font-bold tracking-[0.18em] text-clay uppercase">{apartment.name}</p>
+      <h2 class="mt-3 text-4xl leading-none text-forest sm:text-5xl">{t.essentials}</h2>
+      <p class="mt-4 flex items-center gap-2 text-base text-forest"><Icon name="pin" class="size-4 shrink-0" />{apartment.address}</p>
+    </div>
+    <img src="/stay-k7m4/images/terrace.webp" alt={lang === 'en' ? 'The private garden terrace at Nature nook' : 'Zasebna vrtna terasa v apartmaju Nature nook'} width="640" height="427" fetchpriority="high" class="hidden h-40 w-44 shrink-0 -rotate-2 rounded-[3rem_0.5rem] object-cover sm:block" />
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <section aria-labelledby="wifi" class="min-w-0 rounded-2xl border border-forest/10 bg-sage/60 p-4 sm:p-5">
+      <h2 id="wifi" tabindex="-1" class="flex scroll-mt-4 items-center gap-2 text-xl"><Icon name="wifi" class="size-5 shrink-0" />{t.wifi}</h2>
+      {apartment.wifi.password ? <>
+        <dl class="mt-3 space-y-2 text-sm">
+          <div><dt class="text-moss">{t.network}</dt><dd class="select-all font-semibold">{apartment.wifi.network}</dd></div>
+          <div><dt class="text-moss">{t.password}</dt><dd class="select-all font-semibold">{apartment.wifi.password}</dd></div>
+        </dl>
+        {apartment.wifi.network?.endsWith('-Demo') && <p class="mt-2 text-xs text-clay">{t.demoWifi}</p>}
+        <button type="button" data-copy={apartment.wifi.password} aria-label={`${t.copy} · ${t.password}`} class="mt-3 hidden min-h-12 items-center justify-center rounded-full border border-forest/25 px-4 py-2 text-sm font-semibold group-data-[enhanced=true]/guide:inline-flex">{t.copy}</button>
+      </> : <p class="mt-3 text-sm">{t.wifiHelp}</p>}
+    </section>
+    <section aria-labelledby="departure" class="min-w-0 rounded-2xl border border-forest/10 bg-[#fdfbf6] p-4 sm:p-5">
+      <h2 id="departure" tabindex="-1" class="flex scroll-mt-4 items-center gap-2 text-xl"><Icon name="clock" class="size-5 shrink-0" />{t.checkout}</h2>
+      <p class="mt-3 text-lg font-bold text-forest">{apartment.checkOut}</p>
+      <p class="mt-2 text-sm">{apartmentInfo.checkout[lang]}</p>
+    </section>
+  </div>
+  <section aria-labelledby="apartment-info-title">
+    <h2 id="apartment-info-title" class="mb-3 text-xl">{t.apartmentInfo}</h2>
+    <div class="divide-y divide-forest/15 rounded-2xl border border-forest/15 bg-[#fdfbf6] px-4 sm:px-5">
+      {sections.map(section => <details data-topic={section.id} class="group/topic">
+        <summary id={section.id} tabindex="0" class="flex min-h-16 scroll-mt-4 list-none items-center gap-3 py-4 font-semibold [&::-webkit-details-marker]:hidden">
+          <Icon name={section.icon} class="size-5 shrink-0 text-moss" />
+          <span class="flex-1">{section.title}</span>
+          <span aria-hidden="true" class="text-xl text-moss group-open/topic:rotate-45">+</span>
+        </summary>
+        <div class="space-y-5 border-t border-forest/10 py-5">
+          {section.items.map(item => <section aria-labelledby={item.id}>
+            <h3 id={item.id} tabindex="-1" class="scroll-mt-4 text-lg">{item.title}</h3>
+            {item.location && <p class="mt-1 text-sm text-moss"><span class="font-semibold">{t.instructionLocation}:</span> {item.location}</p>}
+            <p class="mt-1">{item.answer}</p>
+            {item.id === 'address' && <a href={directions(apartment.coordinates)} target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex min-h-12 items-center gap-2 font-semibold underline underline-offset-4"><Icon name="map" class="size-4" />{t.directions}<span class="sr-only"> · Google Maps</span></a>}
+            {item.id === 'emergency' && <div class="mt-2 flex flex-wrap gap-3">
+              <a href="tel:112" class="inline-flex min-h-12 items-center gap-2 rounded-full bg-forest px-4 font-semibold text-white"><Icon name="phone" class="size-4" />112<span class="sr-only"> · {t.rescue}</span></a>
+              <a href="tel:113" class="inline-flex min-h-12 items-center rounded-full border border-forest/25 px-4 font-semibold">113<span class="sr-only"> · {t.police}</span></a>
+            </div>}
+            {item.image && <img src={item.image.src} alt={item.image.alt[lang]} width={item.image.width} height={item.image.height} loading="lazy" decoding="async" class="mt-3 h-auto max-w-full rounded-xl" />}
+          </section>)}
+        </div>
+      </details>)}
+    </div>
+  </section>
+  <section aria-labelledby="contact" class="rounded-2xl bg-sage/60 p-5">
+    <h2 id="contact" tabindex="-1" class="scroll-mt-4 text-xl">{t.contactHost}</h2>
+    <p class="mt-1 text-sm text-moss">{t.preferredContact}: <span class="font-semibold text-ink">{contact.preferred[lang]}</span></p>
+    {contact.messageUrl ? <a href={contact.messageUrl} target="_blank" rel="noopener noreferrer" class="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-5 py-3 font-semibold text-white">{t.messageHost}<Icon name="external" class="size-4" /></a> : <details class="mt-4">
+      <summary class="flex min-h-12 list-none items-center justify-center gap-2 rounded-full bg-forest px-5 py-3 text-center font-semibold text-white [&::-webkit-details-marker]:hidden">{t.messageHost}<Icon name="arrow" class="size-4 shrink-0" /></summary>
+      <p class="mt-3">{contact.instructions[lang]}</p>
+    </details>}
+    {apartment.hostPhone && <a href={`tel:${apartment.hostPhone.replace(/ /g, '')}`} class="mt-3 flex min-h-12 items-center justify-center gap-2 rounded-full border border-forest/25 px-4 font-semibold"><Icon name="phone" class="size-4" />{t.hostCall}</a>}
+  </section>
+  <section aria-labelledby="useful-info-title">
+    <h2 id="useful-info-title" class="text-xl">{t.info}</h2>
+    {lang !== 'en' && <p class="mt-2 text-sm text-moss">{t.englishTips}</p>}
+    <div class="mt-3 divide-y divide-forest/10 rounded-2xl border border-forest/10 px-4 sm:px-5">
+      {usefulInfo.map(info => <details class="group/info" lang="en">
+        <summary id={info.id} class="flex min-h-14 scroll-mt-4 list-none items-center justify-between gap-3 py-3 font-semibold [&::-webkit-details-marker]:hidden">{info.title}<span aria-hidden="true" class="text-xl text-moss group-open/info:rotate-45">+</span></summary>
+        <div class="space-y-3 pb-5">
+          {info.paragraphs.map(paragraph => <p class="whitespace-pre-line">{paragraph}</p>)}
+          {info.links.map(link => <a href={link.href} class="flex min-h-12 items-center font-semibold underline">{link.label}</a>)}
+        </div>
+      </details>)}
+    </div>
+  </section>
+</div>

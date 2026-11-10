@@ -1,0 +1,27 @@
+---
+import '../styles/global.css';
+import { apartment, guideRoot, baseFor, textFor, type Language } from '../lib/guide-data';
+interface Props { title?: string; description?: string; lang?: Language; }
+const { title, description = 'Practical stay information and host recommendations in Bled.', lang = 'en' } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#183c2d" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="preload" href={`${guideRoot}/fonts/baloo-2-latin.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${guideRoot}/fonts/nunito-sans-latin.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" type="image/svg+xml" href={`${guideRoot}/favicon.svg`} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {Astro.site && [baseFor('en'), baseFor('sl')].includes(Astro.url.pathname.replace(/\/$/, '')) && ['en', 'sl'].map(language => <link rel="alternate" hreflang={language} href={new URL(baseFor(language as Language), Astro.site)} />)}
+    <title>{title ? `${title} · ${apartment.name}` : apartment.name}</title>
+  </head>
+  <body class="wrap-anywhere bg-paper font-sans text-lg leading-relaxed text-ink antialiased selection:bg-sage [&_h1]:font-heading [&_h1]:font-extrabold [&_h1]:tracking-tight [&_h2]:font-heading [&_h2]:font-extrabold [&_h2]:tracking-tight [&_h3]:font-heading [&_h3]:font-bold [&_a:focus-visible]:outline-3 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-clay [&_button:focus-visible]:outline-3 [&_button:focus-visible]:outline-offset-4 [&_button:focus-visible]:outline-clay [&_input:focus-visible]:outline-3 [&_input:focus-visible]:outline-offset-2 [&_input:focus-visible]:outline-clay [&_summary:focus-visible]:outline-3 [&_summary:focus-visible]:outline-clay [&_button]:cursor-pointer [&_summary]:cursor-pointer">
+    <a href="#main-content" class="fixed -top-24 left-4 z-[100] inline-flex min-h-12 items-center rounded-lg bg-forest px-5 text-white focus:top-4">{textFor(lang).skip}</a>
+    <slot />
+  </body>
+</html>

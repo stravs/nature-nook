@@ -14,8 +14,6 @@ export default defineConfig({
   fonts: [
     { name: design.fonts.heading, cssVariable: '--astro-font-heading', provider: fontProviders.google(), weights: ['400 800'], styles: ['normal'], subsets: ['latin', 'latin-ext'] },
     { name: design.fonts.body, cssVariable: '--astro-font-body', provider: fontProviders.google(), weights: ['400 800'], styles: ['normal'], subsets: ['latin', 'latin-ext'] },
-    // Handwriting for the guest guide's hand-drawn walks.
-    { name: 'Caveat', cssVariable: '--astro-font-hand', provider: fontProviders.google(), weights: ['400 700'], styles: ['normal'], subsets: ['latin', 'latin-ext'], fallbacks: ['cursive'] },
   ],
 
   i18n: { locales: ['en', 'sl'], defaultLocale: 'en', routing: { prefixDefaultLocale: false } },
@@ -27,5 +25,6 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: { assetsInlineLimit: 0 },
   },
 });

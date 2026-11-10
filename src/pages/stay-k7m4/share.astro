@@ -1,0 +1,55 @@
+---
+import QRCode from 'qrcode';
+import Layout from '../../guide/layouts/Layout.astro';
+import Header from '../../guide/components/Header.astro';
+import Navigation from '../../guide/components/Navigation.astro';
+import Icon from '../../guide/components/Icon.astro';
+import { apartment, guideRoot } from '../../guide/lib/guide-data';
+import { wifiQrPayload } from '../../guide/lib/wifi';
+const wifi = apartment.wifi;
+const qrOptions = { type: 'svg' as const, errorCorrectionLevel: 'M' as const, margin: 4, color: { dark: '#183c2dff', light: '#ffffffff' }, width: 320 };
+const wifiQr = wifi.network && wifi.password ? await QRCode.toString(wifiQrPayload(wifi.network, wifi.password), qrOptions) : undefined;
+const guideUrl = Astro.site ? new URL(guideRoot, Astro.site).href : undefined;
+const qr = guideUrl ? await QRCode.toString(guideUrl, qrOptions) : undefined;
+---
+<Layout title="Share your guest guide" description="Open, share or print the Nature nook guest guide and Wi-Fi QR codes.">
+  <div class="flex min-h-dvh flex-col">
+    <Header />
+    <Navigation />
+    <main id="main-content" class="mx-auto w-full max-w-2xl flex-1 px-5 py-8 pb-32 sm:py-12 sm:pb-32 print:pb-0">
+      <a href="/stay-k7m4" class="mb-6 inline-flex min-h-12 items-center gap-2 rounded-full border border-forest/25 px-4 py-2 font-semibold print:hidden"><Icon name="back" class="size-5" />Back to guide</a>
+      <section class="rounded-[3rem_0.5rem] border border-forest/15 bg-sage/60 p-6 text-center sm:p-10 print:border-0">
+        <p class="text-base font-semibold uppercase tracking-[0.15em] text-moss">Your stay, made simple</p>
+        <h1 class="mt-3 font-serif text-4xl">{apartment.name}</h1>
+        <p class="mt-3">{apartment.address}</p>
+        <h2 class="mt-7 font-serif text-2xl">A little guide to Bled & beyond</h2>
+        <p class="mt-3">Scan to explore local favourites and find your stay essentials. No app to install.</p>
+        {qr && guideUrl ? (
+          <>
+            <div id="guide-qr" role="img" aria-label={`QR code linking to ${guideUrl}`} class="mx-auto mt-5 w-full max-w-80 [&_svg]:h-auto [&_svg]:w-full" set:html={qr}></div>
+            <a id="guide-url" href={guideUrl} class="inline-flex min-h-12 max-w-full items-center break-all font-semibold underline underline-offset-4">{guideUrl}</a>
+            <div class="mt-6 flex flex-wrap justify-center gap-3 print:hidden">
+              <button id="copy-link" type="button" data-url={guideUrl} class="hidden min-h-12 items-center gap-2 rounded-full bg-forest px-5 py-2 font-semibold text-white">Copy guide link</button>
+              <button id="print-guide" type="button" class="hidden min-h-12 items-center gap-2 rounded-xl border border-forest/30 px-5 py-2 font-semibold">Print QR cards</button>
+            </div>
+            <p id="share-status" role="status" aria-live="polite" class="mt-3 text-base print:hidden"></p>
+            <noscript><p class="mt-4 print:hidden">Copy the link above, or use your browser’s Print menu to print this card.</p></noscript>
+          </>
+        ) : (
+          <aside class="mt-6 rounded-xl border border-[#b4976a] bg-[#faf0dd] p-5 text-left text-[#63471e]"><strong>The share link is not set up yet.</strong><p class="mt-2">Set <code>SITE_URL</code> to the property website’s public origin, then rebuild. The printable QR code will appear here. We won’t print a QR code pointing at the wrong address.</p></aside>
+        )}
+        {wifiQr && <section aria-labelledby="wifi-qr-title" class="mt-8 break-inside-avoid border-t border-forest/20 pt-8">
+          <h2 id="wifi-qr-title" class="font-serif text-3xl">Connect to Wi-Fi</h2>
+          <p class="mt-3">Scan with your phone’s camera to join the Wi-Fi network.</p>
+          <div id="wifi-qr" role="img" aria-label={`Wi-Fi connection QR code for ${wifi.network}`} class="mx-auto mt-5 w-full max-w-80 [&_svg]:h-auto [&_svg]:w-full" set:html={wifiQr}></div>
+          <dl class="mt-3 space-y-2">
+            <div><dt class="text-sm text-moss">Network</dt><dd id="wifi-network" class="select-all break-all font-semibold">{wifi.network}</dd></div>
+            <div><dt class="text-sm text-moss">Password</dt><dd id="wifi-password" class="select-all break-all font-semibold">{wifi.password}</dd></div>
+          </dl>
+          {wifi.network?.endsWith('-Demo') && <p class="mt-4 text-sm font-semibold text-clay">Demo credentials · replace before sharing</p>}
+        </section>}
+      </section>
+    </main>
+  </div>
+  <script src="../../guide/scripts/share.ts"></script>
+</Layout>

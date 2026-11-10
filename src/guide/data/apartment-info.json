@@ -1,0 +1,400 @@
+{
+  "checkout": {
+    "en": "Check your belongings, close windows, turn off lights and return keys as agreed with your host.",
+    "sl": "Preverite osebne stvari, zaprite okna, ugasnite luči in vrnite ključe po dogovoru z gostiteljem."
+  },
+  "contact": {
+    "preferred": {
+      "en": "Reservation messages",
+      "sl": "Sporočila ob rezervaciji"
+    },
+    "instructions": {
+      "en": "Open your reservation in the service you booked with and choose “Message the property” or reply to your host’s confirmation message. For an emergency, call 112.",
+      "sl": "Odprite rezervacijo v storitvi, kjer ste rezervirali, in izberite sporočilo nastanitvi ali odgovorite na gostiteljevo potrditveno sporočilo. V nujnem primeru pokličite 112."
+    },
+    "messageUrl": null
+  },
+  "sections": [
+    {
+      "id": "arrival-parking",
+      "title": {
+        "en": "Arrival & parking",
+        "sl": "Prihod in parkiranje"
+      },
+      "icon": "pin",
+      "items": [
+        {
+          "id": "address",
+          "name": {
+            "en": "Address",
+            "sl": "Naslov"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "{address}",
+            "sl": "{address}"
+          },
+          "aliases": [
+            "address",
+            "location",
+            "naslov",
+            "lokacija"
+          ]
+        },
+        {
+          "id": "arrival",
+          "name": {
+            "en": "Check-in",
+            "sl": "Prijava"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "Check-in: {checkIn}. If you’re delayed, message your host.",
+            "sl": "Prijava: {checkIn}. Ob zamudi pišite gostitelju."
+          },
+          "aliases": [
+            "checkin",
+            "arrival",
+            "prihod"
+          ]
+        },
+        {
+          "id": "parking",
+          "name": {
+            "en": "Parking",
+            "sl": "Parkiranje"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "Free private parking is listed. Ask your host for the approved parking space and arrival point before driving in.",
+            "sl": "Na voljo je brezplačno zasebno parkirišče. Pred prihodom pri gostitelju preverite parkirno mesto in navodila za prihod."
+          },
+          "aliases": [
+            "parking",
+            "car",
+            "parkiranje",
+            "avto"
+          ]
+        },
+        {
+          "id": "access",
+          "name": {
+            "en": "Access & keys",
+            "sl": "Dostop in ključi"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "Key collection and entry instructions are in your private reservation messages. Contact your host if you cannot find them. Access codes are never published in this guide.",
+            "sl": "Navodila za prevzem ključev in vstop so v zasebnih sporočilih ob rezervaciji. Če jih ne najdete, pišite gostitelju. Kode za vstop niso nikoli objavljene v tem vodniku."
+          },
+          "aliases": [
+            "keys",
+            "entry",
+            "door",
+            "code",
+            "kljuci",
+            "vstop",
+            "vrata",
+            "koda"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "appliances",
+      "title": {
+        "en": "Equipment & appliances",
+        "sl": "Oprema in naprave"
+      },
+      "icon": "home",
+      "items": [
+        {
+          "id": "heating",
+          "name": {
+            "en": "Heating",
+            "sl": "Ogrevanje"
+          },
+          "location": {
+            "en": "Ask your host where the controls are.",
+            "sl": "Za lokacijo upravljalnika vprašajte gostitelja."
+          },
+          "instructions": {
+            "en": "Heating instructions have not been supplied. Ask your host how to adjust the temperature; do not change boiler settings.",
+            "sl": "Navodila za ogrevanje še niso na voljo. Za nastavitev temperature vprašajte gostitelja; ne spreminjajte nastavitev kotla."
+          },
+          "aliases": [
+            "heating",
+            "thermostat",
+            "temperature",
+            "cold",
+            "ogrevanje",
+            "termostat",
+            "temperatura"
+          ]
+        },
+        {
+          "id": "kitchen",
+          "name": {
+            "en": "Kitchen equipment",
+            "sl": "Kuhinjska oprema"
+          },
+          "location": {
+            "en": "Kitchen; exact appliance locations are not confirmed.",
+            "sl": "Kuhinja; natančne lokacije naprav še niso potrjene."
+          },
+          "instructions": {
+            "en": "Ask your host which kitchen equipment is available and how to use it. Hob, oven, coffee machine and dishwasher instructions have not been supplied.",
+            "sl": "Pri gostitelju preverite, katera kuhinjska oprema je na voljo in kako jo uporabljati. Navodila za kuhalno ploščo, pečico, kavni aparat in pomivalni stroj še niso na voljo."
+          },
+          "aliases": [
+            "kitchen",
+            "hob",
+            "oven",
+            "coffee",
+            "dishwasher",
+            "kuhinja",
+            "pecica",
+            "kava",
+            "pomivalni stroj"
+          ]
+        },
+        {
+          "id": "washing-machine",
+          "name": {
+            "en": "Washing machine",
+            "sl": "Pralni stroj"
+          },
+          "location": {
+            "en": "Availability and location are not confirmed.",
+            "sl": "Razpoložljivost in lokacija še nista potrjeni."
+          },
+          "instructions": {
+            "en": "Ask your host whether a washing machine is available and which programme and detergent to use.",
+            "sl": "Pri gostitelju preverite, ali je pralni stroj na voljo ter kateri program in detergent uporabiti."
+          },
+          "aliases": [
+            "washing machine",
+            "laundry",
+            "detergent",
+            "pralni stroj",
+            "pranje"
+          ]
+        },
+        {
+          "id": "tv",
+          "name": {
+            "en": "TV",
+            "sl": "Televizija"
+          },
+          "location": {
+            "en": "Availability and location are not confirmed.",
+            "sl": "Razpoložljivost in lokacija še nista potrjeni."
+          },
+          "instructions": {
+            "en": "Ask your host whether a TV is available and how to use the remote and select an input. Sign out of personal streaming accounts before leaving.",
+            "sl": "Pri gostitelju preverite, ali je televizija na voljo ter kako uporabljati daljinec in izbrati vhod. Pred odhodom se odjavite iz osebnih pretočnih računov."
+          },
+          "aliases": [
+            "tv",
+            "television",
+            "remote",
+            "streaming",
+            "televizija",
+            "daljinec"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rules",
+      "title": {
+        "en": "House rules",
+        "sl": "Hišni red"
+      },
+      "icon": "list",
+      "items": [
+        {
+          "id": "quiet-hours",
+          "name": {
+            "en": "Quiet hours",
+            "sl": "Nočni mir"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "Quiet hours: {quietHours}. Be considerate of neighbours. Only registered guests may stay overnight.",
+            "sl": "Nočni mir: {quietHours}. Bodite obzirni do sosedov. Prenočijo lahko le prijavljeni gostje."
+          },
+          "aliases": [
+            "quiet",
+            "noise",
+            "hours",
+            "mir",
+            "hrup"
+          ]
+        },
+        {
+          "id": "smoking",
+          "name": {
+            "en": "Smoking",
+            "sl": "Kajenje"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "The smoking policy has not been confirmed. Check your reservation or ask your host before smoking.",
+            "sl": "Pravila glede kajenja še niso potrjena. Pred kajenjem preverite rezervacijo ali vprašajte gostitelja."
+          },
+          "aliases": [
+            "smoking",
+            "kajenje"
+          ]
+        },
+        {
+          "id": "pets",
+          "name": {
+            "en": "Pets",
+            "sl": "Hišni ljubljenčki"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "The pet policy has not been confirmed. Check with your host before bringing an animal.",
+            "sl": "Pravila glede hišnih ljubljenčkov še niso potrjena. Pred prihodom z živaljo se posvetujte z gostiteljem."
+          },
+          "aliases": [
+            "pets",
+            "dog",
+            "cat",
+            "ljubljencki",
+            "pes",
+            "macka"
+          ]
+        },
+        {
+          "id": "waste",
+          "name": {
+            "en": "Waste & recycling",
+            "sl": "Odpadki in ločevanje"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "Ask your host where the bins are and how to separate waste. Bin locations and collection instructions have not been supplied.",
+            "sl": "Pri gostitelju preverite lokacijo zabojnikov in navodila za ločevanje odpadkov. Lokacije in navodila še niso na voljo."
+          },
+          "aliases": [
+            "waste",
+            "recycling",
+            "rubbish",
+            "trash",
+            "bins",
+            "odpadki",
+            "smeti",
+            "zabojniki"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "safety",
+      "title": {
+        "en": "Help & safety",
+        "sl": "Pomoč in varnost"
+      },
+      "icon": "info",
+      "items": [
+        {
+          "id": "emergency",
+          "name": {
+            "en": "Emergency contacts",
+            "sl": "Nujni kontakti"
+          },
+          "location": {
+            "en": "",
+            "sl": ""
+          },
+          "instructions": {
+            "en": "Medical, fire & mountain rescue: 112. Police: 113. Address: {address}.",
+            "sl": "Nujna medicinska pomoč, gasilci in gorski reševalci: 112. Policija: 113. Naslov: {address}."
+          },
+          "aliases": [
+            "emergency",
+            "rescue",
+            "police",
+            "112",
+            "113",
+            "nujno",
+            "policija"
+          ]
+        },
+        {
+          "id": "first-aid",
+          "name": {
+            "en": "First aid",
+            "sl": "Prva pomoč"
+          },
+          "location": {
+            "en": "Ask your host for the first-aid kit location.",
+            "sl": "Za lokacijo kompleta prve pomoči vprašajte gostitelja."
+          },
+          "instructions": {
+            "en": "The first-aid kit location has not been confirmed. In a medical emergency, call 112.",
+            "sl": "Lokacija kompleta prve pomoči še ni potrjena. V nujnem zdravstvenem primeru pokličite 112."
+          },
+          "aliases": [
+            "first aid",
+            "kit",
+            "injury",
+            "prva pomoc"
+          ]
+        },
+        {
+          "id": "safety-equipment",
+          "name": {
+            "en": "Safety equipment",
+            "sl": "Varnostna oprema"
+          },
+          "location": {
+            "en": "Ask your host for safety equipment locations.",
+            "sl": "Za lokacije varnostne opreme vprašajte gostitelja."
+          },
+          "instructions": {
+            "en": "Fire extinguisher, fire blanket and alarm locations have not been confirmed. Ask your host where they are. If there is a fire, leave the building and call 112.",
+            "sl": "Lokacije gasilnega aparata, požarne odeje in alarmov še niso potrjene. Zanje vprašajte gostitelja. Ob požaru zapustite stavbo in pokličite 112."
+          },
+          "aliases": [
+            "fire",
+            "extinguisher",
+            "blanket",
+            "alarm",
+            "safety",
+            "pozar",
+            "gasilni aparat",
+            "varnost"
+          ]
+        }
+      ]
+    }
+  ]
+}

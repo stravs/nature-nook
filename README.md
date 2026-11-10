@@ -75,67 +75,47 @@ dimensions. The hero loads eagerly; gallery images load lazily. The lightbox and
 social metadata use build-time `getImage()` URLs. Photo array order controls the
 gallery: property photos first, then unit photos, with duplicates removed.
 
-## Guest guide map prototype
+## Guest guide
 
-`/guests#explore` and `/sl/guests#explore` use Leaflet with OpenStreetMap's
-standard raster tiles. The apartment marker comes from the saved property
-coordinates. Tips come from the host's handwritten guest notebook. Map pins and
-their checked OpenStreetMap locations live in `src/data/guest-places.ts`;
-text-only tips (day plans, sketch walks, unmapped places, local advice) live in
-`src/data/guest-notes.ts`. Opening hours and venue status are not live data.
-Lake, gorge, valley and village pins identify areas, not entrances or routes.
+The integrated guide is unlisted at **`/stay-k7m4`** (English) and
+**`/stay-k7m4/sl`** (Slovenian). It replaces the old `/guests` and
+`/sl/guests` routes with no redirects or backward compatibility.
 
-The host's hand-drawn walks live in `src/data/guest-walks.ts`. Each route was
-traced once onto OpenStreetMap streets and paths and stored as coordinates
-(start: Grič, outside the apartment). They are drawn in her marker colours with
-a handwriting font (Caveat, via the Astro Fonts API, loaded only on guest pages),
-a paper-toned map, a legend card and small neighbourhood pins shown from zoom 16.
-Walk distances are route lengths; other places use straight-line distances.
-Routes were traced with a one-off script (not kept in the repo); if the host
-changes a walk, re-trace it on OpenStreetMap rather than nudging points by hand.
+It shares this site's build and Cloudflare Worker deployment, but uses a separate
+layout and Tailwind stylesheet. Search and apartment text work without a backend;
+Leaflet and OpenStreetMap tiles load only when recommendations are opened.
+Public website navigation, sitemaps, Markdown snapshots and agent APIs do not
+advertise the guide. All routes under the guide prefix receive noindex and
+guide-specific security headers from the Worker.
 
-The map loads only when the Explore view is visible. It offers a guided tour
-in notebook order (Around Bled, hiking, day trips, food, rainy days),
-category filters, a return-to-apartment control, and a full-area overview.
-Pins use category icons, not itinerary numbers. The selected place is labelled
-and highlighted; the tip card shows context rather than a step counter.
-Guests can tap any pin without following the introduction. The edge-to-edge
-desktop layout has a scrollable “Places we like” menu on the left and map on the
-right. The selected tip appears in a Leaflet popup directly above its pin,
-including the apartment. Popups track map movement and are kept within the map;
-long tips scroll on small screens. A close button or Escape dismisses the popup
-without clearing the selected pin. Zooming/resizing does not reopen it; choosing
-a place again does. On smaller screens the menu sits below the
-map. Menu selection, map pins, and category filters stay synchronized.
-The apartment remains visible when selecting tips. Straight-line distances are
-calculated locally from the saved apartment coordinates to each map pin using
-the Haversine formula. Menu entries, selected tips, and the text fallback show
-rounded metres/kilometres, explicitly not walking distances. Area pins (lake,
-gorge) do not measure the distance to an entrance. Distances are omitted when
-the apartment coordinates are missing or invalid; no routing API is called.
-A text list with Google Maps
-links remains usable without JavaScript or if the map cannot load. No Google
-API key is required; Google Maps is used only for outbound navigation links.
+**An unlisted path and noindex are not authentication.** Everything in the
+guide is public to anyone with the URL. No door codes, reservation information,
+guest names or private credentials belong in its JSON.
 
-Tile requests send the visitor's IP and browser referrer to OpenStreetMap.
-Attribution stays visible. This endpoint is suitable for this low-traffic
-prototype, not an unlimited/free production hosting promise. Before scaling,
-choose an appropriate hosted tile service and review the
-[OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/).
-Do not bulk-download, prefetch, or enable offline caching of these tiles.
-Recheck venue locations and host recommendations before publishing.
+Live content: `src/guide/data/`. Assets: `public/stay-k7m4/`.
+Guide components, scripts, validation and search live under `src/guide/`.
+The printable QR page is `/stay-k7m4/share`; it targets the English guide
+using the production origin from `SITE_URL` / site configuration.
+
+The guide uses fake Wi-Fi details (`NatureNook-Demo` / `Fern!72Pebble`), labelled
+as demo data. The share page includes both the guide QR and a Wi-Fi connection
+QR generated from those same fields. Preview banners are hidden; owner
+confirmation remains false and no host phone is published.
+Apartment/UI copy is English and Slovenian; recommendation prose is English,
+explicitly labelled in the Slovenian guide. Historical translated notes, drawn
+walks and neighbourhood pins are retained in `docs/legacy-guide/`, not published
+or merged into the new guide automatically.
 
 ```sh
 npm run build
-npm run test:guest-guide
-# With npm run dev running and Chrome installed:
-npm run test:guest-map
-# Optional: TEST_BASE_URL and CHROME_PATH override the server/browser.
+npm test
+npm run test:guide
+# Starts the existing Worker locally, not Cloudflare Pages.
+# Tests mock OpenStreetMap tile requests.
 ```
 
-Browser interaction tests mock tile requests to avoid external traffic. They
-cover both languages, mobile/desktop, keyboard use, guided steps, filtering,
-deep links, and the no-JavaScript/unavailable-tile fallbacks.
+See [docs/GUEST_GUIDE.md](docs/GUEST_GUIDE.md) for editing, checks, privacy,
+content provenance and release requirements.
 
 ## SEO and production domain
 

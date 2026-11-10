@@ -1,0 +1,122 @@
+[
+  {
+    "id": "bus",
+    "icon": "bus",
+    "label": {
+      "en": "Bus stop · 2 min",
+      "sl": "Avtobus · 2 min"
+    },
+    "coordinates": [
+      46.36838,
+      14.114073
+    ]
+  },
+  {
+    "id": "bakery",
+    "icon": "bakery",
+    "label": {
+      "en": "Bakery",
+      "sl": "Pekarna"
+    },
+    "coordinates": [
+      46.368326,
+      14.11535
+    ]
+  },
+  {
+    "id": "market",
+    "icon": "market",
+    "label": {
+      "en": "Local market",
+      "sl": "Tržnica"
+    },
+    "coordinates": [
+      46.368696,
+      14.115882
+    ]
+  },
+  {
+    "id": "tnp",
+    "icon": "info",
+    "label": {
+      "en": "Triglav National Park centre",
+      "sl": "Središče TNP"
+    },
+    "coordinates": [
+      46.368854,
+      14.118765
+    ]
+  },
+  {
+    "id": "mercator",
+    "icon": "shop",
+    "label": {
+      "en": "Mercator",
+      "sl": "Mercator"
+    },
+    "coordinates": [
+      46.369652,
+      14.117375
+    ]
+  },
+  {
+    "id": "spar",
+    "icon": "shop",
+    "label": {
+      "en": "Spar",
+      "sl": "Spar"
+    },
+    "coordinates": [
+      46.371048,
+      14.1161
+    ]
+  },
+  {
+    "id": "fuel",
+    "icon": "fuel",
+    "label": {
+      "en": "Petrol station",
+      "sl": "Bencinska črpalka"
+    },
+    "coordinates": [
+      46.370206,
+      14.116313
+    ]
+  },
+  {
+    "id": "post",
+    "icon": "post",
+    "label": {
+      "en": "Post office",
+      "sl": "Pošta"
+    },
+    "coordinates": [
+      46.367464,
+      14.111182
+    ]
+  },
+  {
+    "id": "okarina",
+    "icon": "food",
+    "label": {
+      "en": "Okarina",
+      "sl": "Okarina"
+    },
+    "coordinates": [
+      46.367283,
+      14.110976
+    ]
+  },
+  {
+    "id": "mall",
+    "icon": "shop",
+    "label": {
+      "en": "Bled shopping centre",
+      "sl": "Nakupovalni center"
+    },
+    "coordinates": [
+      46.366683,
+      14.109275
+    ]
+  }
+]

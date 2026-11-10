@@ -55,6 +55,7 @@ export default {
     if (!['GET', 'HEAD'].includes(request.method)) {
       return new Response('Read-only resource\n', { status: 405, headers: { Allow: 'GET, HEAD, OPTIONS', 'Access-Control-Allow-Origin': '*' } });
     }
+    const guestGuide = path === '/stay-k7m4' || path.startsWith('/stay-k7m4/');
     const publicPage = path === '/' || path === '/sl';
     const markdown = publicPage && wantsMarkdown(request.headers.get('Accept') ?? '');
     const assetUrl = new URL(request.url);
@@ -65,7 +66,11 @@ export default {
     headers.set('X-Content-Type-Options', 'nosniff');
     headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     headers.set('X-Frame-Options', 'DENY');
-    if (path === '/guests' || path === '/sl/guests') headers.set('X-Robots-Tag', 'noindex, follow');
+    if (guestGuide) {
+      headers.set('X-Robots-Tag', 'noindex, follow');
+      headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+      headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; worker-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tile.openstreetmap.org; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'");
+    }
     if (new URL(request.url).hostname.endsWith('.workers.dev')) headers.set('X-Robots-Tag', 'noindex, follow');
     if (publicPage) {
       headers.append('Vary', 'Accept');
@@ -79,7 +84,7 @@ export default {
     if (publicResource) headers.set('Access-Control-Allow-Origin', '*');
     if (path === '/.well-known/api-catalog' && response.ok) headers.set('Content-Type', 'application/linkset+json; charset=utf-8');
     if (path.endsWith('.md') && response.ok) headers.set('Content-Type', 'text/markdown; charset=utf-8');
-    headers.append('Link', '</.well-known/api-catalog>; rel="api-catalog", </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", </api-docs.md>; rel="service-doc"; type="text/markdown", </llms.txt>; rel="describedby"; type="text/plain"');
+    if (!guestGuide) headers.append('Link', '</.well-known/api-catalog>; rel="api-catalog", </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", </api-docs.md>; rel="service-doc"; type="text/markdown", </llms.txt>; rel="describedby"; type="text/plain"');
     return new Response(response.body, { status: response.status, headers });
   },
 };

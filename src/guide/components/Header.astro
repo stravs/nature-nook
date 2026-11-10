@@ -1,0 +1,21 @@
+---
+import { apartment, baseFor, textFor, type Language } from '../lib/guide-data';
+import Navigation from './Navigation.astro';
+interface Props { lang?: Language; app?: boolean; }
+const { lang = 'en', app = false } = Astro.props;
+const t = textFor(lang);
+---
+<header class="shrink-0 border-b border-forest/10 bg-paper px-4 pt-[env(safe-area-inset-top)] sm:px-6 print:hidden">
+  <div class="relative mx-auto flex min-h-16 max-w-6xl lg:max-w-none flex-wrap items-center justify-between gap-x-3 gap-y-3 py-3 sm:flex-nowrap lg:gap-x-6">
+    <a href={baseFor(lang)} class="inline-flex min-h-12 shrink-0 items-center gap-3 py-1 font-heading text-2xl font-extrabold tracking-tight">{apartment.name}</a>
+    <div class="hidden lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:block"><Navigation desktop app={app} lang={lang} /></div>
+    <slot />
+    <details class="relative shrink-0 text-base">
+      <summary aria-label={t.language} class="flex min-h-12 min-w-16 list-none items-center justify-center gap-2 rounded-full border border-forest/15 bg-transparent px-3 font-semibold transition-colors hover:bg-forest/10 [&::-webkit-details-marker]:hidden">{lang.toUpperCase()}<span aria-hidden="true" class="text-xs">▾</span></summary>
+      <div class="absolute right-0 top-full z-[60] mt-1 min-w-32 rounded-xl border border-forest/15 bg-paper p-1 shadow-lg">
+        <a href={baseFor('en')} data-language="en" lang="en" aria-current={lang === 'en' ? 'page' : undefined} class="flex min-h-12 items-center rounded-lg px-4 hover:bg-forest/5 aria-[current=page]:bg-forest/10">EN</a>
+        <a href={baseFor('sl')} data-language="sl" lang="sl" aria-current={lang === 'sl' ? 'page' : undefined} class="flex min-h-12 items-center rounded-lg px-4 hover:bg-forest/5 aria-[current=page]:bg-forest/10">SL</a>
+      </div>
+    </details>
+  </div>
+</header>

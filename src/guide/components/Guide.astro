@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from './Header.astro';
+import Icon from './Icon.astro';
+import Navigation from './Navigation.astro';
+import Stay from './Stay.astro';
+import { apartment, recommendations, usefulInfo, topicsFor, textFor, baseFor, placePath, summary, directions, type Language } from '../lib/guide-data';
+import type { SearchDocument } from '../lib/search';
+interface Props { lang?: Language; }
+const { lang = 'en' } = Astro.props;
+const t = textFor(lang);
+const base = baseFor(lang);
+const documents: SearchDocument[] = [
+  ...topicsFor(lang).map(topic => ({ ...topic, kind: 'apartment' as const, body: '', href: `${base}?view=stay#${topic.id}` })),
+  ...usefulInfo.map(place => ({ id: place.id, kind: 'apartment' as const, title: place.title, answer: summary(place), body: place.paragraphs.join(' '), aliases: [], href: `${base}?view=stay#${place.id}` })),
+  ...recommendations.map(place => ({ id: place.id, kind: 'place' as const, title: place.title, answer: summary(place), body: `${place.area} ${place.paragraphs.join(' ')}`, aliases: place.group === 'eat' ? ['restaurant', 'food', 'dinner'] : place.category === 'rainy-day' ? ['rain', 'rainy day', 'dez'] : [], href: placePath(place.id), mapId: place.coordinates ? place.id : undefined })),
+];
+const clientPlaces = recommendations.map(place => ({ id: place.id, title: place.title, summary: summary(place), coordinates: place.coordinates, category: place.category, group: place.group, route: place.route, href: placePath(place.id), directions: place.coordinates ? directions(place.coordinates) : null }));
+---
+<Layout lang={lang} description={t.essentials}>
+  <div id="guide" data-lang={lang} data-documents={JSON.stringify(documents)} data-places={JSON.stringify(clientPlaces)} data-home={JSON.stringify({ title: apartment.name, coordinates: apartment.coordinates })} data-messages={JSON.stringify(t)} class="group/guide flex min-h-dvh flex-col pb-24 data-[enhanced=true]:h-dvh data-[enhanced=true]:min-h-[32rem] data-[enhanced=true]:overflow-hidden">
+    <Header app lang={lang}>
+      <div id="search-control" hidden data-expanded="false" class="ml-auto min-w-0 shrink-0 data-[expanded=true]:order-last data-[expanded=true]:w-full sm:data-[expanded=true]:order-none sm:data-[expanded=true]:w-auto sm:data-[expanded=true]:max-w-xl sm:data-[expanded=true]:flex-1 lg:data-[expanded=true]:max-w-[calc(50%-17rem)]">
+      <button id="search-toggle" type="button" aria-label={t.search} aria-controls="guide-search" aria-expanded="false" class="flex size-12 items-center justify-center rounded-xl text-forest hover:bg-forest/10"><Icon name="search" class="size-5" /></button>
+      <form id="guide-search" role="search" hidden class="w-full min-w-0">
+        <label for="search-query" class="sr-only">{t.search}</label>
+        <div class="flex items-center gap-1 rounded-2xl border border-forest/15 bg-paper/70 pl-3 transition-colors focus-within:border-forest/50 focus-within:bg-white focus-within:shadow-sm">
+          <Icon name="search" class="size-5 shrink-0 text-moss" />
+          <input id="search-query" type="search" placeholder={t.placeholder} autocomplete="off" aria-describedby="search-scope" class="min-h-12 min-w-0 flex-1 rounded-xl border-0 bg-transparent px-2 text-base placeholder:text-moss" />
+          <button id="search-clear" type="button" aria-label={t.clear} class="mr-1 flex min-h-12 min-w-12 items-center justify-center rounded-xl text-moss transition-colors hover:bg-forest/10 hover:text-forest"><Icon name="close" class="size-4" /></button>
+        </div>
+        <p id="search-scope" class="sr-only">{t.resultScope}</p>
+      </form>
+      </div>
+    </Header>
+    <main id="main-content" class="min-h-0 flex-1 group-data-[enhanced=true]/guide:overflow-y-auto">
+      <h1 class="sr-only">{apartment.name} · {t.essentials}</h1>
+      <div id="search-output" hidden class="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <h2 class="sr-only">{t.search}</h2>
+        <p id="search-count" role="status" aria-live="polite" aria-atomic="true" class="mb-4 font-semibold"></p>
+        <div id="search-results" class="space-y-5"></div>
+      </div>
+      <section id="stay" aria-label={t.apartment}><Stay lang={lang} /></section>
+      <section id="map-view" aria-label={t.map} class="group-data-[enhanced=true]/guide:relative group-data-[enhanced=true]/guide:h-full group-data-[enhanced=true]/guide:overflow-hidden">
+        <div id="map-panel" hidden class="absolute inset-0 bg-[#e5ebe3]">
+          <div id="map-canvas" class="absolute! inset-0 z-0 lg:group-data-[panel=open]/guide:right-96 font-sans! text-base! [&_.leaflet-bottom.leaflet-right]:bottom-24! lg:[&_.leaflet-bottom.leaflet-right]:bottom-0! [&_.leaflet-control-zoom_a]:flex! [&_.leaflet-control-zoom_a]:size-12! [&_.leaflet-control-zoom_a]:items-center [&_.leaflet-control-zoom_a]:justify-center [&_.leaflet-control-zoom_a]:text-2xl! [&_.leaflet-control-zoom_a]:leading-none!" aria-label={t.map}></div>
+          <p id="map-feedback" role="status" class="absolute inset-x-3 top-36 z-20 mx-auto max-w-md rounded-xl border border-forest/15 bg-paper p-3 text-base">{t.mapLoading}</p>
+        </div>
+        <div id="map-toolbar" hidden class="pointer-events-none absolute inset-x-0 top-4 z-20 flex flex-col items-start gap-3 lg:inset-x-5 lg:group-data-[panel=open]/guide:right-[25.25rem]">
+          <div id="filters" role="group" aria-label={t.layers} hidden class="pointer-events-auto flex w-full gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-3 pb-1 lg:w-auto lg:max-w-full lg:px-0">
+            {(['hiking', 'day-trips', 'food-drinks', 'rainy-day'] as const).map(group => <button type="button" data-filter={group} aria-pressed="true" class="inline-flex min-h-12 min-w-12 shrink-0 items-center gap-2 rounded-full border border-forest/15 bg-paper px-4 py-2 text-base font-semibold shadow-sm transition-colors hover:bg-paper aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:text-white"><Icon name={group === 'food-drinks' ? 'food' : group === 'day-trips' ? 'trip' : group === 'hiking' ? 'hiking' : group === 'rainy-day' ? 'rain' : 'list'} class="size-4" />{t[group]}</button>)}
+          </div>
+          <button type="button" id="map-home" hidden aria-label={t.home} title={t.home} class="leaflet-bar"><span class="flex size-12 items-center justify-center rounded-sm bg-white text-black hover:bg-[#f4f4f4]"><Icon name="home" class="size-5" /></span></button>
+        </div>
+        <div id="mobile-place-options" hidden aria-label={t.recommendations} class="absolute inset-x-0 bottom-8 z-20 lg:inset-x-auto lg:left-4 lg:top-24 lg:bottom-auto lg:max-w-[calc(100%-2rem)] lg:max-h-[calc(100%-8rem)] group-data-[panel=open]/guide:hidden">
+          <div id="mobile-place-choices" class="flex gap-2 overflow-x-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:max-h-[calc(100dvh-26rem)] lg:flex-col lg:items-start lg:overflow-y-auto lg:px-0">
+            {recommendations.map(place => <button type="button" data-mobile-place={place.id} data-category={place.category} class="min-h-12 shrink-0 rounded-[1.5rem_0.4rem] border border-forest/15 bg-paper px-4 py-3 text-base font-semibold shadow-md hover:bg-paper lg:text-left" lang="en">{place.title}</button>)}
+          </div>
+        </div>
+        <div id="routes-overview" hidden class="max-lg:hidden absolute inset-x-3 lg:group-data-[panel=open]/guide:right-[24.75rem] bottom-8 z-20 rounded-xl border border-forest/15 bg-white p-2 shadow-md">
+          <p id="routes-overview-status" role="status" class="px-2 text-sm text-moss"></p>
+          <div id="routes-overview-choices" class="hidden"></div>
+        </div>
+        <aside id="places-drawer" aria-labelledby="places-title" class="px-4 py-5 group-data-[enhanced=true]/guide:absolute group-data-[enhanced=true]/guide:inset-x-0 group-data-[enhanced=true]/guide:bottom-0 group-data-[enhanced=true]/guide:z-30 group-data-[enhanced=true]/guide:max-h-[55%] group-data-[enhanced=true]/guide:overflow-y-auto group-data-[enhanced=true]/guide:overscroll-contain group-data-[enhanced=true]/guide:rounded-t-[2rem] group-data-[enhanced=true]/guide:border group-data-[enhanced=true]/guide:border-forest/20 group-data-[enhanced=true]/guide:bg-paper group-data-[enhanced=true]/guide:shadow-xl before:mx-auto before:mb-3 before:hidden before:h-1 before:w-10 before:rounded-full before:bg-forest/20 group-data-[enhanced=true]/guide:before:block lg:group-data-[enhanced=true]/guide:top-0 lg:group-data-[enhanced=true]/guide:right-0 lg:group-data-[enhanced=true]/guide:left-auto lg:group-data-[enhanced=true]/guide:max-h-none lg:group-data-[enhanced=true]/guide:w-96 lg:group-data-[enhanced=true]/guide:rounded-none lg:before:hidden">
+          <div class="flex items-start justify-between gap-3">
+            <h2 id="places-title" tabindex="-1" class="pt-2 text-xl font-semibold">{t.recommendations}</h2>
+            <button id="close-places" type="button" aria-label={t.closePlaces} class="hidden size-12 shrink-0 items-center justify-center rounded-xl border border-forest/20 group-data-[enhanced=true]/guide:flex">×</button>
+          </div>
+          <p id="selected-route-status" hidden role="status" class="mt-3 text-sm text-moss"></p>
+          {lang !== 'en' && <p class="mt-2 text-base">{t.englishTips}</p>}
+          <noscript><p class="my-4 text-base">{t.mapFailed}</p></noscript>
+          <ul id="place-list" class="mt-4 space-y-3">
+            {recommendations.map(place => <li data-place-id={place.id} data-category={place.category} class="rounded-xl border border-forest/10 px-4 transition-colors hover:border-forest/25 hover:bg-paper" lang="en">
+              <details data-place-details={place.id}>
+                <summary id={`place-${place.id.replace('/', '-')}`} class="flex min-h-12 list-none items-center justify-between gap-3 py-2 text-lg font-semibold tracking-tight group-data-[enhanced=true]/guide:hidden"><span data-place-title>{place.title}</span></summary>
+                <div class="space-y-3 pb-3 text-base">
+                  {place.area && <p class="text-sm font-semibold text-moss">{place.area}</p>}
+                  {place.advanced && <p class="font-semibold text-clay">{t.advanced}</p>}
+                  {place.paragraphs.map(paragraph => <p class="whitespace-pre-line">{paragraph}</p>)}{place.links.map(link => <a href={link.href} class="inline-flex min-h-12 items-center font-semibold underline">{link.label}</a>)}{place.coordinates && !place.route && <a href={directions(place.coordinates)} target="_blank" rel="noopener noreferrer" class="flex min-h-12 items-center font-semibold underline">{t.directions} · Google Maps</a>}</div>
+              </details>
+            </li>)}
+          </ul>
+          <noscript><p class="mt-4 text-base">{t.checkHours}</p><p class="mt-3 text-sm">{t.mapPrivacy}</p></noscript>
+        </aside>
+        <div id="map-credits" hidden tabindex="0" aria-label={t.mapCredit} class="absolute bottom-0 left-0 z-40 flex max-w-full items-center gap-1 rounded-tr bg-white/85 px-2 text-xs">
+          <a href="https://leafletjs.com" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-6 items-center underline">Leaflet</a><span aria-hidden="true">|</span>
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-6 items-center underline">© OpenStreetMap contributors</a>
+        </div>
+      </section>
+    </main>
+    <p id="copy-status" role="status" aria-live="polite" class="mx-auto max-w-3xl shrink-0 px-4 text-base"></p>
+    <Navigation app lang={lang} />
+  </div>
+  <script src="../scripts/guide.ts"></script>
+</Layout>

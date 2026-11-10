@@ -28,7 +28,7 @@ for (const path of ['/', '/sl']) {
   assert.match(response.headers.get('content-type'), /text\/markdown/);
   assert.equal(await response.text(), '');
 }
-for (const path of ['/guests', '/sl/guests']) {
+for (const path of ['/stay-k7m4', '/stay-k7m4/sl', '/stay-k7m4/share', '/stay-k7m4/places/hiking/straza']) {
   const response = await fetch(path, { headers: { Accept: 'text/markdown' } });
   assert.equal(assetPath, path);
   assert.equal(response.headers.get('x-robots-tag'), 'noindex, follow');

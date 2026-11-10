@@ -1,0 +1,24 @@
+export const icons = {
+  search: 'M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z',
+  wifi: 'M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0m-11 4a6 6 0 0 1 8 0m-4 4h.01',
+  clock: 'M12 8v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z',
+  leaf: 'M20 4c-8-1-15 2-15 9a6 6 0 0 0 6 6c7 0 10-7 9-15ZM4 21 15 10M8 16v-5m5 0h5',
+  map: 'm3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15',
+  pin: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+  home: 'm3 10 9-7 9 7M5 9v12h14V9M9 21v-8h6v8',
+  list: 'M9 6h12M9 12h12M9 18h12M3 6h1M3 12h1M3 18h1',
+  hiking: 'M4 3h7v7l4 4h3a3 3 0 0 1 3 3v3H3V10l1-7Zm-1 14h18M7 7h4M7 10h4m-1 3 3-2m0 5 3-3M6 20v1m4-1v1m4-1v1m4-1v1',
+  food: 'M5 3v6m3-6v6m-6-6v6a3 3 0 0 0 6 0M5 12v9M19 3c-3 0-5 4-5 8h5m0-8v18',
+  rain: 'M6 14a5 5 0 1 1 1-10 6 6 0 0 1 11 3 4 4 0 0 1 0 8M8 17l-1 4m6-4-1 4m6-4-1 4',
+  trip: 'M4 16h16l-2-7H6l-2 7Zm0 0v5m16-5v5M7 5h10M8 16v2m8-2v2',
+  info: 'M12 11v6m0-10h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z',
+  arrow: 'M4 12h16m-6-6 6 6-6 6',
+  back: 'M20 12H4m6-6-6 6 6 6',
+  external: 'M14 3h7v7m0-7L10 14M10 4H4v16h16v-6',
+  close: 'm6 6 12 12M6 18 18 6',
+  share: 'M12 16V3m-5 5 5-5 5 5M5 14v7h14v-7',
+  phone: 'm6 3 4 4-3 3a16 16 0 0 0 7 7l3-3 4 4-2 3C10 22 2 14 3 5l3-2Z',
+  check: 'm5 12 4 4L19 6',
+} as const;
+
+export type IconName = keyof typeof icons;

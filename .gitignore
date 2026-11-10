@@ -4,3 +4,5 @@ dist/
 .wrangler/
 .env
 scripts/storybook/.cache/
+test-results/
+playwright-report/

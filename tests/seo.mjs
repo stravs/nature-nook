@@ -24,10 +24,10 @@ for (const [file, path, language] of [['dist/index.html', '/', 'en'], ['dist/sl/
     assert.ok(Number(image.getAttribute('height')) > 0);
   }
 }
-for (const file of ['dist/guests/index.html', 'dist/sl/guests/index.html']) {
+for (const file of ['dist/stay-k7m4/index.html', 'dist/stay-k7m4/sl/index.html', 'dist/stay-k7m4/share/index.html']) {
   const { document } = parseHTML(await readFile(file, 'utf8'));
   assert.match(document.querySelector('meta[name="robots"]').content, /noindex/);
   assert.equal(document.querySelector('link[type="text/markdown"]'), null);
 }
-assert.doesNotMatch(await readFile('dist/sitemap-0.xml', 'utf8'), /guests|\.md/);
+assert.doesNotMatch(await readFile('dist/sitemap-0.xml', 'utf8'), /guests|stay-k7m4|\.md/);
 console.log('SEO metadata, languages, schema, image dimensions and guest exclusions passed.');

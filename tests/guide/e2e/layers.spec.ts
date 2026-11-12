@@ -8,13 +8,15 @@ test.beforeEach(async ({ context }) => {
 
 test('recommendation layers toggle independently, including all hidden, and survive reload', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map');
-  await expect(page.locator('#filters button')).toHaveText(['Hiking', 'Day trips', 'Food & drinks', 'Rainy day']);
-  await expect(page.locator('#filters button[aria-pressed="true"]')).toHaveCount(4);
+  await expect(page.locator('#filters button')).toHaveText(['Food & drinks', 'Hiking', 'Day trips', 'Rainy day']);
+  // First visit shows food & drinks only, listed first.
+  await expect(page.locator('#filters button[aria-pressed="true"]')).toHaveText(['Food & drinks']);
+  await expect(page.locator('#mobile-place-choices button:not([hidden])')).toHaveCount(9);
   await showLayers(page, ['Hiking', 'Food & drinks']);
   await expect(page.locator('#mobile-place-choices button:not([hidden])')).toHaveCount(20);
   await expect(page.locator('#map-canvas button[aria-label="Straža Hill"]')).toBeAttached();
   await expect(page.locator('#map-canvas button[aria-label="Pizzeria Rustika"]')).toBeAttached();
-  await expect(page.locator('.day-trip-overview')).toHaveCount(0);
+  await expect(page.locator('#mobile-place-choices button:not([hidden])').first()).toHaveAttribute('data-category', 'food-drinks');
   await page.getByRole('button', { name: 'Hiking', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Food & drinks', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#map-canvas button[aria-label="Straža Hill"]')).toHaveCount(0);
@@ -42,14 +44,16 @@ test('hiding a selected layer closes its details and search can reveal that laye
   await expect(page.locator('#map-canvas button[aria-label="Pizzeria Rustika"]')).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('day-trip routes coexist with hiking and cancel when their own layer is hidden', async ({ page }) => {
+test('day trips show one pin each, no overview lines, and coexist with hiking', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map');
   await showLayers(page, ['Hiking', 'Day trips']);
-  await expect(page.locator('.day-trip-overview')).toHaveCount(6);
+  for (const title of ['Bohinj Valley', 'Radovna and Krma Valleys', 'Mojstrana and Vrata Valley', 'Around the National Park']) {
+    await expect(page.locator(`#map-canvas button[aria-label="${title}"]`)).toHaveCount(1);
+  }
+  await expect(page.locator('.trip-route-drive, .trip-route-train')).toHaveCount(0);
   await expect(page.locator('#map-canvas button[aria-label="Straža Hill"]')).toBeAttached();
-  await page.getByRole('button', { name: 'Hiking', exact: true }).click();
-  await expect(page.locator('.day-trip-overview')).toHaveCount(6);
   await page.getByRole('button', { name: 'Day trips', exact: true }).click();
-  await expect(page.locator('.day-trip-overview')).toHaveCount(0);
+  await expect(page.locator('#map-canvas button[aria-label="Bohinj Valley"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Hiking', exact: true }).click();
   await expect(page.locator('#map-canvas [data-pin-ids]')).toHaveCount(1);
 });

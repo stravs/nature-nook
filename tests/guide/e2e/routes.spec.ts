@@ -39,27 +39,33 @@ test('trip loads its saved roads and schematic train, then clears on close or an
   await expect(page.locator('#places-drawer')).toBeHidden();
 });
 
-test('Day trips shows all four clickable paths instead of destination icons', async ({ page }) => {
+test('trip pins sit at Bovec and route end points; selecting one draws its route', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map');
-  for (const id of ['bohinj-valley', 'radovna-krma-valleys', 'mojstrana-vrata-valley', 'around-the-national-park']) {
-    await showLayers(page, ['Day trips']);
-    await expect(page.locator('#places-drawer')).toBeHidden();
-    await expect(page.locator('.day-trip-overview')).toHaveCount(6);
-    await expect(page.locator('#routes-overview-choices button')).toHaveCount(4);
-    await expect(page.locator('[data-pin-ids]')).toHaveCount(1); // Home only.
-    await expect(page.locator('#map-canvas')).toHaveJSProperty('inert', false);
-    await page.locator(`.day-trip-overview[data-trip-id="day-trips/${id}"]`).first().dispatchEvent('click');
-    await expect(page.locator('.day-trip-overview')).toHaveCount(6);
-    await expect(page.locator('.trip-route-drive')).toHaveCount(id === 'around-the-national-park' ? 2 : 1);
-    await page.locator('#close-places').click();
-    await expect(page.locator('.day-trip-overview')).toHaveCount(6);
-  }
-  await page.locator('[data-mobile-place="day-trips/bohinj-valley"]').click();
+  await showLayers(page, ['Day trips']);
+  await expect(page.locator('[data-pin-ids]')).toHaveCount(5); // Home + four trips.
+  await expect(page.locator('.trip-route-drive')).toHaveCount(0);
+  const places = JSON.parse((await page.locator('#guide').getAttribute('data-places'))!);
+  const pin = (id: string) => places.find((place: { id: string }) => place.id === `day-trips/${id}`).coordinates;
+  expect(pin('around-the-national-park')).toEqual([46.337835, 13.552123]); // Bovec
+  expect(pin('mojstrana-vrata-valley')).toEqual([46.409318, 13.843388]);
+  await page.locator('#map-canvas button[aria-label="Bohinj Valley"]').dispatchEvent('click');
+  await expect(page.locator('.trip-route-drive')).toHaveCount(1);
   await expect(page.locator('[data-place-details="day-trips/bohinj-valley"]')).toHaveAttribute('open', '');
+});
+
+test('a trip lists and pins hiking and food places on the way, whatever the layers', async ({ page }) => {
+  await page.goto('/stay-k7m4?view=map&place=day-trips%2Fmojstrana-vrata-valley');
+  await expect(page.locator('.trip-route-drive')).toHaveCount(1);
+  const nearby = page.locator('#route-nearby');
+  await expect(nearby).toBeVisible();
+  await expect(nearby.locator('button')).toHaveText(['Vrata Valley', 'Peričnik Waterfall']);
+  await expect(page.getByRole('button', { name: 'Hiking', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#map-canvas button[aria-label="Peričnik Waterfall"]')).toBeAttached();
+  // Bled places are home, not on the way.
+  await expect(nearby).not.toContainText('Pizzeria Rustika');
   await page.locator('#close-places').click();
-  await showLayers(page, ['Hiking']);
-  await expect(page.locator('.day-trip-overview')).toHaveCount(0);
-  await expect(page.locator('#routes-overview')).toBeHidden();
+  await expect(nearby).toBeHidden();
+  await expect(page.locator('#map-canvas button[aria-label="Peričnik Waterfall"]')).toHaveCount(0);
 });
 
 for (const [id, title, stops] of [
@@ -80,29 +86,6 @@ for (const [id, title, stops] of [
     await expect(page.locator('.trip-route-drive, .trip-route-stop')).toHaveCount(0);
   });
 }
-
-test('overview keeps working when one route fails and cancels when category changes', async ({ page }) => {
-  await page.route('**/routes/bohinj-valley.geojson', route => route.fulfill({ status: 404, body: 'Missing' }));
-  await page.goto('/stay-k7m4?view=map');
-  await showLayers(page, ['Day trips']);
-  await expect(page.locator('#routes-overview-status')).toContainText('Some routes could not load');
-  await expect(page.locator('#routes-overview-choices button')).toHaveCount(3);
-  await expect(page.locator('.day-trip-overview')).toHaveCount(5);
-  await showLayers(page, ['Hiking']);
-  await expect(page.locator('.day-trip-overview')).toHaveCount(0);
-  let release!: () => void;
-  const gate = new Promise<void>(resolve => { release = resolve; });
-  await page.route('**/routes/*.geojson', async route => {
-    await gate;
-    try { await route.continue(); } catch { /* Category switch aborts requests. */ }
-  });
-  await showLayers(page, ['Day trips']);
-  await expect(page.locator('#routes-overview-status')).toHaveText('Loading route…');
-  await showLayers(page, ['Hiking']);
-  release();
-  await expect(page.locator('#routes-overview')).toBeHidden();
-  await expect(page.locator('.day-trip-overview')).toHaveCount(0);
-});
 
 test('a missing route leaves a usable pin and details', async ({ page }) => {
   await page.route(routeUrl, route => route.fulfill({ status: 404, body: 'Missing' }));

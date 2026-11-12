@@ -185,7 +185,8 @@ test('Leaflet loads lazily, filters and markers work with a directions card', as
   await nav(page, 'Recommendations').click();
   await expect(page.locator('.leaflet-container')).toBeVisible();
   await expect(page.locator('#map-feedback')).toBeHidden();
-  await expect(page.getByRole('group', { name: 'Visible recommendation layers' }).getByRole('button')).toHaveText(['Hiking', 'Day trips', 'Food & drinks', 'Rainy day']);
+  await expect(page.getByRole('group', { name: 'Visible recommendation layers' }).getByRole('button')).toHaveText(['Food & drinks', 'Hiking', 'Day trips', 'Rainy day']);
+  await expect(page.locator('#filters button[aria-pressed="true"]')).toHaveText(['Food & drinks']);
   for (const [layer, count] of Object.entries({ Hiking: 11, 'Day trips': 4, 'Food & drinks': 9, 'Rainy day': 5 })) {
     await showLayers(page, [layer]);
     await expect(page.locator('#place-list > li:not([hidden])')).toHaveCount(count);

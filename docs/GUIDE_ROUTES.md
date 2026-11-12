@@ -60,3 +60,7 @@ The museum and Aljažev dom use existing guide coordinates. Koča pri Peričniku
 ## Adding another route
 
 Save a GeoJSON FeatureCollection under `public/stay-k7m4/routes/`, then set the place's optional `route` field in `src/guide/data/places.json` to `/stay-k7m4/routes/<name>.geojson`. Line features use `properties.mode` (`drive` or `train`). Optional Point features use `properties.name` and `properties.order` for stop tooltips. Use actual routed geometry for roads, not straight lines between towns.
+
+## Map display
+
+Each trip shows as one pin until selected: Around the National Park at Bovec, the others at their end destination (Lake Bohinj, Kovinarska koča road end, Aljažev dom road end). Selecting a trip draws its route and lists hiking and food places within 1.5 km of the driving line under "On the way" (places within 5 km of the apartment are skipped). These stay pinned regardless of active layers. On first visit only Food & drinks is active.

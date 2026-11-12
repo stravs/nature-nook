@@ -22,7 +22,9 @@ export const places = z.array(z.object({
 }).strict()).parse(placeData);
 if (new Set(places.map(p => p.id)).size !== places.length) throw new Error('Duplicate place ID');
 export const usefulInfo = places.filter(place => place.group === 'info');
-export const recommendations = places.filter(place => place.group !== 'info');
+// Food & drinks first, then the rest in data order.
+export const recommendations = places.filter(place => place.group !== 'info')
+  .sort((a, b) => Number(b.category === 'food-drinks') - Number(a.category === 'food-drinks'));
 export type Place = typeof places[number];
 export type Language = keyof typeof messages;
 export const textFor = (lang: Language) => messages[lang];

@@ -3,7 +3,7 @@ import type { Messages } from '../lib/guide-data';
 import type { MapPlace } from './map';
 
 type View = 'stay' | 'map';
-const layerIds = ['hiking', 'day-trips', 'food-drinks', 'rainy-day'] as const;
+const layerIds = ['food-drinks', 'hiking', 'day-trips', 'rainy-day'] as const;
 type Layer = typeof layerIds[number];
 interface State {
   view: View; layers: Layer[]; query: string; scroll: number; resultScroll: number;
@@ -19,7 +19,8 @@ function start(root: HTMLElement) {
   const documents: SearchDocument[] = JSON.parse(root.dataset.documents!);
   const places: MapPlace[] = JSON.parse(root.dataset.places!);
   const home = JSON.parse(root.dataset.home!);
-  const state: State = { view: 'stay', layers: [...layerIds], query: '', scroll: 0, resultScroll: 0 };
+  // First visit shows food & drinks only; later visits restore saved layers.
+  const state: State = { view: 'stay', layers: ['food-drinks'], query: '', scroll: 0, resultScroll: 0 };
   try {
     const saved = JSON.parse(sessionStorage.getItem(key) ?? '{}');
     state.view = viewFrom(saved.view) ?? 'stay';

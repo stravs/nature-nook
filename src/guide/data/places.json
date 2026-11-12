@@ -194,8 +194,8 @@
     ],
     "links": [],
     "coordinates": [
-      46.2822654,
-      13.8645306
+      46.277391,
+      13.886587
     ],
     "sourceUrl": "https://www.openstreetmap.org/relation/11315147",
     "route": "/stay-k7m4/routes/bohinj-valley.geojson"
@@ -223,8 +223,8 @@
     ],
     "links": [],
     "coordinates": [
-      46.4163806,
-      13.991869
+      46.400573,
+      13.923558
     ],
     "sourceUrl": "https://www.openstreetmap.org/way/486922586",
     "route": "/stay-k7m4/routes/radovna-krma-valleys.geojson"
@@ -250,8 +250,8 @@
     ],
     "links": [],
     "coordinates": [
-      46.4579405,
-      13.9362138
+      46.409318,
+      13.843388
     ],
     "sourceUrl": "https://www.openstreetmap.org/way/495622010",
     "route": "/stay-k7m4/routes/mojstrana-vrata-valley.geojson"
@@ -589,8 +589,8 @@
     ],
     "links": [],
     "coordinates": [
-      46.4347793,
-      13.7437123
+      46.337835,
+      13.552123
     ],
     "sourceUrl": "https://www.openstreetmap.org/node/16521909",
     "route": "/stay-k7m4/routes/around-the-national-park.geojson"

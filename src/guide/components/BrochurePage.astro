@@ -1,0 +1,77 @@
+---
+import { apartment, apartmentInfo, guideRoot, placePath } from '../lib/guide-data';
+import { draft, revision, usableWifi, demoWifi, instruction, editionPages, pageCount } from '../lib/brochure';
+import BrochureContent from './BrochureContent.astro';
+interface Props { page: number; qr?: string | undefined; wifiQr?: string | undefined; guideUrl?: string | undefined; }
+const { page, qr, wifiQr, guideUrl } = Astro.props;
+const titles = ['Welcome to your little nook', 'Your stay, at a glance', 'Make yourself at home', 'A little care goes a long way', 'Start close to home', 'Bled & a little beyond', 'Find your bearings', 'We’re here to help'];
+const title = page <= 4 ? titles[page - 1] : page === pageCount ? 'We’re here to help' : editionPages[page - 5]!.title;
+---
+<article data-brochure-page={page} aria-label={`Page ${page}: ${title}`} class="relative flex h-[210mm] w-[148mm] shrink-0 flex-col bg-white p-[12mm] text-[10.5pt] leading-[1.45] text-ink shadow-lg print:shadow-none [&_h2]:text-[27pt] [&_h2]:leading-[1.05] [&_h2]:text-forest [&_h3]:text-[14pt] [&_h3]:leading-tight [&_h3]:text-forest [&_p]:text-pretty">
+  <header class="mb-[7mm] flex items-center justify-between border-b border-forest/20 pb-[3mm] text-[8pt] font-bold tracking-[0.12em] text-moss uppercase">
+    <span>{apartment.name}</span><span>{draft ? 'Draft · owner review' : 'Your guest guide'}</span>
+  </header>
+  <div data-page-content class="min-h-0 flex-1">
+    {page === 1 ? <>
+      <p class="mb-[3mm] text-[9pt] font-bold tracking-[0.18em] text-clay uppercase">Bled, Slovenia</p>
+      <h1 class="text-[29pt] leading-[1.05] text-forest">Welcome to<br />your little nook.</h1>
+      <img src={`${guideRoot}/images/terrace.webp`} alt="The private garden terrace at Nature nook" width="640" height="427" class="mt-[4mm] h-[32mm] w-full rounded-[12mm_2mm] object-cover" />
+      <p class="mt-[3mm]">Settle in, connect and discover a few local favourites.</p>
+      <p class="mt-[2mm] text-[9pt] text-moss">{apartment.address}</p>
+      <div class="mt-[4mm] grid grid-cols-2 gap-[3mm]">
+        <section data-cover-wifi class="rounded-[4mm_1mm] border border-forest/20 p-[3mm]">
+          <h3>Connect to Wi-Fi</h3>
+          {wifiQr ? <>
+            <div data-cover-wifi-qr role="img" aria-label={`Wi-Fi connection QR code for ${apartment.wifi.network}`} class="mx-auto mt-[2mm] size-[29mm] [&_svg]:h-full [&_svg]:w-full" set:html={wifiQr} />
+            {demoWifi && <p data-demo-wifi class="mt-[1mm] text-[8pt] font-bold text-clay">Demo Wi-Fi — replace before sharing</p>}
+            <dl class="mt-[2mm] text-[9pt]"><dt class="text-moss">Network</dt><dd class="break-all font-bold">{apartment.wifi.network}</dd><dt class="mt-[1mm] text-moss">Password</dt><dd class="break-all font-bold">{apartment.wifi.password}</dd></dl>
+          </> : <>
+            <div class="mx-auto mt-[2mm] flex size-[29mm] items-center justify-center rounded-[3mm] border border-dashed border-forest/25 bg-sage/40 p-[3mm] text-center text-[10pt] font-bold text-forest">Ask your host<br />for Wi-Fi</div>
+            <p class="mt-[2mm] text-[9pt]">Message your host for access. Wi-Fi QR appears here once real credentials are approved.</p>
+          </>}
+        </section>
+        <section data-cover-guide class="rounded-[4mm_1mm] border border-forest/20 p-[3mm]">
+          <h3>Your guest guide</h3>
+          {qr ? <div role="img" aria-label={`QR code linking to ${guideUrl}`} class="mx-auto mt-[2mm] size-[29mm] [&_svg]:h-full [&_svg]:w-full" set:html={qr} /> : <p class="mt-[2mm] text-[9pt]">Online link not configured</p>}
+          <p class="mt-[2mm] text-[9pt]">Scan for local favourites, walking routes and stay essentials. No app needed.</p>
+        </section>
+      </div>
+      {guideUrl && <a href={guideUrl} class="mt-[2mm] block break-all text-[8pt] font-bold underline underline-offset-2">{guideUrl}</a>}
+    </> : <>
+      <p class="mb-[2mm] text-[8pt] font-bold tracking-[0.16em] text-clay uppercase">{page === pageCount ? 'Keep this page handy' : page <= 4 ? ['', '', 'The essentials', 'Around the apartment', 'During your stay'][page] : 'Bled & beyond'}</p>
+      <h2 class="mb-[6mm]">{title}</h2>
+    </>}
+    {page === 2 && <div class="space-y-[5mm]">
+      <div class="grid grid-cols-2 gap-[3mm]">
+        <section class="rounded-[5mm_1mm] border border-forest/15 bg-sage/40 p-[4mm]"><h3>Check-in</h3><p class="mt-[2mm] text-[17pt] font-bold">{apartment.checkIn}</p></section>
+        <section class="rounded-[5mm_1mm] border border-forest/15 p-[4mm]"><h3>Check-out</h3><p class="mt-[2mm] text-[17pt] font-bold">{apartment.checkOut}</p></section>
+      </div>
+      <section><h3>Connect & unwind</h3>{usableWifi ? <dl class="mt-[2mm] space-y-[1mm]"><div><dt class="text-[9pt] text-moss">Wi-Fi network</dt><dd class="font-bold">{apartment.wifi.network}</dd></div><div><dt class="text-[9pt] text-moss">Password</dt><dd class="font-bold">{apartment.wifi.password}</dd></div></dl> : <p class="mt-[2mm]">Ask your host for Wi-Fi access through your reservation messages. No unapproved or demo credentials are printed here.</p>}</section>
+      {['parking', 'access'].map(id => <section><h3>{instruction(id).title}</h3><p class="mt-[2mm]">{instruction(id).answer}</p></section>)}
+      <aside class="border-l-2 border-clay pl-[4mm]"><h3>Arriving later?</h3><p class="mt-[2mm]">{instruction('arrival').answer}</p></aside>
+    </div>}
+    {page === 3 && <div class="space-y-[5mm]">
+      <p>Need a hand with something? Message your host rather than guessing at unfamiliar controls.</p>
+      {['heating', 'kitchen', 'washing-machine', 'waste'].map(id => <section class="break-inside-avoid border-t border-forest/15 pt-[3mm]"><h3>{instruction(id).title}</h3><p class="mt-[2mm]">{instruction(id).answer}</p></section>)}
+    </div>}
+    {page === 4 && <div class="space-y-[4mm]">
+      <section class="rounded-[5mm_1mm] border border-forest/15 bg-sage/40 p-[4mm]"><h3>A peaceful place to stay</h3><p class="mt-[2mm]">{instruction('quiet-hours').answer}</p></section>
+      {['smoking', 'pets'].map(id => <section><h3>{instruction(id).title}</h3><p class="mt-[2mm]">{instruction(id).answer}</p></section>)}
+      <section class="border-t border-forest/20 pt-[4mm]"><h3>Before you leave</h3><p class="mt-[2mm] font-bold">Check-out: {apartment.checkOut}</p><p class="mt-[2mm]">{apartmentInfo.checkout.en}</p>
+        <ul class="mt-[3mm] space-y-[2mm] text-[10pt]">{['Personal belongings checked', 'Windows closed', 'Lights turned off', 'Keys returned as agreed'].map(label => <li class="flex gap-[3mm]"><span aria-hidden="true" class="mt-[1mm] size-[3mm] shrink-0 border border-forest/60"></span>{label}</li>)}</ul>
+      </section>
+    </div>}
+    {page >= 5 && page < pageCount && <BrochureContent page={page} guideUrl={guideUrl} />}
+    {page === pageCount && <div class="space-y-[4mm]">
+      <section class="rounded-[5mm_1mm] border-2 border-forest p-[4mm]"><h3>Emergency in Slovenia</h3><dl class="mt-[2mm] space-y-[2mm]"><div class="flex items-center gap-[4mm]"><dt class="text-[25pt] font-bold"><a href="tel:112">112</a></dt><dd>Medical, fire & mountain rescue</dd></div><div class="flex items-center gap-[4mm]"><dt class="text-[25pt] font-bold"><a href="tel:113">113</a></dt><dd>Police</dd></div></dl><p class="mt-[2mm] border-t border-forest/20 pt-[2mm] text-[9pt]"><strong>Your address:</strong> {apartment.address}</p></section>
+      <section><h3>Contact your host</h3><p class="mt-[2mm] text-[10pt]">{apartmentInfo.contact.instructions.en}</p>{apartment.hostPhone && <p class="mt-[2mm] font-bold"><a href={`tel:${apartment.hostPhone.replaceAll(' ', '')}`}>{apartment.hostPhone}</a></p>}</section>
+      <section class="grid grid-cols-[32mm_1fr] items-center gap-[4mm] border-t border-forest/20 pt-[4mm]">
+        {qr ? <div role="img" aria-label={`QR code linking to ${guideUrl}`} class="size-[32mm] [&_svg]:h-full [&_svg]:w-full" set:html={qr} /> : <div class="flex size-[32mm] items-center justify-center border border-forest/20 p-[2mm] text-[8pt]">Online link not configured</div>}
+        <div><h3>More to explore</h3><p class="mt-[2mm] text-[9pt]">Scan for the full guest guide, local favourites and practical tips. No app needed.</p></div>
+      </section>
+      {guideUrl && <a href={guideUrl} class="block break-all text-[9pt] font-bold underline underline-offset-2">{guideUrl}</a>}
+      <p class="text-[8pt] text-moss">English edition · Edition revised: {revision}{draft ? ' · Draft, awaiting owner approval.' : ''}</p>
+    </div>}
+  </div>
+  <footer class="mt-[4mm] flex shrink-0 items-center justify-between border-t border-forest/20 pt-[2mm] text-[8pt] text-moss"><span>{page === 1 ? 'Your stay, made simple' : 'Nature nook · Bled & beyond'}</span><span>{String(page).padStart(2, '0')}</span></footer>
+</article>

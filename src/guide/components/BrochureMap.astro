@@ -1,0 +1,70 @@
+---
+import { readFile } from 'node:fs/promises';
+import maps from '../data/brochure-maps.json';
+import { apartment, guideRoot } from '../lib/guide-data';
+import { localPlaces } from '../lib/brochure';
+const name = 'local';
+const map = maps[name];
+const project = ([lat, lon]: [number, number]) => {
+  const s = 256 * 2 ** map.zoom;
+  return { x: (lon + 180) / 360 * s - map.left, y: (1 - Math.asinh(Math.tan(lat * Math.PI / 180)) / Math.PI) / 2 * s - map.top };
+};
+const items = localPlaces;
+const routeColors = ['#a14c20', '#286477', '#8b3970', '#4459a1', '#286344'];
+const routes = await Promise.all(items.filter(place => place.route).map(async (place, index) => {
+  const geojson = JSON.parse(await readFile(`public${place.route}`, 'utf8'));
+  const features = geojson.features as { geometry: { type: string; coordinates: [number, number][] }; properties: { mode?: string } }[];
+  const segments = features.map(feature => {
+    if (feature.geometry.type !== 'LineString') throw new Error(`Expected saved line route: ${place.id}`);
+    return feature.geometry.coordinates.map(([lon, lat], i) => {
+      const p = project([lat, lon]);
+      return `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+    }).join(' ');
+  });
+  return { place, color: routeColors[index]!, d: segments.join(' '), bike: features.some(f => f.properties.mode === 'bike'), dashed: place.id === 'walks/morning-long' };
+}));
+const pins = items.map(place => ({ place, ...project(place.coordinates!), label: project(place.coordinates!) }));
+// Displace colliding labels, never the geographic anchor. Leader lines retain exact locations.
+for (let iteration = 0; iteration < 160; iteration++) for (let i = 0; i < pins.length; i++) {
+  const a = pins[i]!;
+  for (let j = i + 1; j < pins.length; j++) {
+    const b = pins[j]!, dx = b.label.x - a.label.x, dy = b.label.y - a.label.y;
+    const distance = Math.hypot(dx, dy), minimum = 58;
+    if (distance < minimum) {
+      const ux = distance > 0.01 ? dx / distance : 1, uy = distance > 0.01 ? dy / distance : 0;
+      const shift = (minimum - distance) / 2;
+      a.label.x -= ux * shift; a.label.y -= uy * shift;
+      b.label.x += ux * shift; b.label.y += uy * shift;
+    }
+  }
+  a.label.x = Math.max(30, Math.min(map.width - 30, a.label.x));
+  a.label.y = Math.max(30, Math.min(map.height - 30, a.label.y));
+}
+const home = project(apartment.coordinates);
+---
+<figure data-brochure-map={name}>
+  <svg viewBox={`0 0 ${map.width} ${map.height}`} role="img" aria-label="Bled street map with five saved routes and all 13 mapped local recommendations" class="h-[108mm] w-full rounded-[3mm] border border-forest/25 font-sans">
+    <image href={`${guideRoot}/maps/${name}.webp`} width={map.width} height={map.height} />
+    {[...routes].reverse().map(route => <g data-map-route={route.place.id}>
+      <title>{route.place.number}. {route.place.title}{route.bike ? ' · car/bike route' : ' · host-drawn walking path'}</title>
+      <path d={route.d} fill="none" stroke="white" stroke-width="17" stroke-linecap="round" stroke-linejoin="round" />
+      <path data-route-line d={route.d} fill="none" stroke={route.color} stroke-width="10" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray={route.dashed ? '20 17' : route.bike ? '5 15' : undefined} />
+    </g>)}
+    {pins.map(pin => <g data-map-pin={pin.place.number}>
+      <title>{pin.place.number}. {pin.place.title}</title>
+      <line x1={pin.x} y1={pin.y} x2={pin.label.x} y2={pin.label.y} stroke="white" stroke-width="9" />
+      <line x1={pin.x} y1={pin.y} x2={pin.label.x} y2={pin.label.y} stroke="#183c2d" stroke-width="3" />
+      <circle cx={pin.x} cy={pin.y} r="5" fill="#183c2d" />
+      <circle cx={pin.label.x} cy={pin.label.y} r="25" fill="white" stroke="#183c2d" stroke-width="4" />
+      <text x={pin.label.x} y={pin.label.y + 10} text-anchor="middle" font-size="29" font-weight="700" fill="#183c2d">{pin.place.number}</text>
+    </g>)}
+    <g><circle cx={home.x} cy={home.y} r="13" fill="#a24d35" stroke="white" stroke-width="5" /><text x={home.x + 18} y={home.y - 17} font-size="28" font-weight="700" fill="#183c2d" stroke="white" stroke-width="6" paint-order="stroke">Home</text></g>
+    <text x="20" y="40" font-size="28" font-weight="700" fill="#183c2d" stroke="white" stroke-width="6" paint-order="stroke">N ↑</text>
+  </svg>
+  <figcaption class="mt-[1mm] text-[8pt]">© <a href="https://www.openstreetmap.org/copyright" class="underline">OpenStreetMap contributors</a> · map extract: { '2026-11-12' }</figcaption>
+</figure>
+<ol aria-label="Route key" class="mt-[2mm] grid grid-cols-2 gap-x-[3mm] gap-y-[1mm] text-[8.5pt] leading-tight">{routes.map(route => <li class="flex items-center gap-[1.5mm]">
+  <svg viewBox="0 0 40 12" aria-hidden="true" class="h-[3mm] w-[8mm] shrink-0"><path d="M2 6H38" stroke={route.color} stroke-width="4" fill="none" stroke-dasharray={route.dashed ? '7 5' : route.bike ? '2 4' : undefined} /></svg>
+  <span><strong>{route.place.number}.</strong> {route.place.title}{route.bike ? ' · car/bike' : ''}</span>
+</li>)}</ol>
+<p class="mt-[2mm] text-[8pt] text-moss">All 13 places: key on page 6. Lines follow saved host-drawn routes, not verified navigation. Pins are not entrances or parking. Check paths and access before setting out.</p>

@@ -18,6 +18,7 @@ const qr = guideUrl ? await QRCode.toString(guideUrl, qrOptions) : undefined;
     <Navigation />
     <main id="main-content" class="mx-auto w-full max-w-2xl flex-1 px-5 py-8 pb-32 sm:py-12 sm:pb-32 print:pb-0">
       <a href="/stay-k7m4" class="mb-6 inline-flex min-h-12 items-center gap-2 rounded-full border border-forest/25 px-4 py-2 font-semibold print:hidden"><Icon name="back" class="size-5" />Back to guide</a>
+      <a href="/stay-k7m4/print" class="mb-6 flex min-h-12 items-center justify-center rounded-full bg-forest px-5 py-3 font-semibold text-white print:hidden">Print guest brochure · 8 pages</a>
       <section class="rounded-[3rem_0.5rem] border border-forest/15 bg-sage/60 p-6 text-center sm:p-10 print:border-0">
         <p class="text-base font-semibold uppercase tracking-[0.15em] text-moss">Your stay, made simple</p>
         <h1 class="mt-3 font-serif text-4xl">{apartment.name}</h1>

@@ -1,0 +1,41 @@
+---
+import { localPlaces, fartherPlaces } from '../lib/brochure';
+import { placePath } from '../lib/guide-data';
+import BrochureMap from './BrochureMap.astro';
+interface Props { page: number; guideUrl?: string | undefined; }
+const { page, guideUrl } = Astro.props;
+const href = (id: string) => guideUrl ? new URL(placePath(id), guideUrl).href : placePath(id);
+const localGroups = [
+  { title: 'From the door', category: 'walks' },
+  { title: 'A table in Bled', category: 'food-drinks' },
+  { title: 'Views & fresh air', category: 'hiking' },
+];
+const beyondGroups = [
+  { title: 'A day out', category: 'day-trips' },
+  { title: 'Hills, valleys & waterfalls', category: 'hiking' },
+  { title: 'Mountain tables', category: 'food-drinks' },
+  { title: 'Rainy-day ideas', category: 'rainy-day' },
+];
+---
+{page === 5 && <BrochureMap />}
+{page === 6 && <>
+  <p class="mb-[4mm] text-[9pt]">The numbers match your Bled map on page 5. Scan the back-page QR for full descriptions, walking routes and directions.</p>
+  <div class="grid grid-cols-2 gap-x-[4mm] gap-y-[4mm]">{localGroups.map(group => <section class:list={[group.category === 'hiking' && 'col-span-2']}> 
+    <h3 class="mb-[2mm] border-b border-forest/20 pb-[1mm]">{group.title}</h3>
+    <ol class:list={[group.category === 'hiking' ? 'grid grid-cols-3 gap-[2mm]' : 'space-y-[2mm]']}> {localPlaces.filter(p => p.category === group.category).map(place => <li data-brochure-place={place.id} class="grid grid-cols-[6mm_1fr] gap-[1mm]">
+      <span class="font-bold text-forest">{place.number}.</span>
+      <div><a href={href(place.id)} class="font-bold underline decoration-forest/25 underline-offset-2">{place.title}</a><span class="block text-[9pt] text-moss">{place.area}</span></div>
+    </li>)}</ol>
+  </section>)}</div>
+</>}
+{page === 7 && <>
+  <p class="mb-[5mm]">A few ideas beyond Bled. Scan the back-page QR for full descriptions, routes and practical details.</p>
+  <div class="space-y-[3mm]">{beyondGroups.map(group => <section>
+    <h3 class="mb-[2mm]">{group.title}</h3>
+    <ul class="flex flex-wrap gap-x-[2mm] gap-y-[1mm] text-[10.5pt]">{fartherPlaces.filter(p => p.category === group.category).map(place => <li data-brochure-place={place.id}><a href={href(place.id)} class="underline decoration-forest/25 underline-offset-2">{place.title}{place.advanced ? ' *' : ''}</a><span aria-hidden="true"> ·</span></li>)}</ul>
+  </section>)}</div>
+  <aside class="mt-[3mm] border-l-2 border-clay pl-[3mm] text-[9pt]">
+    <p><strong>Before you go:</strong> check opening hours, seasonal access, weather and transport. Paths may be steep, slippery, exposed or closed. Pins are not trailheads or parking.</p>
+    <p class="mt-[2mm]">* Triglav and the Seven Lakes are demanding alpine outings, not casual walks. Proper experience, equipment and conditions are essential; consider a qualified guide.</p>
+  </aside>
+</>}

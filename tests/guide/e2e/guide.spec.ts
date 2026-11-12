@@ -32,7 +32,7 @@ test('Apartment entry has header search, image, compact essentials and four sect
   await page.goto('/stay-k7m4');
   await expect(page.locator('#guide')).toHaveAttribute('data-enhanced', 'true');
   await expect(nav(page, 'Apartment')).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('navigation').getByRole('link')).toHaveText(['Apartment', 'Recommendations']);
+  await expect(page.getByRole('navigation').getByRole('link')).toHaveText(['Apartment', 'Places']);
   await expect(page.locator('header #search-toggle')).toBeVisible();
   await expect(search(page)).toBeHidden();
   await expect(page.locator('#search-query')).toHaveAttribute('placeholder', 'What do you need?');
@@ -60,7 +60,7 @@ test('header search expands, clears and collapses with Escape or tab changes', a
   await page.getByRole('button', { name: 'Clear', exact: true }).click();
   await expect(search(page)).toBeVisible();
   await expect(search(page)).toBeFocused();
-  await nav(page, 'Recommendations').click();
+  await nav(page, 'Places').click();
   await expect(search(page)).toBeHidden();
   await expect(page.locator('#search-toggle')).toBeVisible();
 });
@@ -111,7 +111,7 @@ test('instant direct answers and natural phrases work from either tab', async ({
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
   await search(page).press('Enter');
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
-  await nav(page, 'Recommendations').click();
+  await nav(page, 'Places').click();
   await expect(page.locator('#search-toggle')).toBeVisible();
   await fillSearch(page, 'where can we eat pizza');
   await expect(page.locator('#search-results')).toContainText('Pizzeria Rustika');
@@ -182,7 +182,7 @@ test('Leaflet loads lazily, categories and markers work with a directions button
   const errors: string[] = [];
   page.on('pageerror', err => errors.push(err.message));
   await page.goto('/stay-k7m4');
-  await nav(page, 'Recommendations').click();
+  await nav(page, 'Places').click();
   await showMap(page);
   await expect(page.locator('#map-feedback')).toBeHidden();
   await expect(page.getByRole('group', { name: 'Filter recommendations' }).getByRole('button')).toHaveText(['All', 'From the door', 'Food & drinks', 'Hiking', 'Day trips', 'Rainy day']);
@@ -223,9 +223,9 @@ test('fullscreen map and drawers retain controls, focus and attribution', async 
   expect(map.width).toBeCloseTo(width >= 1024 ? width - 384 : width, 0);
   await expect(page.locator('#places-drawer')).toBeHidden();
   expect(Math.abs(map.y + map.height - (main.y + main.height))).toBeLessThanOrEqual(2);
-  const menu = (await page.getByRole('navigation').boundingBox())!;
-  const contentBottom = width >= 1024 ? page.viewportSize()!.height : menu.y;
-  expect(Math.abs(main.y + main.height - contentBottom)).toBeLessThanOrEqual(2);
+  // Phones run the map to the screen bottom; navigation and filters float over it.
+  expect(Math.abs(main.y + main.height - page.viewportSize()!.height)).toBeLessThanOrEqual(2);
+  if (width < 1024) expect((await page.locator('#filters').boundingBox())!.y).toBeCloseTo(map.y, 0);
   await fillSearch(page, 'pizza');
   await page.locator('#search-results').getByRole('link', { name: 'Pizzeria Rustika', exact: true }).click();
   await expect(page.locator('#places-title')).toBeFocused();
@@ -266,7 +266,8 @@ test('phone list opens details over the map and closing returns to the list', as
     const pin = (await page.locator('#map-canvas button[aria-label="Straža Hill"]').boundingBox())!;
     const canvas = (await page.locator('#map-canvas').boundingBox())!;
     const drawer = (await page.locator('#places-drawer').boundingBox())!;
-    const visibleTop = canvas.y + 24;
+    const filters = (await page.locator('#filters').boundingBox())!;
+    const visibleTop = Math.max(canvas.y + 24, filters.y + filters.height + 16);
     const visibleBottom = Math.min(canvas.y + canvas.height - 24, drawer.y - 16);
     return Math.abs(pin.y + pin.height / 2 - (visibleTop + visibleBottom) / 2);
   }).toBeLessThan(3);
@@ -384,7 +385,7 @@ test('search opens full place details without losing top search', async ({ page 
   await page.locator('#search-results').getByRole('link', { name: 'Pizzeria Rustika', exact: true }).click();
   await expect(page.locator('[data-place-id="food-drinks/rustika"]')).toBeVisible();
   await expect(page.locator('#search-control')).toBeVisible();
-  await expect(nav(page, 'Recommendations')).toHaveAttribute('aria-current', 'page');
+  await expect(nav(page, 'Places')).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('#places-title')).toBeFocused();
 });
 
@@ -437,7 +438,7 @@ test('English/Slovenian switch preserves context and gives localized apartment a
   await expect(page.locator('html')).toHaveAttribute('lang', 'sl');
   await expect(page.locator('#arrival')).toBeFocused();
   await expect(page.locator('#arrival')).toHaveText('Prijava');
-  await expect(page.getByRole('navigation').getByRole('link')).toHaveText(['Apartma', 'Priporočila']);
+  await expect(page.getByRole('navigation').getByRole('link')).toHaveText(['Apartma', 'Kraji']);
   await page.locator('#search-toggle').click();
   await page.getByRole('searchbox', { name: 'Iskanje po vodniku' }).fill('kdaj je odjava');
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
@@ -487,7 +488,7 @@ test('no JavaScript preserves native sections and all recommendations', async ({
   await page.locator('#arrival-parking').click();
   await expect(page.locator('[data-topic="arrival-parking"]')).toHaveAttribute('open', '');
   await expect(page.locator('#wifi')).toBeVisible();
-  await nav(page, 'Recommendations').click();
+  await nav(page, 'Places').click();
   await expect(page.getByRole('heading', { name: 'From the door', exact: true })).toBeInViewport();
   await noOverflow(page);
   await context.close();
@@ -497,7 +498,7 @@ test('320px, 200% text and reduced motion retain search and navigation', async (
   await page.setViewportSize({ width: 320, height: 640 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/stay-k7m4');
-  for (const name of ['Apartment', 'Recommendations']) {
+  for (const name of ['Apartment', 'Places']) {
     await nav(page, name).click();
     await noOverflow(page);
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
@@ -538,4 +539,24 @@ test('Cloudflare Worker runtime: real 404, headers and detail routes', async ({ 
   const sl = await request.get('/stay-k7m4/sl');
   expect(await sl.text()).toContain('<html lang="sl">');
   for (const id of ['hiking/straza', 'food-drinks/rustika', 'useful-info/taxi']) expect((await request.get(`/stay-k7m4/places/${id}`)).status()).toBe(200);
+});
+
+test('phones swipe between Apartment and Places but not on the category chips', async ({ page }) => {
+  test.skip(page.viewportSize()!.width >= 1024, 'Phone swipe');
+  const swipe = (selector: string, dx: number) => page.locator(selector).first().evaluate((el, dx) => {
+    const box = el.getBoundingClientRect();
+    const x = box.left + box.width / 2, y = box.top + Math.min(box.height / 2, 40);
+    const touch = (clientX: number) => new Touch({ identifier: 1, target: el, clientX, clientY: y });
+    el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, touches: [touch(x)], changedTouches: [touch(x)] }));
+    el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, touches: [], changedTouches: [touch(x + dx)] }));
+  }, dx);
+  await page.goto('/stay-k7m4?view=stay');
+  await expect(page.locator('#guide')).toHaveAttribute('data-enhanced', 'true');
+  await swipe('#stay h2', -120);
+  await expect(nav(page, 'Places')).toHaveAttribute('aria-current', 'page');
+  await swipe('#filters', 120);
+  await expect(nav(page, 'Places')).toHaveAttribute('aria-current', 'page');
+  await swipe('#place-cards h3', 120);
+  await expect(nav(page, 'Apartment')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('#stay')).toBeVisible();
 });

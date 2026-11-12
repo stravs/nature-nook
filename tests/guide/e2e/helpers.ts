@@ -6,7 +6,7 @@ export async function pickCategory(page: Page, name: string) {
   await expect(button).toHaveAttribute('aria-pressed', 'true');
 }
 
-// Phones open Recommendations as a list; the floating toggle shows the map.
+// Phones open Places as a list; the floating toggle shows the map.
 export async function showMap(page: Page, waitForMap = true) {
   await expect(page.locator('#guide')).toHaveAttribute('data-enhanced', 'true');
   const toggle = page.locator('#mode-toggle');

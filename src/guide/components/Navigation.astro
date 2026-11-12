@@ -6,10 +6,10 @@ const { app = false, lang = 'en', desktop = false } = Astro.props;
 const t = textFor(lang);
 const base = baseFor(lang);
 ---
-<nav aria-label={lang === 'en' ? 'Guest guide' : 'Vodnik za goste'} data-bottom-navigation={!desktop || undefined} class={desktop ? 'hidden shrink-0 lg:block print:hidden' : 'fixed inset-x-0 bottom-0 z-50 border-t border-forest/15 bg-white px-4 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-6px_20px_rgb(0_0_0/0.1)] lg:hidden print:hidden'}>
-  <div class={desktop ? 'flex gap-1 rounded-full bg-sage p-1' : 'mx-auto grid max-w-lg grid-cols-2'}>
-    {[['stay', t.apartment, 'home'], ['map', t.recommendationsTab, 'map']].map(([id, label, icon]) => desktop
-      ? <a href={`${base}?view=${id}#${id === 'stay' ? 'stay' : 'map-view'}`} data-view={app ? id : undefined} class="flex min-h-14 min-w-0 flex-row items-center justify-center gap-2 rounded-full px-5 py-2 text-base font-semibold transition-colors hover:bg-forest/10 aria-[current=page]:bg-forest aria-[current=page]:text-white"><Icon name={icon as 'home' | 'map'} class="size-5 shrink-0" /><span class="min-w-0 text-center">{label}</span></a>
-      : <a href={`${base}?view=${id}#${id === 'stay' ? 'stay' : 'map-view'}`} data-view={app ? id : undefined} class="group flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-1 py-1.5 text-sm font-medium text-forest aria-[current=page]:font-bold"><span class="flex h-8 w-16 items-center justify-center rounded-full transition-colors group-hover:bg-forest/10 group-aria-[current=page]:bg-forest group-aria-[current=page]:text-white"><Icon name={icon as 'home' | 'map'} class="size-6 shrink-0" /></span><span class="min-w-0 text-center">{label}</span></a>)}
+<nav aria-label={lang === 'en' ? 'Guest guide' : 'Vodnik za goste'} data-bottom-navigation={!desktop || undefined} class={desktop ? 'hidden shrink-0 lg:block print:hidden' : 'pointer-events-none fixed inset-x-0 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-50 lg:hidden print:hidden'}>
+  <div class={desktop ? 'flex gap-1 rounded-full bg-sage p-1' : 'mx-auto flex w-fit gap-2'}>
+    {[['stay', t.apartment, 'home'], ['map', t.recommendationsTab, 'pin']].map(([id, label, icon]) => desktop
+      ? <a href={`${base}?view=${id}#${id === 'stay' ? 'stay' : 'map-view'}`} data-view={app ? id : undefined} class="flex min-h-14 min-w-0 flex-row items-center justify-center gap-2 rounded-full px-5 py-2 text-base font-semibold transition-colors hover:bg-forest/10 aria-[current=page]:bg-forest aria-[current=page]:text-white"><Icon name={icon as 'home' | 'pin'} class="size-5 shrink-0" /><span class="min-w-0 text-center">{label}</span></a>
+      : <a href={`${base}?view=${id}#${id === 'stay' ? 'stay' : 'map-view'}`} data-view={app ? id : undefined} class="pointer-events-auto flex min-h-12 items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-3 pr-4 text-sm font-medium text-forest shadow-md transition-colors hover:bg-sage aria-[current=page]:bg-forest aria-[current=page]:font-bold aria-[current=page]:text-white"><Icon name={icon as 'home' | 'pin'} class="size-6 shrink-0" /><span>{label}</span></a>)}
   </div>
 </nav>

@@ -88,8 +88,10 @@ function start(root: HTMLElement) {
     });
     return mapPromise;
   }
+  // Phone map mode: map fills the screen behind the filters and navigation.
+  function syncFullMap() { root.dataset.fullMap = String(state.view === 'map' && !searching() && state.mode === 'map'); }
   function setMode(mode: Mode) {
-    state.mode = mode; mapView.dataset.mode = mode; save();
+    state.mode = mode; mapView.dataset.mode = mode; syncFullMap(); save();
     void ensureMap();
   }
   function setCategory(category: Category) {
@@ -176,6 +178,7 @@ function start(root: HTMLElement) {
     mapView.hidden = searching() || state.view !== 'map';
     mapView.dataset.mode = state.mode;
     root.dataset.view = state.view;
+    syncFullMap();
     main.classList.toggle('overflow-hidden!', state.view === 'map' && !searching());
     root.querySelectorAll<HTMLAnchorElement>('nav [data-view]').forEach(link => {
       if (link.dataset.view === state.view) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
@@ -256,6 +259,27 @@ function start(root: HTMLElement) {
       captureScroll(); save();
     }
   });
+  // Phones: swipe sideways between Apartment and Places (not on the map, chips or details sheet).
+  let swipe: { x: number; y: number } | undefined;
+  main.addEventListener('touchstart', event => {
+    const touch = event.touches[0];
+    swipe = touch && event.touches.length === 1 && !desktop.matches && !searching()
+      && !(event.target instanceof Element && event.target.closest('#filters, #map-area, #places-drawer'))
+      ? { x: touch.clientX, y: touch.clientY } : undefined;
+  }, { passive: true });
+  main.addEventListener('touchend', event => {
+    const touch = event.changedTouches[0];
+    if (!swipe || !touch) return;
+    const dx = touch.clientX - swipe.x, dy = touch.clientY - swipe.y;
+    swipe = undefined;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < 2 * Math.abs(dy)) return;
+    const view: View = dx < 0 ? 'map' : 'stay';
+    if (view === state.view) return;
+    navigate(view);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      main.animate([{ transform: `translateX(${dx < 0 ? 48 : -48}px)`, opacity: 0.4 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'ease-out' });
+    }
+  }, { passive: true });
   desktop.addEventListener('change', () => void ensureMap());
   main.addEventListener('scroll', () => { captureScroll(); save(); }, { passive: true });
   window.addEventListener('popstate', () => followUrl());
@@ -271,7 +295,7 @@ function start(root: HTMLElement) {
   // Reserve exactly the fixed navigation's height, including safe areas/text zoom.
   const navigation = root.querySelector<HTMLElement>('[data-bottom-navigation]')!;
   new ResizeObserver(() => {
-    root.style.paddingBottom = `${navigation.getBoundingClientRect().height}px`;
+    root.style.setProperty('--nav-h', `${navigation.getBoundingClientRect().height}px`);
     map?.resize();
   }).observe(navigation);
 }

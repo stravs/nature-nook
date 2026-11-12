@@ -57,14 +57,16 @@ export function createMap(options: Options) {
   // Keep fitted content clear of the details drawer and the floating List/Map button.
   function visibleMapPadding() {
     const canvas = map.getContainer().getBoundingClientRect();
-    let bottom = 24, right = 24;
+    let top = 24, bottom = 24, right = 24;
+    const filters = root.querySelector<HTMLElement>('#filters')!.getBoundingClientRect();
+    if (filters.height && filters.bottom > canvas.top && filters.top < canvas.top + 1) top = Math.max(top, filters.bottom - canvas.top + 16);
     for (const id of ['places-drawer', 'mode-toggle']) {
       const rect = root.querySelector<HTMLElement>(`#${id}`)!.getBoundingClientRect();
       if (!rect.height || rect.left >= canvas.right - 1 || rect.right <= canvas.left + 1 || rect.top >= canvas.bottom || rect.top <= canvas.top) continue;
       if (rect.left > canvas.left + canvas.width / 2) right = Math.max(right, canvas.right - rect.left + 16);
       else bottom = Math.max(bottom, canvas.bottom - rect.top + 16);
     }
-    return { paddingTopLeft: L.point(24, 24), paddingBottomRight: L.point(right, bottom) };
+    return { paddingTopLeft: L.point(24, top), paddingBottomRight: L.point(right, bottom) };
   }
   function fit(bounds: L.LatLngBounds, maxZoom: number) {
     map.invalidateSize({ animate: false });

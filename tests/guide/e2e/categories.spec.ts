@@ -62,3 +62,21 @@ test('walks from the door draw the host’s dotted path', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map&place=walks%2Fsava');
   await expect(page.locator('.trip-route-bike')).toHaveCount(1);
 });
+
+test('closing a place zooms back out to every pin in the category', async ({ page }) => {
+  await page.goto('/stay-k7m4?view=map');
+  await pickCategory(page, 'Food & drinks');
+  await page.locator('#place-cards [data-open-place="food-drinks/grajska-plaza"]').click();
+  await showMap(page);
+  await page.locator('#close-places').click();
+  await showMap(page);
+  await expect(page.locator('#map-canvas [data-pin-ids]')).toHaveCount(10);
+  const box = (await page.locator('#map-canvas').boundingBox())!;
+  for (const pin of await page.locator('#map-canvas [data-pin-ids]').all()) {
+    const at = (await pin.boundingBox())!;
+    expect(at.x).toBeGreaterThanOrEqual(box.x);
+    expect(at.y).toBeGreaterThanOrEqual(box.y);
+    expect(at.x + at.width).toBeLessThanOrEqual(box.x + box.width);
+    expect(at.y + at.height).toBeLessThanOrEqual(box.y + box.height);
+  }
+});

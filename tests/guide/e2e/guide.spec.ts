@@ -236,8 +236,8 @@ test('fullscreen map and drawers retain controls, focus and attribution', async 
   await page.keyboard.press('Escape');
   await expect(page.locator('#places-drawer')).toBeHidden();
   await expect(page.locator('#map-home')).toBeFocused();
-  const after = (await state(page)).position;
-  expect(after.zoom).toBeGreaterThanOrEqual(14);
+  // Closing zooms back out to the whole Food & drinks category.
+  await expect.poll(async () => (await state(page)).position.zoom).toBeLessThan(14);
   await page.locator('#map-home').click();
   await expect(page.locator('#map-home')).toBeFocused();
   audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();

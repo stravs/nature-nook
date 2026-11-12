@@ -119,7 +119,7 @@ in URLs or analytics.
 
 Latest local verification: build and Astro/TypeScript check passed with zero
 diagnostics; 15 guide static/integration tests and the existing Worker, SEO,
-distance, review and agent-readiness suites passed. Chromium: 78 passed and two
+distance, review and agent-readiness suites passed. Chromium: 80 passed and two
 intentional viewport-specific skips. npm audit reported zero vulnerabilities.
 The shared container crashed two Chromium pages in a parallel run; the full
 serial rerun passed without retries. Browser tests now use one worker.

@@ -203,18 +203,22 @@ export function createMap(options: Options) {
     fit(L.latLngBounds([place.coordinates!]), Math.max(map.getZoom(), 14));
     void showRoute(place);
   }
+  // Fit the active category's pins, keeping the apartment in view.
+  function showAll() {
+    const points = [home.coordinates, ...visiblePlaces().map(place => place.coordinates!)];
+    fit(L.latLngBounds(points), 15);
+  }
+  // With nothing selected, zoom back out to the whole category.
   function clear() {
     clearRoute();
     selectedId = undefined;
     renderMarkers();
+    showAll();
   }
-  // Fit the active category's pins, keeping the apartment in view.
   function setCategory(next: string) {
     category = next;
     renderMarkers();
-    if (selectedId) return;
-    const points = [home.coordinates, ...visiblePlaces().map(place => place.coordinates!)];
-    fit(L.latLngBounds(points), 15);
+    if (!selectedId) showAll();
   }
   homeButton.addEventListener('click', showHome);
   // A hidden map (search, other tab, phone list) has no size; re-measuring then would shift its centre.

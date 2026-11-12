@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { pickCategory, showMap, visibleCards } from './helpers';
+import { test, expect, type Page } from '@playwright/test';
+import { pickCategory, showList, showMap, visibleCards } from './helpers';
 
 const pixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64');
 test.beforeEach(async ({ context }) => {
@@ -63,14 +63,8 @@ test('walks from the door draw the host’s dotted path', async ({ page }) => {
   await expect(page.locator('.trip-route-bike')).toHaveCount(1);
 });
 
-test('closing a place zooms back out to every pin in the category', async ({ page }) => {
-  await page.goto('/stay-k7m4?view=map');
-  await pickCategory(page, 'Food & drinks');
-  await page.locator('#place-cards [data-open-place="food-drinks/grajska-plaza"]').click();
-  await showMap(page);
-  await page.locator('#close-places').click();
-  await showMap(page);
-  await expect(page.locator('#map-canvas [data-pin-ids]')).toHaveCount(10);
+async function expectAllPinsInView(page: Page, count: number) {
+  await expect(page.locator('#map-canvas [data-pin-ids]')).toHaveCount(count);
   const box = (await page.locator('#map-canvas').boundingBox())!;
   for (const pin of await page.locator('#map-canvas [data-pin-ids]').all()) {
     const at = (await pin.boundingBox())!;
@@ -79,4 +73,26 @@ test('closing a place zooms back out to every pin in the category', async ({ pag
     expect(at.x + at.width).toBeLessThanOrEqual(box.x + box.width);
     expect(at.y + at.height).toBeLessThanOrEqual(box.y + box.height);
   }
+}
+
+test('closing a place zooms back out to every pin in the category', async ({ page }) => {
+  await page.goto('/stay-k7m4?view=map');
+  await pickCategory(page, 'Food & drinks');
+  await page.locator('#place-cards [data-open-place="food-drinks/grajska-plaza"]').click();
+  await showMap(page);
+  await page.locator('#close-places').click();
+  await showMap(page);
+  await expectAllPinsInView(page, 10);
+});
+
+test('a category picked in the list is fitted when the map opens', async ({ page }) => {
+  await page.goto('/stay-k7m4?view=map');
+  await pickCategory(page, 'Day trips');
+  await showMap(page);
+  await expectAllPinsInView(page, 5);
+  // Again with the map already loaded but hidden behind the phone list.
+  await showList(page);
+  await pickCategory(page, 'Food & drinks');
+  await showMap(page);
+  await expectAllPinsInView(page, 10);
 });

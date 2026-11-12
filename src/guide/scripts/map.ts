@@ -204,7 +204,12 @@ export function createMap(options: Options) {
     void showRoute(place);
   }
   // Fit the active category's pins, keeping the apartment in view.
+  // A hidden map (phone list) has no size, so the fit waits until it is shown.
+  let pendingFit = false;
+  const hasSize = () => !!(map.getContainer().clientWidth && map.getContainer().clientHeight);
   function showAll() {
+    pendingFit = !hasSize();
+    if (pendingFit) return;
     const points = [home.coordinates, ...visiblePlaces().map(place => place.coordinates!)];
     fit(L.latLngBounds(points), 15);
   }
@@ -222,9 +227,15 @@ export function createMap(options: Options) {
   }
   homeButton.addEventListener('click', showHome);
   // A hidden map (search, other tab, phone list) has no size; re-measuring then would shift its centre.
-  const resize = () => { const box = map.getContainer(); if (box.clientWidth && box.clientHeight) map.invalidateSize({ animate: false }); };
+  const resize = () => {
+    if (!hasSize()) return;
+    map.invalidateSize({ animate: false });
+    if (pendingFit && !selectedId) showAll();
+  };
   new ResizeObserver(resize).observe(map.getContainer());
   renderMarkers();
+  // First time the map opens it shows the whole category; a saved view is kept.
+  if (!options.position && !selectedId) showAll();
   const center = map.getCenter();
   options.onMove({ center: [center.lng, center.lat], zoom: map.getZoom() });
   if (selectedId) {

@@ -46,7 +46,7 @@ project was copied as a starting point and is not synchronized or needed to buil
 | `src/guide/data/apartment.json` | Public apartment facts, coordinates, times, approval flag, optional public Wi-Fi/phone |
 | `src/guide/data/apartment-info.json` | Structured bilingual appliance, arrival, rules, safety and contact instructions |
 | `src/guide/data/messages.json` | Bilingual UI and search messages |
-| `src/guide/data/places.json` | 35 validated public recommendations/tips, with full English prose and optional route URLs |
+| `src/guide/data/places.json` | 40 public recommendations/tips, with English prose, optional trip `stops`/`note` and route URLs |
 | `src/guide/lib/guide-data.ts` | Validation, localized topic construction, summaries and route helpers |
 | `src/guide/lib/search.ts` | On-device deterministic matching; no search service or query tracking |
 | `src/guide/components/`, `layouts/`, `scripts/` | Guide-only UI, shell and map |
@@ -67,8 +67,9 @@ facts change, update both deliberately and obtain owner approval.
 
 The new JSON is the only live recommendation source. Previous English/Slovenian
 Markdown notes, hand-drawn walking geometry and neighbourhood pin data are retained
-in `docs/legacy-guide/` for reference. They are outside Astro content collections,
-not emitted as pages, and not automatically merged into the new map. No old-map
+in `docs/legacy-guide/` for reference. They are outside Astro content collections
+and not emitted as pages. Only the five walks from the door were deliberately
+copied into `places.json` and `public/stay-k7m4/routes/` (see `GUIDE_ROUTES.md`). No old-map
 behaviour or translations are implied by the replacement.
 
 New recommendation prose remains English in both guide views; Slovenian guests
@@ -117,8 +118,8 @@ in URLs or analytics.
 ## Verification and release
 
 Latest local verification: build and Astro/TypeScript check passed with zero
-diagnostics; 13 guide static/integration tests and the existing Worker, SEO,
-distance, review and agent-readiness suites passed. Chromium: 76 passed and two
+diagnostics; 15 guide static/integration tests and the existing Worker, SEO,
+distance, review and agent-readiness suites passed. Chromium: 78 passed and two
 intentional viewport-specific skips. npm audit reported zero vulnerabilities.
 The shared container crashed two Chromium pages in a parallel run; the full
 serial rerun passed without retries. Browser tests now use one worker.

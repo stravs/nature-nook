@@ -1,0 +1,24 @@
+---
+import Icon from './Icon.astro';
+import { textFor, directions, distanceKm, formatDistance, type Language, type Place } from '../lib/guide-data';
+interface Props { place: Place; lang?: Language; }
+const { place, lang = 'en' } = Astro.props;
+const t = textFor(lang);
+const facts = [t[place.category as keyof typeof t], place.area, place.coordinates && t.distance.replace('{d}', formatDistance(distanceKm(place.coordinates), lang))].filter(Boolean);
+---
+<div class="space-y-4 text-base">
+  <p data-place-facts class="text-sm font-semibold text-moss">{facts.join(' · ')}</p>
+  {place.advanced && <p class="rounded-xl border border-[#b4976a] bg-[#faf0dd] p-4 text-[#63471e]">{t.advanced}</p>}
+  {place.paragraphs.map(paragraph => <p class="whitespace-pre-line">{paragraph}</p>)}
+  {place.stops && <ol aria-label={t.stops} class="space-y-3 border-l-2 border-forest/15 pl-4">
+    {place.stops.map((stop, index) => <li>
+      <h3 class="font-semibold"><span class="text-moss">{index + 1}.</span> {stop.title}</h3>
+      <p class="mt-1 whitespace-pre-line">{stop.text}</p>
+    </li>)}
+  </ol>}
+  {(place.links.length > 0 || (place.coordinates && !place.route)) && <div class="flex flex-wrap gap-3">
+    {place.coordinates && !place.route && <a href={directions(place.coordinates)} target="_blank" rel="noopener noreferrer" class="inline-flex min-h-12 items-center gap-2 rounded-full bg-forest px-5 py-2 font-semibold text-white"><Icon name="map" class="size-4" />{t.directions}<span class="sr-only"> · Google Maps</span></a>}
+    {place.links.map(link => <a href={link.href} class="inline-flex min-h-12 items-center rounded-full border border-forest/25 px-5 py-2 font-semibold">{link.label}</a>)}
+  </div>}
+  <p class="text-sm text-moss">{place.note && <>{place.note} </>}{t.checkHours}</p>
+</div>

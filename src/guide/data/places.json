@@ -1,5 +1,100 @@
 [
   {
+    "id": "walks/lake",
+    "title": "To the lake",
+    "category": "walks",
+    "group": "do",
+    "order": 0,
+    "area": "Through the old village · on foot",
+    "advanced": false,
+    "paragraphs": [
+      "Down our lane to the main road by the Union bus stop, then through Zagorice, the true old village of Bled, past the post office to the lakeshore."
+    ],
+    "links": [],
+    "coordinates": [
+      46.3669,
+      14.107988
+    ],
+    "sourceUrl": null,
+    "route": "/stay-k7m4/routes/walk-lake.geojson"
+  },
+  {
+    "id": "walks/market",
+    "title": "Market & park centre",
+    "category": "walks",
+    "group": "do",
+    "order": 10,
+    "area": "3 min on foot",
+    "advanced": false,
+    "paragraphs": [
+      "Along the main road to the local market (fresh produce, packaging-free), a café and the Triglav National Park centre with its exhibitions."
+    ],
+    "links": [],
+    "coordinates": [
+      46.368927,
+      14.118561
+    ],
+    "sourceUrl": null,
+    "route": "/stay-k7m4/routes/walk-market.geojson"
+  },
+  {
+    "id": "walks/morning-short",
+    "title": "Morning walk · short",
+    "category": "walks",
+    "group": "do",
+    "order": 20,
+    "area": "Off the beaten track · about 30 min",
+    "advanced": false,
+    "paragraphs": [
+      "Our nature morning walk: past the shops, across the little Ledina stream and along farm tracks through the fields, then back."
+    ],
+    "links": [],
+    "coordinates": [
+      46.372888,
+      14.126368
+    ],
+    "sourceUrl": null,
+    "route": "/stay-k7m4/routes/walk-morning-short.geojson"
+  },
+  {
+    "id": "walks/morning-long",
+    "title": "Morning walk · longer",
+    "category": "walks",
+    "group": "do",
+    "order": 30,
+    "area": "Off the beaten track · up to 1 hour",
+    "advanced": false,
+    "paragraphs": [
+      "The same start, then further out along the field tracks to the edge of the forest before looping back."
+    ],
+    "links": [],
+    "coordinates": [
+      46.377013,
+      14.125924
+    ],
+    "sourceUrl": null,
+    "route": "/stay-k7m4/routes/walk-morning-long.geojson"
+  },
+  {
+    "id": "walks/sava",
+    "title": "To the Sava",
+    "category": "walks",
+    "group": "do",
+    "order": 40,
+    "area": "5 min by car · 20 min by bike",
+    "advanced": false,
+    "paragraphs": [
+      "Out of Bled along Ribenska cesta and through Ribno village to the Sava Bohinjka by the Ribno bridge. There is parking by the river."
+    ],
+    "links": [],
+    "coordinates": [
+      46.3446,
+      14.124107
+    ],
+    "sourceUrl": null,
+    "route": "/stay-k7m4/routes/walk-sava.geojson"
+  },
+  {
     "id": "hiking/straza",
     "title": "Straža Hill",
     "category": "hiking",
@@ -188,9 +283,8 @@
     "area": "Half or full day",
     "advanced": false,
     "paragraphs": [
-      "The map shows a suggested driving loop from Bled via Pokljuka (Goreljek), Bohinjska Češnjica, Studor, Stara Fužina, Lake Bohinj and the lower Vogel gondola station, returning via Bohinjska Bistrica. Walks to Mostnica and Voje and the gondola ride are separate, not part of the driving line. Stops are not confirmed parking spaces; check seasonal access and local restrictions.",
       "If you have your own car, drive up to Pokljuka plateau with an amazing old pine forest and drive down to Bohinj Lake.",
-      "Buses connect Bled and Bohinj. Check the current timetable and nearest stop before travelling.\nThe traditional villages Studor, Stara Fužina and Češnjica are worth a visit.\nMostnica Gorge and Voje Waterfall are a great 2–3-hour walk.\nBohinj Lake is amazing — you can rent a boat, swim or hike around.\nVogel: take a gondola up to Vogel. You can do some hiking at the top; the views are amazing. It is a ski resort in the winter, has some nice restaurants (simple), a zip line and a chairlift for the hikes in the summer."
+      "Buses connect Bled and Bohinj. Check the current timetable and nearest stop before travelling."
     ],
     "links": [],
     "coordinates": [
@@ -198,7 +292,26 @@
       13.886587
     ],
     "sourceUrl": "https://www.openstreetmap.org/relation/11315147",
-    "route": "/stay-k7m4/routes/bohinj-valley.geojson"
+    "route": "/stay-k7m4/routes/bohinj-valley.geojson",
+    "note": "The map shows a suggested driving loop from Bled via Pokljuka (Goreljek), Bohinjska Češnjica, Studor, Stara Fužina, Lake Bohinj and the lower Vogel gondola station, returning via Bohinjska Bistrica. Walks to Mostnica and Voje and the gondola ride are separate, not part of the driving line. Stops are not confirmed parking spaces; check seasonal access and local restrictions.",
+    "stops": [
+      {
+        "title": "Studor, Stara Fužina & Češnjica",
+        "text": "The traditional villages Studor, Stara Fužina and Češnjica are worth a visit."
+      },
+      {
+        "title": "Mostnica Gorge & Voje",
+        "text": "Mostnica Gorge and Voje Waterfall are a great 2–3-hour walk."
+      },
+      {
+        "title": "Lake Bohinj",
+        "text": "Bohinj Lake is amazing — you can rent a boat, swim or hike around."
+      },
+      {
+        "title": "Vogel",
+        "text": "Take a gondola up to Vogel. You can do some hiking at the top; the views are amazing. It is a ski resort in the winter, has some nice restaurants (simple), a zip line and a chairlift for the hikes in the summer."
+      }
+    ]
   },
   {
     "id": "day-trips/radovna-krma-valleys",
@@ -209,17 +322,7 @@
     "area": "Car or bike",
     "advanced": false,
     "paragraphs": [
-      "The map shows a suggested out-and-back driving route from Bled via Gorje and the Radovna Valley to the road near Lake Kreda, Pr’ Psnak and Kovinarska koča in Krma Valley. Lake access is on foot from the road, not a drive into the lake. This is not a verified cycling route. Check road access, parking and local restrictions before travelling.",
-      "You will need a car or a bike for this trip. From Bled, go to Gorje village in the direction towards Pokljuka. At the end of the village, turn right and you come to the River Radovna. Then just follow the river upstream.",
-      "Lake Kreda",
-      "Lake Kreda is a possible stop in the valley. Check local access, swimming conditions and any restrictions before entering the water.",
-      "River Radovna",
-      "River Radovna is a crystal-clear river (also very cold) that is a source of drinking water for Bled and surrounding villages.",
-      "Pr’ Psnak",
-      "A homestay and a nice family restaurant with fresh, traditional homemade food.",
-      "Kovinarska koča",
-      "Kovinarska koča is a mountain hut located in Krma Valley. From here you have a great starting point for our highest mountain → Triglav.",
-      "The food is nice, simple and homemade."
+      "You will need a car or a bike for this trip. From Bled, go to Gorje village in the direction towards Pokljuka. At the end of the village, turn right and you come to the River Radovna. Then just follow the river upstream."
     ],
     "links": [],
     "coordinates": [
@@ -227,7 +330,26 @@
       13.923558
     ],
     "sourceUrl": "https://www.openstreetmap.org/way/486922586",
-    "route": "/stay-k7m4/routes/radovna-krma-valleys.geojson"
+    "route": "/stay-k7m4/routes/radovna-krma-valleys.geojson",
+    "note": "The map shows a suggested out-and-back driving route from Bled via Gorje and the Radovna Valley to the road near Lake Kreda, Pr’ Psnak and Kovinarska koča in Krma Valley. Lake access is on foot from the road, not a drive into the lake. This is not a verified cycling route. Check road access, parking and local restrictions before travelling.",
+    "stops": [
+      {
+        "title": "Lake Kreda",
+        "text": "Lake Kreda is a possible stop in the valley. Check local access, swimming conditions and any restrictions before entering the water."
+      },
+      {
+        "title": "River Radovna",
+        "text": "River Radovna is a crystal-clear river (also very cold) that is a source of drinking water for Bled and surrounding villages."
+      },
+      {
+        "title": "Pr’ Psnak",
+        "text": "A homestay and a nice family restaurant with fresh, traditional homemade food."
+      },
+      {
+        "title": "Kovinarska koča",
+        "text": "Kovinarska koča is a mountain hut located in Krma Valley. From here you have a great starting point for our highest mountain → Triglav. The food is nice, simple and homemade."
+      }
+    ]
   },
   {
     "id": "day-trips/mojstrana-vrata-valley",
@@ -237,24 +359,29 @@
     "order": 200,
     "area": "",
     "advanced": false,
-    "paragraphs": [
-      "The map shows a suggested out-and-back driving route from Bled to the Slovenian Alpine Museum in Mojstrana, the roadside hut below Peričnik and the road near Aljažev dom in Vrata Valley. The waterfall walk is separate, not a driving section. The route uses the A2 motorway: check vignette requirements. Check seasonal vehicle restrictions, parking and any shuttle arrangements in Vrata; the line is not permission to drive to the hut.",
-      "Mojstrana",
-      "You can prolong your trip and visit Mojstrana village. It is a nice traditional Slovenian village with an Alpine Museum at the entrance to Vrata Valley.",
-      "Peričnik Waterfall",
-      "Peričnik Waterfall is near the beginning of Vrata Valley. A forest path leads towards the waterfall; some paths pass behind the falling water.",
-      "Paths can be slippery, icy or closed, especially in winter. Check local conditions and signs, and do not enter closed paths.",
-      "Vrata Valley",
-      "Vrata Valley is one of the three glacier valleys under Mount Triglav (Vrata, Kot, Krma). It is 10 km from Mojstrana village and brings you to the foot of the north wall of Triglav (1,000 m high).",
-      "Aljažev dom is a mountain hut at the end of the valley."
-    ],
+    "paragraphs": [],
     "links": [],
     "coordinates": [
       46.409318,
       13.843388
     ],
     "sourceUrl": "https://www.openstreetmap.org/way/495622010",
-    "route": "/stay-k7m4/routes/mojstrana-vrata-valley.geojson"
+    "route": "/stay-k7m4/routes/mojstrana-vrata-valley.geojson",
+    "note": "The map shows a suggested out-and-back driving route from Bled to the Slovenian Alpine Museum in Mojstrana, the roadside hut below Peričnik and the road near Aljažev dom in Vrata Valley. The waterfall walk is separate, not a driving section. The route uses the A2 motorway: check vignette requirements. Check seasonal vehicle restrictions, parking and any shuttle arrangements in Vrata; the line is not permission to drive to the hut.",
+    "stops": [
+      {
+        "title": "Mojstrana",
+        "text": "You can prolong your trip and visit Mojstrana village. It is a nice traditional Slovenian village with an Alpine Museum at the entrance to Vrata Valley."
+      },
+      {
+        "title": "Peričnik Waterfall",
+        "text": "Peričnik Waterfall is near the beginning of Vrata Valley. A forest path leads towards the waterfall; some paths pass behind the falling water. Paths can be slippery, icy or closed, especially in winter. Check local conditions and signs, and do not enter closed paths."
+      },
+      {
+        "title": "Vrata Valley",
+        "text": "Vrata Valley is one of the three glacier valleys under Mount Triglav (Vrata, Kot, Krma). It is 10 km from Mojstrana village and brings you to the foot of the north wall of Triglav (1,000 m high). Aljažev dom is a mountain hut at the end of the valley."
+      }
+    ]
   },
   {
     "id": "hiking/planica",
@@ -571,21 +698,8 @@
     "area": "Full day · car necessary",
     "advanced": false,
     "paragraphs": [
-      "The map shows the suggested driving loop, with a dashed, schematic car-train connection from Most na Soči to Bohinjska Bistrica (not the exact railway track). Check road conditions and seasonal closures before travelling.",
-      "Full day — car necessary.",
-      "Route",
-      "Bled → Kranjska Gora → Vršič Pass → Trenta Valley → Bovec → Kobarid → Most na Soči → Bohinj → Bled.",
       "This trip will take you around and through the National Park and Julian Alps.",
-      "Vršič Pass",
-      "Vršič Pass (1,611 m) is a scenic mountain road crossing. Expect steep gradients and tight hairpin bends; check weather and road closures before driving.",
-      "Trenta Valley",
-      "Trenta Valley is breathtaking. River Soča is crystal-clear, emerald colour.",
-      "Bovec",
-      "Bovec is a small town below Kanin mountain. Book outdoor activities with qualified local providers:",
-      "Rafting\nCanyoning\nKayaking",
-      "Most na Soči — car train",
-      "Most na Soči has a car train taking you back to Bohinj through the tunnels in the mountains.",
-      "Check the current timetable, booking arrangements and capacity before relying on the car train. Arrive ahead of departure; service and space are not guaranteed. Plan a road alternative, for example via Soriška planina, and check conditions there too."
+      "Route: Bled → Kranjska Gora → Vršič Pass → Trenta Valley → Bovec → Kobarid → Most na Soči → Bohinj → Bled."
     ],
     "links": [],
     "coordinates": [
@@ -593,7 +707,26 @@
       13.552123
     ],
     "sourceUrl": "https://www.openstreetmap.org/node/16521909",
-    "route": "/stay-k7m4/routes/around-the-national-park.geojson"
+    "route": "/stay-k7m4/routes/around-the-national-park.geojson",
+    "note": "The map shows the suggested driving loop, with a dashed, schematic car-train connection from Most na Soči to Bohinjska Bistrica (not the exact railway track). Check road conditions and seasonal closures before travelling.",
+    "stops": [
+      {
+        "title": "Vršič Pass",
+        "text": "Vršič Pass (1,611 m) is a scenic mountain road crossing. Expect steep gradients and tight hairpin bends; check weather and road closures before driving."
+      },
+      {
+        "title": "Trenta Valley",
+        "text": "Trenta Valley is breathtaking. River Soča is crystal-clear, emerald colour."
+      },
+      {
+        "title": "Bovec",
+        "text": "Bovec is a small town below Kanin mountain. Book outdoor activities with qualified local providers:\nRafting\nCanyoning\nKayaking"
+      },
+      {
+        "title": "Most na Soči — car train",
+        "text": "Most na Soči has a car train taking you back to Bohinj through the tunnels in the mountains. Check the current timetable, booking arrangements and capacity before relying on the car train. Arrive ahead of departure; service and space are not guaranteed. Plan a road alternative, for example via Soriška planina, and check conditions there too."
+      }
+    ]
   },
   {
     "id": "useful-info/trail-maps",

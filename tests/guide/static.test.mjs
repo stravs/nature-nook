@@ -9,9 +9,9 @@ const decode = s => s.replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'").repl
 const documents = JSON.parse(decode(html.match(/data-documents="([^"]+)"/)[1]));
 
 test('JSON contains public entries, demo Wi-Fi and no host phone', () => {
-  assert.equal(places.length, 35);
-  assert.equal(new Set(places.map(p => p.id)).size, 35);
-  assert.equal(documents.filter(d => d.kind === 'place').length, 29);
+  assert.equal(places.length, 40);
+  assert.equal(new Set(places.map(p => p.id)).size, 40);
+  assert.equal(documents.filter(d => d.kind === 'place').length, 34);
   const info = documents.filter(d => d.id.startsWith('useful-info/'));
   assert.equal(info.length, 6);
   assert(info.every(d => d.kind === 'apartment' && d.href.startsWith('/stay-k7m4?view=stay#')));
@@ -84,11 +84,31 @@ test('every day trip has a saved route with roads, ordered unique stops and a Bl
   }
 });
 
+test('walks from the door have a host-drawn path starting at the apartment', async () => {
+  const walks = places.filter(p => p.category === 'walks');
+  assert.deepEqual(walks.map(p => p.id), ['walks/lake', 'walks/market', 'walks/morning-short', 'walks/morning-long', 'walks/sava']);
+  for (const place of walks) {
+    const data = JSON.parse(await readFile(new URL(`../../public${place.route}`, import.meta.url), 'utf8'));
+    const [line] = data.features;
+    assert(['walk', 'bike'].includes(line.properties.mode), place.id);
+    const [lng, lat] = line.geometry.coordinates[0];
+    assert(Math.abs(lat - apartment.coordinates[0]) < 0.001 && Math.abs(lng - apartment.coordinates[1]) < 0.001, place.id);
+  }
+});
+
+test('trips split long text into a note and numbered stops', () => {
+  for (const place of places.filter(p => p.category === 'day-trips')) {
+    assert(place.note?.startsWith('The map shows'), place.id);
+    assert(place.stops.length >= 3, place.id);
+    assert(!place.paragraphs.some(p => p.startsWith('The map shows')), place.id);
+  }
+});
+
 test('natural phrases, synonyms, accents and literal all-term matching', () => {
   for (const [query, id] of [
     ["what’s the wifi password", 'wifi'], ['what time do we have to check out', 'departure'], ['where can I park', 'parking'],
     ['how do I contact the host', 'contact'], ['pizza', 'food-drinks/rustika'], ['straza', 'hiking/straza'],
-    ['rain', 'rainy-day/postojna-cave'], ['taxi', 'useful-info/taxi'], ['where can we eat pizza', 'food-drinks/rustika'],
+    ['rain', 'rainy-day/postojna-cave'], ['taxi', 'useful-info/taxi'], ['walk to the lake', 'walks/lake'], ['vogel', 'day-trips/bohinj-valley'], ['where can we eat pizza', 'food-drinks/rustika'],
   ]) assert(searchDocuments(documents, query).some(d => d.id === id), query);
   assert.deepEqual(searchDocuments(documents, 'wi-fi'), searchDocuments(documents, 'wifi'));
   assert.deepEqual(searchDocuments(documents, 'check-out'), searchDocuments(documents, 'checkout'));

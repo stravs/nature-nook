@@ -16,16 +16,29 @@ export const apartment = z.object({
 export const places = z.array(z.object({
   id: z.string().regex(/^[a-z-]+\/[a-z0-9-]+$/), title: z.string().min(1), category: z.string(),
   group: z.enum(['eat', 'see', 'do', 'info']), order: z.number(), area: z.string(), advanced: z.boolean(),
-  paragraphs: z.array(z.string().min(1)).min(1), links: z.array(z.object({ label: z.string(), href: z.string().refine(s => /^(https?:\/\/|tel:)/.test(s)) })),
+  paragraphs: z.array(z.string().min(1)), links: z.array(z.object({ label: z.string(), href: z.string().refine(s => /^(https?:\/\/|tel:)/.test(s)) })),
+  // Optional numbered stops for trips, and a small practical note shown last.
+  stops: z.array(z.object({ title: z.string().min(1), text: z.string().min(1) }).strict()).optional(),
+  note: z.string().min(1).optional(),
   coordinates: coordinates.nullable(), sourceUrl: url.nullable(),
   route: z.string().regex(/^\/stay-k7m4\/routes\/[a-z0-9-]+\.geojson$/).optional(),
-}).strict()).parse(placeData);
+}).strict().refine(p => p.paragraphs.length || p.stops?.length, 'Place needs text')).parse(placeData);
 if (new Set(places.map(p => p.id)).size !== places.length) throw new Error('Duplicate place ID');
 export const usefulInfo = places.filter(place => place.group === 'info');
-// Food & drinks first, then the rest in data order.
-export const recommendations = places.filter(place => place.group !== 'info')
-  .sort((a, b) => Number(b.category === 'food-drinks') - Number(a.category === 'food-drinks'));
 export type Place = typeof places[number];
+export const categories = ['walks', 'food-drinks', 'hiking', 'day-trips', 'rainy-day'] as const;
+export type Category = typeof categories[number];
+if (places.some(p => p.group !== 'info' && !categories.includes(p.category as Category))) throw new Error('Unknown place category');
+// Straight-line kilometres from the apartment.
+export const distanceKm = (coords: [number, number]) =>
+  Math.hypot(coords[0] - apartment.coordinates[0], (coords[1] - apartment.coordinates[1]) * Math.cos(coords[0] * Math.PI / 180)) * 111.2;
+export const formatDistance = (km: number, lang: 'en' | 'sl') => km < 0.95
+  ? `${Math.max(100, Math.round(km * 10) * 100)} m`
+  : `${new Intl.NumberFormat(lang, { maximumFractionDigits: km < 10 ? 1 : 0 }).format(km)} km`;
+// Grouped by category; walks keep the host's order, the rest go nearest first.
+const near = (place: Place) => place.category === 'walks' ? place.order : place.coordinates ? distanceKm(place.coordinates) : Infinity;
+export const recommendations = places.filter(place => place.group !== 'info')
+  .sort((a, b) => categories.indexOf(a.category as Category) - categories.indexOf(b.category as Category) || near(a) - near(b));
 export type Language = keyof typeof messages;
 export const textFor = (lang: Language) => messages[lang];
 export type Messages = ReturnType<typeof textFor>;
@@ -34,7 +47,8 @@ export const baseFor = (lang: Language) => lang === 'en' ? guideRoot : `${guideR
 export const placePath = (id: string) => `${guideRoot}/places/${id}`;
 export const directions = (coords: [number, number]) => `https://www.google.com/maps/dir/?api=1&destination=${coords.join(',')}`;
 export const summary = (place: Place) => {
-  const p = place.paragraphs.find(p => !/^(the )?(map |pin |coordinates|source)/i.test(p)) ?? place.paragraphs[0]!;
+  const texts = [...place.paragraphs, ...(place.stops ?? []).map(stop => stop.text)];
+  const p = texts.find(p => !/^(the )?(map |pin |coordinates|source)/i.test(p)) ?? texts[0]!;
   return p.length > 170 ? `${p.slice(0, 167).replace(/\s+\S*$/, '')}…` : p;
 };
 const localized = z.object({ en: z.string(), sl: z.string() }).strict();

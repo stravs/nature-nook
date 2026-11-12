@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { showLayers } from './layers';
-const storageKey = 'nature-nook-guide-v2';
+import { pickCategory, showMap, showList, visibleCards } from './helpers';
+const storageKey = 'nature-nook-guide-v3';
 const nav = (page: Page, name: string) => page.getByRole('navigation').getByRole('link', { name, exact: true });
 const search = (page: Page) => page.getByRole('searchbox', { name: 'Search the guide', exact: true });
 async function fillSearch(page: Page, value: string) {
@@ -178,20 +178,20 @@ test('safe no-results, whitespace and clear keep keyboard focus', async ({ page 
   await expect(page.locator('#search-output')).toBeHidden();
 });
 
-test('Leaflet loads lazily, filters and markers work with a directions card', async ({ page }) => {
+test('Leaflet loads lazily, categories and markers work with a directions button', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', err => errors.push(err.message));
   await page.goto('/stay-k7m4');
   await nav(page, 'Recommendations').click();
-  await expect(page.locator('.leaflet-container')).toBeVisible();
+  await showMap(page);
   await expect(page.locator('#map-feedback')).toBeHidden();
-  await expect(page.getByRole('group', { name: 'Visible recommendation layers' }).getByRole('button')).toHaveText(['Food & drinks', 'Hiking', 'Day trips', 'Rainy day']);
-  await expect(page.locator('#filters button[aria-pressed="true"]')).toHaveText(['Food & drinks']);
-  for (const [layer, count] of Object.entries({ Hiking: 11, 'Day trips': 4, 'Food & drinks': 9, 'Rainy day': 5 })) {
-    await showLayers(page, [layer]);
-    await expect(page.locator('#place-list > li:not([hidden])')).toHaveCount(count);
+  await expect(page.getByRole('group', { name: 'Filter recommendations' }).getByRole('button')).toHaveText(['All', 'From the door', 'Food & drinks', 'Hiking', 'Day trips', 'Rainy day']);
+  await expect(page.locator('#filters button[aria-pressed="true"]')).toHaveText(['All']);
+  for (const [category, count] of Object.entries({ 'From the door': 5, Hiking: 11, 'Day trips': 4, 'Food & drinks': 9, 'Rainy day': 5 })) {
+    await pickCategory(page, category);
+    await expect(visibleCards(page)).toHaveCount(count);
   }
-  await showLayers(page, ['Food & drinks']);
+  await pickCategory(page, 'Food & drinks');
   const pins = await page.locator('[data-pin-ids]').evaluateAll(elements => elements.map(el => JSON.parse((el as HTMLElement).dataset.pinIds!)));
   expect(pins.every(ids => ids.length === 1)).toBe(true);
   expect(pins.flat()).toContain('home');
@@ -200,28 +200,32 @@ test('Leaflet loads lazily, filters and markers work with a directions card', as
     await page.locator('.leaflet-marker-pane').evaluate(el => Number(getComputedStyle(el).zIndex)),
   );
   await homePane.locator('button').click();
-  await expect(page.locator('#selected-card')).toBeHidden();
+  await expect(page.locator('#places-drawer')).toBeHidden();
   await fillSearch(page, 'pizza');
   await page.locator('#search-results').getByRole('link', { name: 'Pizzeria Rustika', exact: true }).click();
-  const details = page.locator('[data-place-details="food-drinks/rustika"]');
-  await expect(details).toHaveAttribute('open', '');
-  await expect(details.locator('a[href*="destination="]')).toHaveAttribute('href', /destination=46\.3712844,14\.1042756/);
+  const details = page.locator('[data-place-id="food-drinks/rustika"]');
+  await expect(details).toBeVisible();
+  await expect(details.getByRole('link', { name: 'Directions · Google Maps' })).toHaveAttribute('href', /destination=46\.3712844,14\.1042756/);
+  await expect(details.locator('[data-place-facts]')).toHaveText('Food & drinks · Pizza · Riklijeva cesta · 800 m away');
   await page.locator('#close-places').click();
-  await expect(page.locator('#selected-card')).toBeHidden();
+  await expect(page.locator('#places-drawer')).toBeHidden();
   expect(errors).toEqual([]);
 });
 
 test('fullscreen map and drawers retain controls, focus and attribution', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map');
-  await expect(page.locator('.leaflet-container')).toBeVisible();
-  const main = await page.locator('#main-content').boundingBox();
-  const map = await page.locator('#map-canvas').boundingBox();
-  const menu = await page.getByRole('navigation').boundingBox();
-  expect(map!.width).toBeCloseTo(page.viewportSize()!.width, 0);
+  await showMap(page);
+  const main = (await page.locator('#main-content').boundingBox())!;
+  const map = (await page.locator('#map-canvas').boundingBox())!;
+  const width = page.viewportSize()!.width;
+  // Desktop keeps the 24rem list beside the map.
+  expect(map.x + map.width).toBeCloseTo(width, 0);
+  expect(map.width).toBeCloseTo(width >= 1024 ? width - 384 : width, 0);
   await expect(page.locator('#places-drawer')).toBeHidden();
-  expect(map!.height).toBeGreaterThanOrEqual(main!.height - 49);
-  const contentBottom = page.viewportSize()!.width >= 1024 ? page.viewportSize()!.height : menu!.y;
-  expect(Math.abs(main!.y + main!.height - contentBottom)).toBeLessThanOrEqual(2);
+  expect(Math.abs(map.y + map.height - (main.y + main.height))).toBeLessThanOrEqual(2);
+  const menu = (await page.getByRole('navigation').boundingBox())!;
+  const contentBottom = width >= 1024 ? page.viewportSize()!.height : menu.y;
+  expect(Math.abs(main.y + main.height - contentBottom)).toBeLessThanOrEqual(2);
   await fillSearch(page, 'pizza');
   await page.locator('#search-results').getByRole('link', { name: 'Pizzeria Rustika', exact: true }).click();
   await expect(page.locator('#places-title')).toBeFocused();
@@ -236,131 +240,127 @@ test('fullscreen map and drawers retain controls, focus and attribution', async 
   expect(after.zoom).toBeGreaterThanOrEqual(14);
   await page.locator('#map-home').click();
   await expect(page.locator('#map-home')).toBeFocused();
-  await expect(page.locator('#selected-card')).toBeHidden();
   audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
   expect(accessibilityViolations(audit)).toEqual([]);
-  await page.keyboard.press('Escape');
-  await expect(page.locator('#selected-card')).toBeHidden();
-  await expect(page.locator('#map-home')).toBeFocused();
   await expect(page.locator('#map-canvas')).toHaveJSProperty('inert', false);
 });
 
-test('mobile category options swipe horizontally and open details with map focus', async ({ page }) => {
-  test.skip(page.viewportSize()!.width >= 1024, 'Mobile options');
+test('phone list opens details over the map and closing returns to the list', async ({ page }) => {
+  test.skip(page.viewportSize()!.width >= 1024, 'Phone list');
   await page.goto('/stay-k7m4?view=map');
-  const options = page.locator('#mobile-place-options');
-  const choices = page.locator('#mobile-place-choices');
-  await showLayers(page, ['Hiking']);
-  await expect(options).toBeVisible();
-  await expect(choices.locator('button:not([hidden])')).toHaveCount(11);
-  expect(await choices.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
-  await choices.evaluate(el => { el.scrollLeft = 200; });
-  expect(await choices.evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
-  await page.locator('[data-mobile-place="hiking/straza"]').click();
-  await expect(page.locator('[data-place-details="hiking/straza"]')).toHaveAttribute('open', '');
-  await expect(options).toBeHidden();
+  await expect(page.locator('#map-view')).toHaveAttribute('data-mode', 'list');
+  await expect(page.locator('#place-cards')).toBeVisible();
+  // The map is not loaded until it is shown.
+  await expect(page.locator('.leaflet-container')).toHaveCount(0);
+  await expect(page.locator('#mode-toggle')).toHaveAccessibleName('Map');
+  await pickCategory(page, 'Hiking');
+  // Category buttons swipe sideways on phones.
+  expect(await page.locator('#filters').evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
+  await page.locator('[data-card="hiking/straza"] a').click();
+  await expect(page.locator('#map-view')).toHaveAttribute('data-mode', 'map');
+  await expect(page.locator('#place-cards')).toBeHidden();
+  await expect(page.locator('[data-place-id="hiking/straza"]')).toBeVisible();
+  await expect(page.locator('#mode-toggle')).toBeHidden();
   await expect.poll(async () => (await state(page)).selectedId).toBe('hiking/straza');
   await expect.poll(async () => {
     const pin = (await page.locator('#map-canvas button[aria-label="Straža Hill"]').boundingBox())!;
     const canvas = (await page.locator('#map-canvas').boundingBox())!;
-    const toolbar = (await page.locator('#map-toolbar').boundingBox())!;
     const drawer = (await page.locator('#places-drawer').boundingBox())!;
-    const visibleTop = Math.max(canvas.y + 24, toolbar.y + toolbar.height + 16);
+    const visibleTop = canvas.y + 24;
     const visibleBottom = Math.min(canvas.y + canvas.height - 24, drawer.y - 16);
     return Math.abs(pin.y + pin.height / 2 - (visibleTop + visibleBottom) / 2);
   }).toBeLessThan(3);
   await page.locator('#close-places').click();
-  await expect(options).toBeVisible();
-  await showLayers(page, ['Day trips']);
-  await expect(choices.locator('button:not([hidden])')).toHaveCount(4);
-  await page.locator('[data-mobile-place="day-trips/bohinj-valley"]').click();
+  await expect(page.locator('#map-view')).toHaveAttribute('data-mode', 'list');
+  await expect(page.locator('[data-card="hiking/straza"] a')).toBeFocused();
+  await expect(page.locator('#map-canvas button[aria-pressed="true"]')).toHaveCount(0);
+  await page.locator('#mode-toggle').click();
+  await expect(page.locator('#map-view')).toHaveAttribute('data-mode', 'map');
+  await expect(page.locator('#mode-toggle')).toHaveAccessibleName('List');
+  await showList(page);
+  await pickCategory(page, 'Day trips');
+  await page.locator('[data-card="day-trips/bohinj-valley"] a').click();
   await expect(page.locator('.trip-route-drive')).toHaveCount(1);
   await expect(page.locator('#places-title')).toHaveText('Bohinj Valley');
-  await expect(page.locator('#place-list > li:not([hidden])')).toHaveCount(1);
-  await expect(page.locator('#place-list > li:not([hidden]) summary')).toHaveText('Bohinj Valley');
-  await expect(page.locator('#selected-card')).toBeHidden();
+  await expect(page.locator('#place-list > article:not([hidden])')).toHaveCount(1);
+  // A place without a pin opens over the list instead.
+  await page.locator('#close-places').click();
+  await pickCategory(page, 'Rainy day');
+  await page.locator('[data-card="rainy-day/postojna-cave"] a').click();
+  await expect(page.locator('#map-view')).toHaveAttribute('data-mode', 'list');
+  await expect(page.locator('#places-title')).toHaveText('Postojna Cave');
 });
 
-test('desktop title buttons fit their text on the left and open a details drawer', async ({ page }) => {
-  test.skip(page.viewportSize()!.width < 1024, 'Desktop drawer');
+test('desktop shows the list, map and details side by side', async ({ page }) => {
+  test.skip(page.viewportSize()!.width < 1024, 'Desktop layout');
   await page.goto('/stay-k7m4?view=map');
   const drawer = page.locator('#places-drawer');
   await expect(drawer).toBeHidden();
-  const options = page.locator('#mobile-place-options');
-  await showLayers(page, ['Hiking']);
-  await expect(options).toBeVisible();
-  const bounds = (await options.boundingBox())!;
-  expect(bounds.x).toBe(16);
-  const buttons = page.locator('#mobile-place-choices button:not([hidden])');
-  const firstButton = (await buttons.nth(0).boundingBox())!;
-  const secondButton = (await buttons.nth(1).boundingBox())!;
-  expect(firstButton.width).toBeLessThan(secondButton.width);
-  expect(firstButton.width).toBeLessThan(bounds.width);
-  for (const [category, count] of [['Hiking', 11], ['Day trips', 4], ['Food & drinks', 9], ['Rainy day', 5]] as const) {
+  await expect(page.locator('.leaflet-container')).toBeVisible();
+  await expect(page.locator('#mode-toggle')).toBeHidden();
+  const list = (await page.locator('#place-cards').boundingBox())!;
+  expect(list.x).toBe(0);
+  expect(list.width).toBeCloseTo(384, 0);
+  for (const category of ['Hiking', 'Day trips', 'Food & drinks', 'Rainy day', 'From the door']) {
     if (await drawer.isVisible()) await page.locator('#close-places').click();
-    await showLayers(page, [category]);
+    await pickCategory(page, category);
     await expect(drawer).toBeHidden();
-    await expect(options).toBeVisible();
-    await expect(page.locator('#mobile-place-choices button:not([hidden])')).toHaveCount(count);
-    await expect(page.locator('#places-title')).toHaveText('Host recommendations');
-    await expect(page.locator('#place-list > li:not([hidden])')).toHaveCount(count);
-    const row = page.locator('#place-list > li:not([hidden])').first();
-    await expect(row.locator('details > div')).toBeHidden();
-    await expect(page.locator('[data-show-place]')).toHaveCount(0);
-    await page.locator('#mobile-place-choices button:not([hidden])').first().click();
-    await expect(page.locator('#place-list > li:not([hidden])')).toHaveCount(1);
-    await expect(page.locator('#places-title')).toHaveText((await row.locator('[data-place-title]').textContent())!);
-    await expect(row.locator('details > div')).toBeVisible();
-    await expect(row.locator('details > div p').first()).toBeVisible();
-    await expect.poll(async () => (await state(page)).selectedId).toBe(await row.getAttribute('data-place-id'));
-    await expect(page.locator('#selected-card')).toBeHidden();
+    const card = visibleCards(page).first();
+    const id = (await card.getAttribute('data-card'))!;
+    await card.locator('a').click();
     await expect(drawer).toBeVisible();
+    await expect(page.locator('#place-cards')).toBeVisible();
+    await expect(card.locator('a')).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('#places-title')).toHaveText((await card.locator('a > span:nth-child(2) > span').first().textContent())!);
+    await expect(page.locator(`[data-place-id="${id}"]`)).toBeVisible();
+    await expect.poll(async () => (await state(page)).selectedId).toBe(id);
     const detailsBounds = (await drawer.boundingBox())!;
     expect(detailsBounds.x + detailsBounds.width).toBeCloseTo(page.viewportSize()!.width, 0);
     if (category === 'Hiking') await expect.poll(async () => (await state(page)).position.zoom).toBeGreaterThanOrEqual(14);
     if (category === 'Day trips') await expect(page.locator('.trip-route-drive')).toHaveCount(1);
+    if (category === 'From the door') await expect(page.locator('.trip-route-walk')).toHaveCount(1);
   }
 });
 
 test('Home is an icon-only map control above zoom', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map');
-  await showLayers(page, ['Hiking']);
+  await showMap(page);
   const home = page.getByRole('button', { name: 'Home pin', exact: true });
   await expect(home).toBeVisible();
   await expect(home).toHaveText('');
-  await expect(page.locator('#map-toolbar #map-home')).toHaveCount(0);
   const homeBox = (await home.boundingBox())!;
   const zoomBox = (await page.locator('.leaflet-control-zoom').boundingBox())!;
   expect(homeBox.y + homeBox.height).toBeLessThanOrEqual(zoomBox.y);
   expect(homeBox.x + homeBox.width).toBeCloseTo(zoomBox.x + zoomBox.width, 0);
   if (page.viewportSize()!.width < 1024) {
-    const tiles = (await page.locator('#mobile-place-options').boundingBox())!;
-    expect(zoomBox.y + zoomBox.height).toBeLessThanOrEqual(tiles.y);
+    const toggle = (await page.locator('#mode-toggle').boundingBox())!;
+    expect(toggle.x + toggle.width).toBeLessThanOrEqual(zoomBox.x);
   }
   await home.click();
-  await expect(page.locator('#selected-card')).toBeHidden();
   await expect(page.locator('#places-drawer')).toBeHidden();
   await expect.poll(async () => (await state(page)).position.zoom).toBe(15);
   await expect(page.locator('.leaflet-home-marker-pane button')).toBeInViewport();
 });
 
-test('selected map icon uses home green and resets when switching or closing', async ({ page }) => {
+test('selected map icon is inverted and resets when switching or closing', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map&place=hiking%2Fstraza');
   const selected = page.locator('#map-canvas button[aria-label="Straža Hill"]');
   await expect(selected).toHaveAttribute('aria-pressed', 'true');
-  await expect(selected).toHaveClass(/bg-forest ring-4/);
+  await expect(selected).toHaveClass(/bg-white text-forest ring-4/);
   const next = page.locator('#map-canvas button[aria-label="Ojstrica, Osojnica & Kozarca"]');
   await next.dispatchEvent('click');
   await expect(next).toHaveAttribute('aria-pressed', 'true');
-  await expect(next).toHaveClass(/bg-forest ring-4/);
+  await expect(next).toHaveClass(/bg-white text-forest ring-4/);
+  await expect(page.locator('#places-title')).toHaveText('Ojstrica, Osojnica & Kozarca');
   await expect(selected).toHaveAttribute('aria-pressed', 'false');
+  await expect(selected).toHaveClass(/bg-moss/);
   await page.locator('#close-places').click();
   await expect(page.locator('#map-canvas button[aria-pressed="true"]')).toHaveCount(0);
 });
 
 test('an open place card leaves map panning and zooming enabled', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map&place=hiking%2Fstraza');
-  await expect(page.locator('#places-drawer details[open] [data-place-title]')).toHaveText('Straža Hill');
+  await expect(page.locator('#places-title')).toHaveText('Straža Hill');
   await expect(page.locator('#map-canvas')).toHaveJSProperty('inert', false);
   const canvas = (await page.locator('#map-canvas').boundingBox())!;
   const card = (await page.locator('#places-drawer').boundingBox())!;
@@ -378,11 +378,11 @@ test('an open place card leaves map panning and zooming enabled', async ({ page 
   await expect(page.locator('#places-drawer')).toBeVisible();
 });
 
-test('search opens full place details inline without losing top search', async ({ page }) => {
+test('search opens full place details without losing top search', async ({ page }) => {
   await page.goto('/stay-k7m4');
   await fillSearch(page, 'pizza');
   await page.locator('#search-results').getByRole('link', { name: 'Pizzeria Rustika', exact: true }).click();
-  await expect(page.locator('[data-place-details="food-drinks/rustika"]')).toHaveAttribute('open', '');
+  await expect(page.locator('[data-place-id="food-drinks/rustika"]')).toBeVisible();
   await expect(page.locator('#search-control')).toBeVisible();
   await expect(nav(page, 'Recommendations')).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('#places-title')).toBeFocused();
@@ -390,10 +390,11 @@ test('search opens full place details inline without losing top search', async (
 
 test('query/detail return, category and map state survive, search requests nothing', async ({ page }) => {
   await page.goto('/stay-k7m4?view=map&place=food-drinks%2Frustika');
-  await expect(page.locator('#places-drawer details[open] [data-place-title]')).toHaveText('Pizzeria Rustika');
+  await expect(page.locator('#places-title')).toHaveText('Pizzeria Rustika');
   await page.getByRole('button', { name: 'Close recommendations', exact: true }).click();
-  await showLayers(page, ['Food & drinks']);
-  await page.locator('[data-mobile-place="food-drinks/rustika"]').click();
+  await showList(page);
+  await pickCategory(page, 'Food & drinks');
+  await page.locator('[data-card="food-drinks/rustika"] a').click();
   await page.waitForLoadState('networkidle');
   const before = await state(page);
   const requests: string[] = [];
@@ -401,9 +402,13 @@ test('query/detail return, category and map state survive, search requests nothi
   await fillSearch(page, 'rain');
   await expect(page.locator('#search-results')).toContainText('Postojna Cave');
   await page.getByRole('button', { name: 'Clear', exact: true }).click();
-  expect((await state(page)).layers).toEqual(['food-drinks']);
+  expect((await state(page)).category).toBe('food-drinks');
   expect((await state(page)).selectedId).toBe(before.selectedId);
-  expect((await state(page)).position).toEqual(before.position);
+  // The open search box can change the map height by a pixel; the view must stay put otherwise.
+  const after = (await state(page)).position;
+  expect(after.zoom).toBe(before.position.zoom);
+  after.center.forEach((value: number, i: number) => expect(value).toBeCloseTo(before.position.center[i], 4));
+  await expect(page.locator('#places-title')).toHaveText('Pizzeria Rustika');
   expect(requests).toEqual([]);
   await fillSearch(page, 'taxi');
   await page.goto('/stay-k7m4/places/useful-info/taxi');
@@ -448,6 +453,7 @@ test('blocked map and storage leave global search and apartment usable', async (
   });
   await page.route('**/_astro/map.*.js', route => route.abort());
   await page.goto('/stay-k7m4?view=map');
+  await showMap(page, false);
   await expect(page.locator('#map-feedback')).toContainText('Map unavailable');
   await fillSearch(page, 'checkout');
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
@@ -458,11 +464,12 @@ test('blocked map and storage leave global search and apartment usable', async (
 test('tile failure leaves drawers, attribution and search usable', async ({ page }) => {
   await page.route('https://tile.openstreetmap.org/**', route => route.abort());
   await page.goto('/stay-k7m4?view=map');
+  await showMap(page);
   await expect(page.locator('#map-feedback')).toContainText('Map unavailable');
   await fillSearch(page, 'pizza');
   await page.locator('#search-results').getByRole('link', { name: 'Pizzeria Rustika', exact: true }).click();
   await expect(page.locator('#places-title')).toBeFocused();
-  await expect(page.locator('#place-list > li:not([hidden])')).toHaveCount(1);
+  await expect(page.locator('#place-list > article:not([hidden])')).toHaveCount(1);
   await expect(page.locator('#map-credits')).toContainText('© OpenStreetMap contributors');
   await fillSearch(page, 'checkout');
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
@@ -474,12 +481,14 @@ test('no JavaScript preserves native sections and all recommendations', async ({
   await page.goto(`${baseURL}/stay-k7m4`);
   await expect(page.locator('#guide-search')).toBeHidden();
   await expect(page.locator('#filters')).toBeHidden();
-  await expect(page.locator('#place-list > li')).toHaveCount(29);
+  await expect(page.locator('#places-drawer')).toBeHidden();
+  await expect(page.locator('#place-cards [data-card]')).toHaveCount(34);
+  await expect(page.locator('[data-card="food-drinks/rustika"] a')).toHaveAttribute('href', '/stay-k7m4/places/food-drinks/rustika');
   await page.locator('#arrival-parking').click();
   await expect(page.locator('[data-topic="arrival-parking"]')).toHaveAttribute('open', '');
   await expect(page.locator('#wifi')).toBeVisible();
   await nav(page, 'Recommendations').click();
-  await expect(page.getByRole('heading', { name: 'Host recommendations', exact: true })).toBeInViewport();
+  await expect(page.getByRole('heading', { name: 'From the door', exact: true })).toBeInViewport();
   await noOverflow(page);
   await context.close();
 });
@@ -503,9 +512,13 @@ test('320px, 200% text and reduced motion retain search and navigation', async (
 test('WCAG automated checks: apartment, map, search, no-results, Slovenian and detail', async ({ page }) => {
   for (const url of ['/stay-k7m4', '/stay-k7m4?view=map', '/stay-k7m4/sl', '/stay-k7m4/places/hiking/triglav']) {
     await page.goto(url);
-    if (url === '/stay-k7m4?view=map') await expect(page.locator('.leaflet-container')).toBeVisible();
     const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
     expect(accessibilityViolations(audit), url).toEqual([]);
+    if (url === '/stay-k7m4?view=map') {
+      await showMap(page);
+      const mapAudit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+      expect(accessibilityViolations(mapAudit), 'map').toEqual([]);
+    }
   }
   await page.goto('/stay-k7m4');
   for (const query of ['parking', 'nothing matches abcdef']) {

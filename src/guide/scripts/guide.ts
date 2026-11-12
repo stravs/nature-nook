@@ -3,14 +3,15 @@ import type { Messages } from '../lib/guide-data';
 import type { MapPlace } from './map';
 
 type View = 'stay' | 'map';
-const layerIds = ['food-drinks', 'hiking', 'day-trips', 'rainy-day'] as const;
-type Layer = typeof layerIds[number];
+type Mode = 'list' | 'map';
+const categoryIds = ['all', 'walks', 'food-drinks', 'hiking', 'day-trips', 'rainy-day'] as const;
+type Category = typeof categoryIds[number];
 interface State {
-  view: View; layers: Layer[]; query: string; scroll: number; resultScroll: number;
+  view: View; category: Category; mode: Mode; query: string; scroll: number; resultScroll: number;
   selectedId?: string | undefined; position?: { center: [number, number]; zoom: number } | undefined;
 }
-const key = 'nature-nook-guide-v2';
-const isLayer = (value: unknown): value is Layer => layerIds.includes(value as Layer);
+const key = 'nature-nook-guide-v3';
+const isCategory = (value: unknown): value is Category => categoryIds.includes(value as Category);
 const viewFrom = (value: unknown): View | undefined => value === 'stay' ? 'stay' : value === 'map' || value === 'places' ? 'map' : undefined;
 const root = document.querySelector<HTMLElement>('#guide');
 if (root) start(root);
@@ -19,15 +20,13 @@ function start(root: HTMLElement) {
   const documents: SearchDocument[] = JSON.parse(root.dataset.documents!);
   const places: MapPlace[] = JSON.parse(root.dataset.places!);
   const home = JSON.parse(root.dataset.home!);
-  // First visit shows food & drinks only; later visits restore saved layers.
-  const state: State = { view: 'stay', layers: ['food-drinks'], query: '', scroll: 0, resultScroll: 0 };
+  const state: State = { view: 'stay', category: 'all', mode: 'list', query: '', scroll: 0, resultScroll: 0 };
   try {
     const saved = JSON.parse(sessionStorage.getItem(key) ?? '{}');
     state.view = viewFrom(saved.view) ?? 'stay';
-    if (Array.isArray(saved.layers)) state.layers = [...new Set(saved.layers.filter(isLayer))] as Layer[];
-    else if (isLayer(saved.filter)) state.layers = [saved.filter];
+    if (isCategory(saved.category)) state.category = saved.category;
+    if (saved.mode === 'map') state.mode = 'map';
     if (typeof saved.query === 'string') state.query = saved.query;
-    if (typeof saved.selectedId === 'string') state.selectedId = saved.selectedId;
     if (Number.isFinite(saved.scroll) && saved.scroll >= 0) state.scroll = saved.scroll;
     if (Number.isFinite(saved.resultScroll) && saved.resultScroll >= 0) state.resultScroll = saved.resultScroll;
     const p = saved.position;
@@ -63,38 +62,24 @@ function start(root: HTMLElement) {
   const count = root.querySelector<HTMLElement>('#search-count')!;
   const topicIds = new Set(documents.filter(doc => doc.kind === 'apartment').map(doc => doc.id));
   const drawer = root.querySelector<HTMLElement>('#places-drawer')!;
-  const mapCanvas = root.querySelector<HTMLElement>('#map-canvas')!;
-  function syncMapControls() {
-    const open = !drawer.hidden;
-    root.dataset.panel = open ? 'open' : 'closed';
-    mapCanvas.inert = false;
-    // The toolbar sits above the mobile bottom drawer and remains usable.
-    root.querySelector<HTMLElement>('#map-toolbar')!.inert = false;
-  }
-  function setPlaces(open: boolean, focus = false) {
-    drawer.hidden = !open;
-    syncMapControls();
-    if (focus) root.querySelector<HTMLElement>(open ? '#places-title' : '#map-home')!.focus({ preventScroll: true });
-  }
-  window.matchMedia('(min-width: 1024px)').addEventListener('change', syncMapControls);
-  setPlaces(false);
-  root.querySelector('#close-places')!.addEventListener('click', () => setPlaces(false, true));
-  root.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && !drawer.hidden) { setPlaces(false, true); event.preventDefault(); }
-  });
-  // Non-modal drawers leave map panning, zooming and place selection usable.
-  const observer = new MutationObserver(syncMapControls);
-  observer.observe(drawer, { attributes: true, attributeFilter: ['hidden'] });
+  const title = root.querySelector<HTMLElement>('#places-title')!;
+  const cardList = root.querySelector<HTMLElement>('#place-cards')!;
+  const desktop = window.matchMedia('(min-width: 1024px)');
   let map: ReturnType<typeof import('./map').createMap> | undefined;
   let mapPromise: Promise<void> | undefined;
+  // Set when a mobile card switched to the map, so closing the details returns to the list.
+  let returnToList = false;
   const searching = () => !!normalize(state.query);
+  const mapVisible = () => state.view === 'map' && !searching() && (desktop.matches || state.mode === 'map');
   function save() { try { sessionStorage.setItem(key, JSON.stringify(state)); } catch { /* Optional. */ } }
   function captureScroll() { if (searching()) state.resultScroll = main.scrollTop; else state.scroll = main.scrollTop; }
   function ensureMap() {
+    if (!mapVisible()) return Promise.resolve();
     if (map) { map.resize(); return Promise.resolve(); }
     if (!mapPromise) mapPromise = import('./map').then(({ createMap }) => {
-      map = createMap({ root, places, home, layers: state.layers, selectedId: drawer.hidden ? state.selectedId : undefined, position: state.position,
-        onSelect(id) { if (id) openDetails(id); else setPlaces(false); state.selectedId = id; save(); }, onMove(position) { state.position = position; save(); },
+      map = createMap({ root, places, home, category: state.category, position: state.position,
+        onSelect(id) { if (id) openPlace(id); else closePlace(false); },
+        onMove(position) { state.position = position; save(); },
       });
     }).catch(() => {
       const feedback = root.querySelector<HTMLElement>('#map-feedback')!;
@@ -103,6 +88,54 @@ function start(root: HTMLElement) {
     });
     return mapPromise;
   }
+  function setMode(mode: Mode) {
+    state.mode = mode; mapView.dataset.mode = mode; save();
+    void ensureMap();
+  }
+  function setCategory(category: Category) {
+    state.category = category;
+    root.querySelectorAll<HTMLElement>('[data-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === category)));
+    root.querySelectorAll<HTMLElement>('[data-group]').forEach(group => { group.hidden = category !== 'all' && group.dataset.group !== category; });
+    cardList.scrollTop = 0;
+    const selected = places.find(place => place.id === state.selectedId);
+    if (selected && category !== 'all' && selected.category !== category) closePlace(false);
+    map?.setCategory(category);
+    save();
+  }
+  function markCard(id?: string) {
+    root.querySelectorAll<HTMLElement>('[data-card] > a').forEach(link => link.setAttribute('aria-current', String(link.dataset.openPlace === id)));
+  }
+  function openPlace(id: string, fromCard = false) {
+    const place = places.find(place => place.id === id);
+    if (!place) return;
+    if (state.category !== 'all' && place.category !== state.category) setCategory(place.category as Category);
+    state.selectedId = id; save();
+    root.querySelectorAll<HTMLElement>('[data-place-id]').forEach(item => { item.hidden = item.dataset.placeId !== id; });
+    title.textContent = place.title;
+    drawer.hidden = false; root.dataset.panel = 'open';
+    markCard(id);
+    // On phones a place with a pin is shown on the map; the details sheet sits below it.
+    if (!desktop.matches && state.mode === 'list' && place.coordinates) { returnToList = fromCard; setMode('map'); }
+    drawer.scrollTop = 0;
+    title.focus({ preventScroll: true });
+    void ensureMap().then(() => map?.select(id));
+  }
+  function closePlace(viaClose: boolean) {
+    const id = state.selectedId;
+    state.selectedId = undefined; save();
+    drawer.hidden = true; root.dataset.panel = 'closed';
+    markCard();
+    map?.clear();
+    if (!viaClose) { returnToList = false; return; }
+    if (returnToList) { returnToList = false; setMode('list'); }
+    const card = root.querySelector<HTMLElement>(`[data-card="${CSS.escape(id ?? '')}"] > a`);
+    if (mapVisible()) root.querySelector<HTMLElement>('#map-home')!.focus({ preventScroll: true });
+    else card?.focus();
+  }
+  root.querySelector('#close-places')!.addEventListener('click', () => closePlace(true));
+  root.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !drawer.hidden) { closePlace(true); event.preventDefault(); }
+  });
   function renderResults() {
     results.replaceChildren();
     if (!searching()) return;
@@ -141,9 +174,9 @@ function start(root: HTMLElement) {
     output.hidden = !searching();
     stay.hidden = searching() || state.view !== 'stay';
     mapView.hidden = searching() || state.view !== 'map';
+    mapView.dataset.mode = state.mode;
     root.dataset.view = state.view;
     main.classList.toggle('overflow-hidden!', state.view === 'map' && !searching());
-    if (searching() || state.view !== 'map') setPlaces(false);
     root.querySelectorAll<HTMLAnchorElement>('nav [data-view]').forEach(link => {
       if (link.dataset.view === state.view) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
     });
@@ -161,58 +194,28 @@ function start(root: HTMLElement) {
         }
         target.scrollIntoView({ block: 'start' }); target.focus({ preventScroll: true });
       }
-      if (!searching() && state.view === 'map') void ensureMap();
+      void ensureMap();
     });
   }
-  function navigate(view: View, topic?: string, place?: string) {
+  function navigate(view: View, topic?: string) {
     captureScroll();
     history.replaceState({ view: state.view, query: state.query }, '');
     state.view = view; state.query = ''; state.scroll = 0;
-    if (place) state.selectedId = place;
     const url = new URL(location.href); url.searchParams.set('view', view); url.searchParams.delete('place'); url.hash = topic ?? '';
-    if (place) url.searchParams.set('place', place);
     history.pushState({ view, query: '' }, '', url);
     render(topic);
-    if (place) void ensureMap().then(() => map?.selectPlace(place));
   }
   function followUrl(initial = false) {
     const url = new URL(location.href);
     const requested = viewFrom(url.searchParams.get('view') ?? url.hash.slice(1));
     const topic = topicIds.has(url.hash.slice(1)) ? url.hash.slice(1) : undefined;
     const place = url.searchParams.get('place');
-    const validPlace = place && places.some(p => p.id === place && p.coordinates) ? place : undefined;
+    const validPlace = place && places.some(p => p.id === place) ? place : undefined;
     state.view = validPlace ? 'map' : topic ? 'stay' : requested ?? viewFrom(history.state?.view) ?? state.view;
     if (!initial && typeof history.state?.query === 'string') state.query = history.state.query;
     if (topic || validPlace) state.query = '';
-    if (validPlace) {
-      state.selectedId = validPlace;
-      const category = places.find(place => place.id === validPlace)?.category;
-      if (isLayer(category) && !state.layers.includes(category)) { state.layers.push(category); updateLayers(); }
-    }
     render(topic);
-    if (validPlace) void ensureMap().then(() => map?.selectPlace(validPlace, !initial));
-  }
-  root.addEventListener('toggle', event => {
-    const details = event.target;
-    if (!(details instanceof HTMLDetailsElement) || !details.open || !details.dataset.placeDetails) return;
-    const id = details.dataset.placeDetails;
-    root.querySelectorAll<HTMLDetailsElement>('[data-place-details]').forEach(other => { if (other !== details) other.open = false; });
-    state.selectedId = id; save();
-    void ensureMap().then(() => map?.focusPlace(id));
-  }, true);
-  function openDetails(id: string) {
-    state.selectedId = id; save();
-    setPlaces(true);
-    root.querySelectorAll<HTMLElement>('[data-place-id]').forEach(item => { item.hidden = item.dataset.placeId !== id; });
-    root.querySelector<HTMLElement>('#places-title')!.textContent = places.find(place => place.id === id)?.title ?? '';
-    requestAnimationFrame(() => {
-      const details = [...root.querySelectorAll<HTMLDetailsElement>('[data-place-details]')].find(el => el.dataset.placeDetails === id)!;
-      const alreadyOpen = details.open;
-      details.open = true;
-      drawer.scrollTop = 0;
-      root.querySelector<HTMLElement>('#places-title')!.focus({ preventScroll: true });
-      if (alreadyOpen) void ensureMap().then(() => map?.focusPlace(id));
-    });
+    if (validPlace) openPlace(validPlace);
   }
   function updateQuery() {
     captureScroll();
@@ -224,7 +227,7 @@ function start(root: HTMLElement) {
   root.querySelector('#search-clear')!.addEventListener('click', () => { input.value = ''; updateQuery(); input.focus({ preventScroll: true }); });
   root.addEventListener('click', async event => {
     if (!(event.target instanceof Element)) return;
-    if (event.target.closest('#places-drawer details[open] > summary')) { event.preventDefault(); return; }
+    const plainClick = event instanceof MouseEvent && event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
     const copy = event.target.closest<HTMLButtonElement>('[data-copy]');
     if (copy?.dataset.copy) {
       const status = root.querySelector<HTMLElement>('#copy-status')!;
@@ -232,30 +235,18 @@ function start(root: HTMLElement) {
       catch { status.textContent = t.copyFailed; }
       return;
     }
-    const openPlace = event.target.closest<HTMLElement>('[data-open-place], [data-mobile-place]');
-    const openId = openPlace?.dataset.openPlace ?? openPlace?.dataset.mobilePlace;
-    if (openId && event instanceof MouseEvent && event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+    const open = event.target.closest<HTMLElement>('[data-open-place]');
+    if (open?.dataset.openPlace && plainClick) {
       event.preventDefault();
-      const id = openId;
-      const category = places.find(place => place.id === id)?.category;
-      if (isLayer(category) && !state.layers.includes(category)) { state.layers.push(category); updateLayers(); }
-      navigate('map');
-      openDetails(id);
+      if (state.view !== 'map' || searching()) navigate('map');
+      openPlace(open.dataset.openPlace, !!open.closest('[data-card]'));
       return;
     }
-    const layer = event.target.closest<HTMLButtonElement>('[data-filter]');
-    if (layer && isLayer(layer.dataset.filter)) {
-      const id = layer.dataset.filter;
-      state.layers = state.layers.includes(id) ? state.layers.filter(value => value !== id) : [...state.layers, id];
-      const selected = places.find(place => place.id === state.selectedId);
-      if (selected && !state.layers.includes(selected.category as Layer)) {
-        state.selectedId = undefined; setPlaces(false);
-      }
-      updateLayers();
-      save(); return;
-    }
+    const filter = event.target.closest<HTMLButtonElement>('[data-filter]');
+    if (filter && isCategory(filter.dataset.filter)) { setCategory(filter.dataset.filter); return; }
+    if (event.target.closest('#mode-toggle')) { returnToList = false; setMode(state.mode === 'list' ? 'map' : 'list'); return; }
     const link = event.target.closest<HTMLAnchorElement>('a[data-view]');
-    if (link && event instanceof MouseEvent && event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+    if (link && plainClick) {
       const view = viewFrom(link.dataset.view); if (!view) return;
       event.preventDefault(); navigate(view, link.dataset.topic); return;
     }
@@ -265,29 +256,17 @@ function start(root: HTMLElement) {
       captureScroll(); save();
     }
   });
-  function updateLayers() {
-    const visible = (category?: string) => state.layers.includes(category as Layer);
-    root.querySelector<HTMLElement>('#mobile-place-options')!.hidden = state.layers.length === 0;
-    root.querySelectorAll<HTMLElement>('[data-mobile-place]').forEach(item => { item.hidden = !visible(item.dataset.category); });
-    root.querySelector<HTMLElement>('#mobile-place-choices')!.scrollLeft = 0;
-    if (drawer.hidden) root.querySelector<HTMLElement>('#places-title')!.textContent = t.recommendations;
-    root.querySelectorAll<HTMLElement>('[data-place-id]').forEach(item => {
-      item.hidden = drawer.hidden ? !visible(item.dataset.category) : item.dataset.placeId !== state.selectedId;
-    });
-    root.querySelectorAll<HTMLElement>('[data-filter]').forEach(button => button.setAttribute('aria-pressed', String(visible(button.dataset.filter))));
-    map?.setLayers(state.layers);
-  }
+  desktop.addEventListener('change', () => void ensureMap());
   main.addEventListener('scroll', () => { captureScroll(); save(); }, { passive: true });
   window.addEventListener('popstate', () => followUrl());
   window.addEventListener('hashchange', () => followUrl());
   window.addEventListener('pagehide', () => { captureScroll(); save(); });
   root.dataset.enhanced = 'true';
+  root.dataset.panel = 'closed';
   searchControl.hidden = false;
-  root.querySelector<HTMLElement>('#filters')!.hidden = false;
-  root.querySelector<HTMLElement>('#map-panel')!.hidden = false;
-  root.querySelector<HTMLElement>('#map-toolbar')!.hidden = false;
-  root.querySelector<HTMLElement>('#map-credits')!.hidden = false;
-  updateLayers(); followUrl(true);
+  for (const id of ['#filters', '#map-area', '#mode-toggle']) root.querySelector<HTMLElement>(id)!.hidden = false;
+  setCategory(state.category);
+  followUrl(true);
   history.replaceState({ view: state.view, query: state.query }, '');
   // Reserve exactly the fixed navigation's height, including safe areas/text zoom.
   const navigation = root.querySelector<HTMLElement>('[data-bottom-navigation]')!;

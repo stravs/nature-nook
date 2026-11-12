@@ -61,6 +61,14 @@ The museum and Aljažev dom use existing guide coordinates. Koča pri Peričniku
 
 Save a GeoJSON FeatureCollection under `public/stay-k7m4/routes/`, then set the place's optional `route` field in `src/guide/data/places.json` to `/stay-k7m4/routes/<name>.geojson`. Line features use `properties.mode` (`drive` or `train`). Optional Point features use `properties.name` and `properties.order` for stop tooltips. Use actual routed geometry for roads, not straight lines between towns.
 
+## Walks from the door
+
+Files: `public/stay-k7m4/routes/walk-{lake,market,morning-short,morning-long,sava}.geojson`.
+
+Converted from the host's hand-drawn lines in `docs/legacy-guide/data/routes.json` (same paths as the host's paper map). Text comes from `docs/legacy-guide/content/en/walk-*.md`. Line features use `properties.mode` `walk`, or `bike` for the Sava route. They are approximate and are labelled "hand-drawn" in the guide; they are not routed geometry. Pins sit at the walk's end, or its farthest point for the two morning loops.
+
 ## Map display
 
-Each trip shows as one pin until selected: Around the National Park at Bovec, the others at their end destination (Lake Bohinj, Kovinarska koča road end, Aljažev dom road end). Selecting a trip draws its route and lists hiking and food places within 1.5 km of the driving line under "On the way" (places within 5 km of the apartment are skipped). These stay pinned regardless of active layers. On first visit only Food & drinks is active.
+Recommendations open as a list grouped by category (From the door, Food & drinks, Hiking, Day trips, Rainy day), nearest first; walks keep the host's order. One category or All is active at a time; the map shows the same pins. Desktop shows list and map side by side; phones switch with a floating List/Map button, and tapping a card with a pin opens the map with the details sheet.
+
+Each trip shows as one pin until selected: Around the National Park at Bovec, the others at their end destination (Lake Bohinj, Kovinarska koča road end, Aljažev dom road end). Selecting a trip or walk draws its route and hides the other pins. Trips also list hiking and food places within 1.5 km of the driving line under "On the way" (places within 5 km of the apartment are skipped). Trip text is split into numbered `stops`; the route disclaimer is in `note` and shown last.

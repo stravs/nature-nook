@@ -33,10 +33,10 @@ const sheets: readonly (readonly number[])[] = booklet ? bookletSheets : Array.f
       </aside>
       {draft && <p role="note" class="mt-4 border-l-4 border-clay pl-4 text-base font-semibold">Draft — the owner has not yet approved the stay details. The cover includes a clearly labelled demo Wi-Fi QR; replace it before sharing. Review parking, equipment, rules and safety locations before sharing with guests. Every printed page is marked as a draft.</p>}
       <p id="brochure-feedback" role="status" class="mt-3 text-base"></p>
-      {booklet && <p class="mt-5 text-sm text-moss">Wide sheets scroll horizontally on smaller screens. Use the A5 reading copy for an easier preview.</p>}
+      {booklet && <p class="mt-5 text-sm text-moss">Small screens show the wide sheets scaled down. Use the A5 reading copy for an easier preview.</p>}
     </header>
     <main id="main-content" aria-label={booklet ? `${pageCount / 2} A4 sheet sides in booklet order` : `${pageCount} A5 pages in reading order`} class="brochure-pages space-y-8 overflow-x-auto bg-sage/40 px-4 py-8 print:space-y-0 print:overflow-visible print:bg-white print:p-0">
-      {sheets.map((pages, index) => <div data-brochure-sheet={index + 1} class:list={['brochure-sheet mx-auto flex w-fit gap-0', booklet && 'min-h-[210mm]']}>
+      {sheets.map((pages, index) => <div data-brochure-sheet={index + 1} class:list={['brochure-sheet mx-auto flex w-fit gap-0 print:[zoom:1]!', booklet && 'min-h-[210mm]']}>
         {pages.map(page => <BrochurePage page={page} qr={qr} wifiQr={wifiQr} guideUrl={guideUrl} />)}
       </div>)}
     </main>

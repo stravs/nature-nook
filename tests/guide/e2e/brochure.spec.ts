@@ -45,6 +45,16 @@ for (const [route, order, count, width] of [
   });
 }
 
+test('phones see whole sheets without sideways scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of ['/stay-k7m4/print', '/stay-k7m4/print/booklet']) {
+    await page.goto(route);
+    const main = page.locator('#main-content');
+    expect(await main.evaluate(e => e.scrollWidth <= e.clientWidth + 1), route).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), route).toBe(true);
+  }
+});
+
 test('draft labels, credentials, QR destination and linked recommendations', async ({ page }) => {
   await page.goto('/stay-k7m4/print');
   await expect(page.locator('[data-brochure-page] header')).toContainText(Array(8).fill('Draft · owner review'));

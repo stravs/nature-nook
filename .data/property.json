@@ -52,6 +52,8 @@
       "bedrooms": 2,
       "bathrooms": 1,
       "areaSquareMetres": 47,
+      "pricePerNight": 200,
+      "minNights": 5,
       "rooms": [
         {
           "name": "Prva spalnica",

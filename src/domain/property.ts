@@ -27,6 +27,9 @@ export type PropertyUnit = {
   bedrooms?: number;
   bathrooms?: number;
   areaSquareMetres?: number;
+  /** Nightly price in EUR. */
+  pricePerNight?: number;
+  minNights?: number;
   rooms: PropertyRoom[];
   amenities: string[];
   photos: PropertyPhoto[];
@@ -110,7 +113,9 @@ export function isPropertyUnit(value: unknown): value is PropertyUnit {
     && optionalPositive('maxGuests')
     && optionalPositive('bedrooms', true)
     && optionalPositive('bathrooms', true)
-    && optionalPositive('areaSquareMetres');
+    && optionalPositive('areaSquareMetres')
+    && optionalPositive('pricePerNight')
+    && optionalPositive('minNights');
 }
 
 export function normalizeProperty(property: Property): Property {

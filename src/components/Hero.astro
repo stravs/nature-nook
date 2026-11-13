@@ -10,8 +10,8 @@ const { property, locale } = Astro.props;
 const t = useTranslations(locale);
 const hero = property.photos[0];
 ---
-<section class:list={["hero tw:[&>img]:-rotate-1 tw:[&>img]:scale-[1.03]", { "hero--empty": !hero }]} aria-labelledby="property-title">
-  {hero ? <PropertyImage photo={hero} alt={hero.alt ?? property.name} sizes="100vw" priority /> : <div class="image-empty">{t('propertyPhoto')}</div>}
+<section class:list={["hero", { "hero--empty": !hero }]} aria-labelledby="property-title">
+  {hero ? <div class="hero-photo tw:relative tw:overflow-hidden tw:[&>img]:absolute tw:[&>img]:inset-0 tw:[&>img]:size-full tw:[&>img]:object-cover tw:[&>img]:-rotate-1 tw:[&>img]:scale-[1.04]"><PropertyImage photo={hero} alt={hero.alt ?? property.name} sizes="100vw" priority /></div> : <div class="image-empty">{t('propertyPhoto')}</div>}
   <div class="hero-card">
     <p class="eyebrow">{property.type ?? t('accommodation')} · {property.city}</p>
     <h1 id="property-title">{property.name}</h1>

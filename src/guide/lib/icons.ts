@@ -20,6 +20,7 @@ export const icons = {
   share: 'M12 16V3m-5 5 5-5 5 5M5 14v7h14v-7',
   phone: 'm6 3 4 4-3 3a16 16 0 0 0 7 7l3-3 4 4-2 3C10 22 2 14 3 5l3-2Z',
   check: 'm5 12 4 4L19 6',
+  menu: 'M4 6h16M4 12h16M4 18h16',
 } as const;
 
 export type IconName = keyof typeof icons;

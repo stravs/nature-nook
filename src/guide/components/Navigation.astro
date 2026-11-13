@@ -1,15 +1,15 @@
 ---
 import Icon from './Icon.astro';
 import { baseFor, textFor, type Language } from '../lib/guide-data';
-interface Props { app?: boolean; lang?: Language; desktop?: boolean; }
-const { app = false, lang = 'en', desktop = false } = Astro.props;
+interface Props { app?: boolean; lang?: Language; menu?: boolean; }
+const { app = false, lang = 'en', menu = false } = Astro.props;
 const t = textFor(lang);
 const base = baseFor(lang);
 ---
-<nav aria-label={lang === 'en' ? 'Guest guide' : 'Vodnik za goste'} data-bottom-navigation={!desktop || undefined} class={desktop ? 'hidden shrink-0 lg:block print:hidden' : 'pointer-events-none fixed inset-x-0 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-50 lg:hidden print:hidden'}>
-  <div class={desktop ? 'flex gap-1 rounded-full bg-sage p-1' : 'mx-auto flex w-fit gap-2'}>
-    {[['stay', t.apartment, 'home'], ['map', t.recommendationsTab, 'pin']].map(([id, label, icon]) => desktop
-      ? <a href={`${base}?view=${id}#${id === 'stay' ? 'stay' : 'map-view'}`} data-view={app ? id : undefined} class="flex min-h-14 min-w-0 flex-row items-center justify-center gap-2 rounded-full px-5 py-2 text-base font-semibold transition-colors hover:bg-forest/10 aria-[current=page]:bg-forest aria-[current=page]:text-white"><Icon name={icon as 'home' | 'pin'} class="size-5 shrink-0" /><span class="min-w-0 text-center">{label}</span></a>
-      : <a href={`${base}?view=${id}#${id === 'stay' ? 'stay' : 'map-view'}`} data-view={app ? id : undefined} class="pointer-events-auto flex min-h-12 items-center gap-2 whitespace-nowrap rounded-full bg-white py-1 pl-3 pr-4 text-sm font-medium text-forest shadow-md transition-colors hover:bg-sage aria-[current=page]:bg-forest aria-[current=page]:font-bold aria-[current=page]:text-white"><Icon name={icon as 'home' | 'pin'} class="size-6 shrink-0" /><span>{label}</span></a>)}
+<nav aria-label={lang === 'en' ? 'Guest guide' : 'Vodnik za goste'} class="shrink-0 print:hidden">
+  <div class={menu ? 'flex flex-col gap-1' : 'flex gap-1 rounded-full bg-sage p-1'}>
+    {[['stay', t.apartment, 'home'], ['map', t.recommendationsTab, 'pin']].map(([id, label, icon]) => <a href={`${base}?view=${id}#${id === 'stay' ? 'stay' : 'map-view'}`} data-view={app ? id : undefined} class={menu
+      ? 'flex min-h-12 items-center gap-3 rounded-lg px-4 font-semibold hover:bg-forest/5 aria-[current=page]:bg-forest aria-[current=page]:text-white'
+      : 'flex min-h-14 min-w-0 flex-row items-center justify-center gap-2 rounded-full px-5 py-2 text-base font-semibold transition-colors hover:bg-forest/10 aria-[current=page]:bg-forest aria-[current=page]:text-white'}><Icon name={icon as 'home' | 'pin'} class="size-5 shrink-0" /><span class="min-w-0">{label}</span></a>)}
   </div>
 </nav>

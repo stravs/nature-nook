@@ -46,8 +46,14 @@ function start(root: HTMLElement) {
   searchControl.addEventListener('focusout', event => {
     if (!searchControl.contains(event.relatedTarget as Node | null) && !input.value.trim()) setSearchOpen(false);
   });
+  const menu = root.querySelector<HTMLDetailsElement>('details[data-menu]')!;
   document.addEventListener('pointerdown', event => {
-    if (event.target instanceof Node && !searchControl.contains(event.target) && !input.value.trim()) setSearchOpen(false);
+    if (!(event.target instanceof Node)) return;
+    if (!menu.contains(event.target)) menu.open = false;
+    if (!searchControl.contains(event.target) && !input.value.trim()) setSearchOpen(false);
+  });
+  menu.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary')!.focus(); event.stopPropagation(); }
   });
   input.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
@@ -251,7 +257,7 @@ function start(root: HTMLElement) {
     const link = event.target.closest<HTMLAnchorElement>('a[data-view]');
     if (link && plainClick) {
       const view = viewFrom(link.dataset.view); if (!view) return;
-      event.preventDefault(); navigate(view, link.dataset.topic); return;
+      event.preventDefault(); menu.open = false; navigate(view, link.dataset.topic); return;
     }
     const language = event.target.closest<HTMLAnchorElement>('[data-language]');
     if (language) {
@@ -292,10 +298,4 @@ function start(root: HTMLElement) {
   setCategory(state.category);
   followUrl(true);
   history.replaceState({ view: state.view, query: state.query }, '');
-  // Reserve exactly the fixed navigation's height, including safe areas/text zoom.
-  const navigation = root.querySelector<HTMLElement>('[data-bottom-navigation]')!;
-  new ResizeObserver(() => {
-    root.style.setProperty('--nav-h', `${navigation.getBoundingClientRect().height}px`);
-    map?.resize();
-  }).observe(navigation);
 }

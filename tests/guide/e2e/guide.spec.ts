@@ -3,6 +3,18 @@ import AxeBuilder from '@axe-core/playwright';
 import { pickCategory, showMap, showList, visibleCards } from './helpers';
 const storageKey = 'nature-nook-guide-v3';
 const nav = (page: Page, name: string) => page.getByRole('navigation').getByRole('link', { name, exact: true });
+// Phones keep Apartment, Places and language in the header hamburger menu.
+async function setMenu(page: Page, open: boolean) {
+  const menu = page.locator('details[data-menu]');
+  if (await menu.isVisible() && await menu.evaluate(d => (d as HTMLDetailsElement).open) !== open) await menu.locator('summary').click();
+}
+async function goTo(page: Page, name: string) { await setMenu(page, true); await nav(page, name).click(); }
+// Both header navigations share the current state; check it without opening the menu (that would move focus).
+const expectCurrent = (page: Page, name: string) => expect(page.locator('nav a[data-view]').filter({ hasText: name }).first()).toHaveAttribute('aria-current', 'page');
+async function openLanguage(page: Page) {
+  if (await page.locator('details[data-menu]').isVisible()) await setMenu(page, true);
+  else await page.locator('header details:not([data-menu]) summary').click();
+}
 const search = (page: Page) => page.getByRole('searchbox', { name: 'Search the guide', exact: true });
 async function fillSearch(page: Page, value: string) {
   if (await page.locator('#search-toggle').isVisible()) await page.locator('#search-toggle').click();
@@ -31,8 +43,11 @@ test('Apartment entry has header search, image, compact essentials and four sect
   page.on('request', req => { if (req.url().includes('tile.openstreetmap.org') || /\/_astro\/map\..*\.js/.test(req.url())) mapRequests++; });
   await page.goto('/stay-k7m4');
   await expect(page.locator('#guide')).toHaveAttribute('data-enhanced', 'true');
+  await setMenu(page, true);
   await expect(nav(page, 'Apartment')).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('navigation').getByRole('link')).toHaveText(['Apartment', 'Places']);
+  for (const a of await page.getByRole('navigation').getByRole('link').all()) expect((await a.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+  await setMenu(page, false);
   await expect(page.locator('header #search-toggle')).toBeVisible();
   await expect(search(page)).toBeHidden();
   await expect(page.locator('#search-query')).toHaveAttribute('placeholder', 'What do you need?');
@@ -45,7 +60,6 @@ test('Apartment entry has header search, image, compact essentials and four sect
   const wifi = (await page.locator('#wifi').boundingBox())!;
   const checkout = (await page.locator('#departure').boundingBox())!;
   expect(wifi.y).toBe(checkout.y);
-  for (const a of await page.getByRole('navigation').getByRole('link').all()) expect((await a.boundingBox())!.height).toBeGreaterThanOrEqual(48);
   await noOverflow(page);
 });
 
@@ -60,7 +74,7 @@ test('header search expands, clears and collapses with Escape or tab changes', a
   await page.getByRole('button', { name: 'Clear', exact: true }).click();
   await expect(search(page)).toBeVisible();
   await expect(search(page)).toBeFocused();
-  await nav(page, 'Places').click();
+  await goTo(page, 'Places');
   await expect(search(page)).toBeHidden();
   await expect(page.locator('#search-toggle')).toBeVisible();
 });
@@ -111,7 +125,7 @@ test('instant direct answers and natural phrases work from either tab', async ({
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
   await search(page).press('Enter');
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
-  await nav(page, 'Places').click();
+  await goTo(page, 'Places');
   await expect(page.locator('#search-toggle')).toBeVisible();
   await fillSearch(page, 'where can we eat pizza');
   await expect(page.locator('#search-results')).toContainText('Pizzeria Rustika');
@@ -182,7 +196,7 @@ test('Leaflet loads lazily, categories and markers work with a directions button
   const errors: string[] = [];
   page.on('pageerror', err => errors.push(err.message));
   await page.goto('/stay-k7m4');
-  await nav(page, 'Places').click();
+  await goTo(page, 'Places');
   await showMap(page);
   await expect(page.locator('#map-feedback')).toBeHidden();
   await expect(page.getByRole('group', { name: 'Filter recommendations' }).getByRole('button')).toHaveText(['All', 'From the door', 'Food & drinks', 'Hiking', 'Day trips', 'Rainy day']);
@@ -385,7 +399,7 @@ test('search opens full place details without losing top search', async ({ page 
   await page.locator('#search-results').getByRole('link', { name: 'Pizzeria Rustika', exact: true }).click();
   await expect(page.locator('[data-place-id="food-drinks/rustika"]')).toBeVisible();
   await expect(page.locator('#search-control')).toBeVisible();
-  await expect(nav(page, 'Places')).toHaveAttribute('aria-current', 'page');
+  await expectCurrent(page, 'Places');
   await expect(page.locator('#places-title')).toBeFocused();
 });
 
@@ -424,7 +438,7 @@ test('useful info lives in Apartment and search opens it there', async ({ page }
   await expect(page.locator('#place-list [data-place-id^="useful-info/"]')).toHaveCount(0);
   await fillSearch(page, 'taxi');
   await page.locator('#search-results a[data-topic="useful-info/taxi"]').click();
-  await expect(nav(page, 'Apartment')).toHaveAttribute('aria-current', 'page');
+  await expectCurrent(page, 'Apartment');
   await expect(page.locator('[id="useful-info/taxi"]')).toBeFocused();
   await expect(page.locator('#stay a[href="tel:+38641710747"]')).toBeVisible();
 });
@@ -432,17 +446,19 @@ test('useful info lives in Apartment and search opens it there', async ({ page }
 test('English/Slovenian switch preserves context and gives localized apartment answers', async ({ page }) => {
   await page.goto('/stay-k7m4?view=stay#arrival');
   await expect(page.locator('header #search-toggle')).toBeVisible();
-  await expect(page.locator('header [data-language="sl"]')).toBeHidden();
-  await page.locator('header summary').click();
+  await expect(page.getByRole('link', { name: 'SL', exact: true })).toBeHidden();
+  await openLanguage(page);
   await page.getByRole('link', { name: 'SL', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'sl');
   await expect(page.locator('#arrival')).toBeFocused();
   await expect(page.locator('#arrival')).toHaveText('Prijava');
+  await setMenu(page, true);
   await expect(page.getByRole('navigation').getByRole('link')).toHaveText(['Apartma', 'Kraji']);
+  await setMenu(page, false);
   await page.locator('#search-toggle').click();
   await page.getByRole('searchbox', { name: 'Iskanje po vodniku' }).fill('kdaj je odjava');
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
-  await page.locator('header summary').click();
+  await openLanguage(page);
   await page.getByRole('link', { name: 'EN', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 });
@@ -458,7 +474,7 @@ test('blocked map and storage leave global search and apartment usable', async (
   await expect(page.locator('#map-feedback')).toContainText('Map unavailable');
   await fillSearch(page, 'checkout');
   await expect(page.locator('#search-results')).toContainText('06:00–10:00');
-  await nav(page, 'Apartment').click();
+  await goTo(page, 'Apartment');
   await expect(page.locator('#wifi')).toBeVisible();
 });
 
@@ -488,7 +504,7 @@ test('no JavaScript preserves native sections and all recommendations', async ({
   await page.locator('#arrival-parking').click();
   await expect(page.locator('[data-topic="arrival-parking"]')).toHaveAttribute('open', '');
   await expect(page.locator('#wifi')).toBeVisible();
-  await nav(page, 'Places').click();
+  await goTo(page, 'Places');
   await expect(page.getByRole('heading', { name: 'From the door', exact: true })).toBeInViewport();
   await noOverflow(page);
   await context.close();
@@ -499,7 +515,7 @@ test('320px, 200% text and reduced motion retain search and navigation', async (
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/stay-k7m4');
   for (const name of ['Apartment', 'Places']) {
-    await nav(page, name).click();
+    await goTo(page, name);
     await noOverflow(page);
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
     await expect(page.locator('#search-control')).toBeVisible();
@@ -553,10 +569,10 @@ test('phones swipe between Apartment and Places but not on the category chips', 
   await page.goto('/stay-k7m4?view=stay');
   await expect(page.locator('#guide')).toHaveAttribute('data-enhanced', 'true');
   await swipe('#stay h2', -120);
-  await expect(nav(page, 'Places')).toHaveAttribute('aria-current', 'page');
+  await expectCurrent(page, 'Places');
   await swipe('#filters', 120);
-  await expect(nav(page, 'Places')).toHaveAttribute('aria-current', 'page');
+  await expectCurrent(page, 'Places');
   await swipe('#place-cards h3', 120);
-  await expect(nav(page, 'Apartment')).toHaveAttribute('aria-current', 'page');
+  await expectCurrent(page, 'Apartment');
   await expect(page.locator('#stay')).toBeVisible();
 });

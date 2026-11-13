@@ -13,17 +13,11 @@ const amenities = [...new Set([
   ...unit.amenities,
   ...(includeAmenities ? property.amenities : []),
 ])];
+const hasPrice = Boolean(unit.pricePerNight || unit.minNights);
 ---
 <section class="stay-section" aria-labelledby="stay-title">
   <div class="section">
     <h2 id="stay-title">{t('stayTitle', { name: property.name })}</h2>
-    {(unit.pricePerNight || unit.minNights) && <div class="tw:-mt-4 tw:mb-12 tw:flex tw:flex-wrap tw:items-center tw:gap-x-8 tw:gap-y-4 tw:border-y tw:border-white/25 tw:py-6">
-      {unit.pricePerNight && <p class="tw:m-0 tw:flex tw:items-baseline tw:gap-3">
-        <strong class="tw:font-(family-name:--font-display) tw:text-5xl tw:font-medium tw:leading-none tw:sm:text-6xl">{t('price', { price: unit.pricePerNight })}</strong>
-        <span class="tw:text-lg tw:text-white/80">{t('perNight')}</span>
-      </p>}
-      {unit.minNights && <p class="tw:m-0 tw:rounded-full tw:bg-white tw:px-5 tw:py-2 tw:text-base tw:font-bold tw:text-(--moss)">{t('minStay', { count: unit.minNights })}</p>}
-    </div>}
     <div class="stay-columns">
       <div class="stay-details">
         <h3>{unit.type ?? t('accommodation')}</h3>
@@ -31,11 +25,19 @@ const amenities = [...new Set([
         {unit.rooms.length > 0 && <dl class="stay-rooms">
           {unit.rooms.map((room) => <div><dt>{room.name}</dt>{room.beds && <dd>{room.beds}</dd>}</div>)}
         </dl>}
+        {amenities.length > 0 && <div class="tw:mt-12">
+          <h3>{t('stayAmenities')}</h3>
+          <ul class="tw:sm:grid-cols-2">{amenities.map((amenity) => <li><span aria-hidden="true">✓</span><span>{amenity}</span></li>)}</ul>
+        </div>}
       </div>
-      {amenities.length > 0 && <div class="stay-amenities">
-        <h3>{t('stayAmenities')}</h3>
-        <ul>{amenities.map((amenity) => <li><span aria-hidden="true">✓</span><span>{amenity}</span></li>)}</ul>
-      </div>}
+      {hasPrice && <aside class="stay-price tw:flex tw:flex-col tw:items-start tw:justify-center">
+        {unit.pricePerNight && <p class="tw:m-0 tw:flex tw:items-baseline tw:gap-2">
+          <strong class="tw:text-3xl tw:font-bold tw:leading-none">{t('price', { price: unit.pricePerNight })}</strong>
+          <span class="tw:text-white/70">{t('perNight')}</span>
+        </p>}
+        {unit.minNights && <p class="tw:mt-3 tw:mb-0 tw:text-sm tw:text-white/70">{t('minStay', { count: unit.minNights })}</p>}
+        <a class="tw:mt-6 tw:inline-flex tw:rounded-full tw:border tw:border-white/50 tw:px-6 tw:py-3 tw:text-xs tw:font-bold tw:uppercase tw:tracking-[0.12em] tw:text-white tw:no-underline tw:transition tw:hover:bg-white tw:hover:text-(--moss)" href="#enquiry">{t('reserve')}</a>
+      </aside>}
     </div>
     <SpaceMosaic {unit} {locale} />
   </div>
@@ -44,19 +46,19 @@ const amenities = [...new Set([
 <style>
   .stay-section { background: var(--moss); color: white; --muted: rgba(255, 255, 255, .8); --line: rgba(255, 255, 255, .25); }
   h2 { margin: 0 0 40px; }
-  .stay-columns { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 64px; }
+  .stay-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: 64px; }
   h3 { margin: 0 0 20px; font-size: 1.35rem; }
   .stay-description { margin: 0 0 28px; color: var(--muted); line-height: 1.7; }
   .stay-rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 0; }
   dt { font-weight: 600; margin-bottom: 8px; }
   dd { margin: 0; color: var(--muted); line-height: 1.6; }
-  .stay-amenities { border-left: 1px solid var(--line); padding-left: 40px; }
+  .stay-price { border-left: 1px solid var(--line); padding-left: 40px; }
   ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
   li { display: flex; gap: 12px; align-items: baseline; }
   li > span:first-child { color: white; }
   @media (max-width: 900px) {
     .stay-columns { grid-template-columns: 1fr; gap: 32px; }
-    .stay-amenities { border-left: 0; border-top: 1px solid var(--line); padding: 28px 0 0; }
+    .stay-price { border-left: 0; border-top: 1px solid var(--line); padding: 28px 0 0; }
     h2 { margin-bottom: 28px; }
   }
   @media (max-width: 400px) { .stay-rooms { grid-template-columns: 1fr; } }

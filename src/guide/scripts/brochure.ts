@@ -1,5 +1,20 @@
 const button = document.querySelector<HTMLButtonElement>('#print-brochure');
 const feedback = document.querySelector<HTMLElement>('#brochure-feedback');
+const preview = document.querySelector<HTMLElement>('.brochure-pages');
+
+// Phones: shrink paper-sized sheets to the screen width. Printing resets the zoom.
+function fitSheets() {
+  if (!preview) return;
+  const style = getComputedStyle(preview);
+  const room = preview.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  preview.querySelectorAll<HTMLElement>('.brochure-sheet').forEach(sheet => {
+    sheet.style.zoom = '';
+    const scale = room / sheet.offsetWidth;
+    if (scale < 1) sheet.style.zoom = String(scale);
+  });
+}
+fitSheets();
+addEventListener('resize', fitSheets);
 
 if (button) {
   button.hidden = false;

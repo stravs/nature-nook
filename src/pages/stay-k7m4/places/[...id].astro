@@ -1,7 +1,6 @@
 ---
 import Layout from '../../../guide/layouts/Layout.astro';
 import Header from '../../../guide/components/Header.astro';
-import Navigation from '../../../guide/components/Navigation.astro';
 import PlaceDetail from '../../../guide/components/PlaceDetail.astro';
 import { places, summary, baseFor, type Place } from '../../../guide/lib/guide-data';
 export function getStaticPaths() {
@@ -12,11 +11,10 @@ const { place } = Astro.props;
 ---
 <Layout title={place.title} description={summary(place)}>
   <Header />
-  <main id="main-content" class="mx-auto max-w-2xl px-4 py-6 pb-32 sm:px-6">
+  <main id="main-content" class="mx-auto max-w-2xl px-4 py-6 sm:px-6">
     <a href={`${baseFor('en')}?view=map`} class="inline-flex min-h-12 items-center font-semibold underline">Back to guide</a>
     <h1 class="mt-4 mb-3 text-3xl font-semibold">{place.title}</h1>
     <PlaceDetail place={place} />
     {place.group !== 'info' && <a href={`${baseFor('en')}?view=map&place=${encodeURIComponent(place.id)}`} class="mt-6 inline-flex min-h-12 items-center rounded-full border border-forest/25 px-4 py-2 font-semibold">Show in guide</a>}
   </main>
-  <Navigation />
 </Layout>
